@@ -30,6 +30,8 @@
 *.exe
 *.out
 *.app
-
 build
 .cache
+# Vscode
+.env
+.vscode
