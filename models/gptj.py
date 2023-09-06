@@ -83,9 +83,9 @@ def create_model(configs, consts):
     # [2 * n_layers, batch, n_head, max_kv_len, head_size]
     kv_cache = opset.parameter([2 * configs['layer_num'], -1, configs['head_num'], -1, configs['head_size']], Type.f32, name='kv_cache')
     # [batch, max_kv_len]
-    beam_table = opset.parameter([-1, -1], Type.f32, name='beam_table')
-    # [batch, 1, 1, query_len]
-    attn_mask = opset.parameter([-1, 1, 1, -1], Type.f32, name='attn_mask')
+    beam_table = opset.parameter([-1, -1], Type.i32, name='beam_table')
+    # [batch, query_len+past_len]
+    attn_mask = opset.parameter([-1, -1], Type.f32, name='attn_mask')
     # [max_kv_len, rotary_dim//2]
     cos_tab = opset.parameter([-1, configs['rotary_dim'] // 2], Type.f32, name='cos_tab')
     sin_tab = opset.parameter([-1, configs['rotary_dim'] // 2], Type.f32, name='sin_tab')
