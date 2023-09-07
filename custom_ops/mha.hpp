@@ -31,8 +31,8 @@ class MultiHeadAttention : public ov::op::Op {
         int n_hidden = 0;
         int n_head = 0;
         int num_kv_heads = 0;
-        std::string rope_type = "modified";   // valid: "original", "modified"
-        
+        int rope_type = 0;   // 0: gptj style, 1: gptneox style
+
     };
     MultiHeadAttention(const ov::OutputVector &args, Config cfg);
     void validate_and_infer_types() override;

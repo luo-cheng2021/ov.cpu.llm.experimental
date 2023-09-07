@@ -16,7 +16,6 @@ def show_model(m):
 
 def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
              layer_idx, rotary_dim, n_hidden, n_head, name, num_kv_heads=0, rope_type='modified'):
-    assert(rope_type in ['modified', 'original'])
     qkvs_len = len(qkvs)
     mha_attr = {'arg_kv_cache': qkvs_len,
                 'arg_beam_table': qkvs_len + 1,
@@ -24,11 +23,11 @@ def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
                 'arg_cos': qkvs_len + 3,
                 'arg_sin': qkvs_len + 4,
                 'layer_id': layer_idx,
-                'rotary_dim': rotary_dim,
+                'rotary_dims': rotary_dim,
                 'n_hidden': n_hidden,
                 'n_head': n_head,
                 'num_kv_heads': num_kv_heads,
-                'rope_type': rope_type}
+                'rope_type': ['original', 'modified'].index(rope_type)}
 
     if qkvs_len == 1:
         mha_attr['arg_q'] = 0
