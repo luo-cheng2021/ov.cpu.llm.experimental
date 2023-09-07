@@ -3,98 +3,48 @@ import json
 import time
 import numpy as np
 from openvino.runtime import Core
+from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
+from openvino.runtime import opset10 as opset
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from utils.greedy_search import process_logits
-
-checkpoint = "llama-7b"
-tokenizer = AutoTokenizer.from_pretrained(checkpoint, trust_remote_code=True)
-eos_token_id = tokenizer.eos_token_id
-
-
-# this function converts text to tokens
-def tokenize(text):
-    """
-    tokenize input text using GPT2 tokenizer
-
-    Parameters:
-      text, str - input text
-    Returns:
-      input_ids - np.array with input token ids
-      attention_mask - np.array with 0 in place, where should be padding and 1 for places where original tokens are located, represents attention mask for model
-    """
-
-    inputs = tokenizer(text, return_tensors="np")
-    return inputs["input_ids"], inputs["attention_mask"]
-
-
-def softmax(x):
-    e_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
-    summation = e_x.sum(axis=-1, keepdims=True)
-    return e_x / summation
-
-
-def process_logits(cur_length, scores, eos_token_id, min_length=0):
-    """
-    reduce probability for padded indicies
-
-    Parameters:
-      cur_length - current length of input sequence
-      scores - model output logits
-      eos_token_id - index of end of string token in model vocab
-      min_length - minimum length for appling postprocessing
-    """
-    if cur_length < min_length:
-        scores[:, eos_token_id] = -float("inf")
-    return scores
-
-
-def get_top_k_logits(scores, top_k):
-    """
-    perform top-k sampling
-
-    Parameters:
-      scores - model output logits
-      top_k - number of elements with highest probability to select
-    """
-    filter_value = -float("inf")
-    top_k = min(max(top_k, 1), scores.shape[-1])
-    top_k_scores = -np.sort(-scores)[:, :top_k]
-    indices_to_remove = scores < np.min(top_k_scores)
-    filtred_scores = np.ma.array(scores, mask=indices_to_remove,
-                                 fill_value=filter_value).filled()
-    return filtred_scores
-
 
 def prepare_next_input(model_inputs, next_tokens):
-    model_inputs['input_ids'] = np.array([[next_tokens]])
+    model_inputs['input_ids'] = np.array(next_tokens)
 
-    if 'attention_mask' in model_inputs:
-        attention_mask = model_inputs['attention_mask']
-        model_inputs['attention_mask'] = np.concatenate([attention_mask,
-                                                         np.ones(attention_mask.shape[0], 1)], dim=-1)
+    if 'attn_mask' in model_inputs:
+        attention_mask = model_inputs['attn_mask']
+        model_inputs['attn_mask'] = np.concatenate([attention_mask,
+                                                         np.ones(attention_mask.shape[0], dtype=np.int32)], axis=-1)
     return model_inputs
 
+def create_sinusoidal_positions(num_pos: int, dim: int):
+    inv_freq = 1.0 / (10000 ** (np.arange(0, dim, 2) / dim))
+    sinusoid_inp = np.einsum("i , j -> i j", np.arange(num_pos, dtype=np.float), inv_freq).astype("float32")
+    return np.sin(sinusoid_inp), np.cos(sinusoid_inp)
 
-def generate_greedy(input_ids, attention_mask, max_sequence_length=128,
-                    eos_token_id=eos_token_id, dynamic_shapes=True, engine="OV"):
+def generate_greedy(input_ids, attention_mask, eos_token_id, max_sequence_length):
     first_iteration = True
     model_inputs = {}
-    output_names = []
+    kv_cache = np.zeros([56, 1, 16, max_sequence_length, 256]).astype("float32")
+    beam_table = np.zeros([2048,1]).astype("int32")
+    sin_tab, cos_tab = create_sinusoidal_positions(2048, 64)
+    model_inputs = {"input_ids": input_ids,
+                    "attn_mask": attention_mask,
+                    "kv_cache": kv_cache,
+                    "beam_table": beam_table,
+                    "cos_tab": cos_tab,
+                    "sin_tab": sin_tab
+                    }
     while True:
         cur_input_len = len(input_ids[0])
-        model_input_ids = input_ids
-        model_input_attention_mask = attention_mask
-
         if first_iteration:
-            first_input = {"input_ids": model_input_ids,
-                           "attention_mask": model_input_attention_mask
-                           }
-            outputs = compiled_model(first_input)
-            logits = outputs['logits']
-            next_token_logits = logits[:, -1, :]
             first_iteration = False
+            outputs = compiled_model(model_inputs)
         else:
             outputs = compiled_model(model_inputs)
+        
+        logits = outputs['logits']
+        next_token_logits = logits[:, -1, :]
+        
         # pre-process distribution
         next_tokens_scores = next_token_logits
         next_tokens = np.argmax(next_tokens_scores, axis=-1)
@@ -103,7 +53,7 @@ def generate_greedy(input_ids, attention_mask, max_sequence_length=128,
         if cur_input_len == max_sequence_length or next_tokens == eos_token_id:
             break
         else:
-            input_ids = np.concatenate((input_ids, next_tokens), axis=-1)
+            input_ids = np.concatenate((input_ids, next_tokens[:, None]), axis=-1)
             model_inputs = prepare_next_input(model_inputs, next_tokens)
 
     return input_ids
@@ -114,6 +64,8 @@ if __name__ == "__main__":
     # Add an argument
     parser.add_argument('-m', '--model', type=str, required=True,
                         help="path to model file")
+    parser.add_argument('-pm', '--pytorch-model', type=str, required=True,
+                    help="path to pytorch model file")
     parser.add_argument('-pl', '--prompt-length', type=int, default=32, required=False,
                         help="prompt length")
     parser.add_argument('-al', '--answer-length', type=int,
@@ -121,9 +73,16 @@ if __name__ == "__main__":
     # Parse the argument
     args = parser.parse_args()
 
+    tokenizer = AutoTokenizer.from_pretrained(args.pytorch_model, trust_remote_code=True)
+    eos_token_id = tokenizer.eos_token_id
+
     # initialize openvino core
     read_model_start = time.time()
     core = Core()
+    ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
+    custom_opset = opset_utils._get_node_factory()
+    custom_opset.add_extension(ext_path)
+    core.add_extension(ext_path)
     print("Init OpenVINO model ...")
     # read the model and corresponding weights from file
     ov_model = core.read_model(args.model)
@@ -139,13 +98,16 @@ if __name__ == "__main__":
 
     text = prompts[str(args.prompt_length)]
     print("Input text: ", text)
-    input_ids, attention_mask = tokenize(text)
+    inputs = tokenizer(text, return_tensors="np")
+    input_ids = inputs['input_ids']
+    attention_mask = inputs['attention_mask']
 
     gen_sequence_start = time.time()
     print("Start generate sequence ...")
 
-    output_ids = generate_greedy(input_ids, attention_mask, max_sequence_length=args.prompt_length + args.answer_length,
-                                 eos_token_id=eos_token_id, dynamic_shapes=True, engine=args.engine)
+    output_ids = generate_greedy(input_ids, attention_mask, 
+                                 eos_token_id=eos_token_id, 
+                                 max_sequence_length=args.prompt_length + args.answer_length)
     gen_sequence_end = time.time()
     output_text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
 
