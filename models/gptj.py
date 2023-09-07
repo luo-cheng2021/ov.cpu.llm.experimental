@@ -4,7 +4,7 @@ import numpy as np
 import sys, os
 import argparse
 
-ext_path = "./build/libov-cpu-llm-experimental.so"
+ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
 custom_opset = opset_utils._get_node_factory()
 custom_opset.add_extension(ext_path)
 

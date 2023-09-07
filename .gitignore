@@ -35,3 +35,9 @@ build
 # Vscode
 .env
 .vscode
+
+__pycache__/
+*.egg-info/
+*.pyc
+*.xml
+*.bin
