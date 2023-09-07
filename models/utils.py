@@ -1,5 +1,6 @@
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
 from openvino.runtime import opset10 as opset
+from openvino.runtime.op import Constant
 
 ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
 custom_opset = opset_utils._get_node_factory()
@@ -13,7 +14,9 @@ def show_model(m):
     for port, _output in enumerate(m.outputs):
         print('	[{}] {}'.format(port, _output))
 
-def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab, layer_idx, rotary_dim, n_hidden, n_head, name):
+def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
+             layer_idx, rotary_dim, n_hidden, n_head, name, num_kv_heads=0, rope_type='modified'):
+    assert(rope_type in ['modified', 'original'])
     qkvs_len = len(qkvs)
     mha_attr = {'arg_kv_cache': qkvs_len,
                 'arg_beam_table': qkvs_len + 1,
@@ -23,7 +26,9 @@ def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab, layer_idx,
                 'layer_id': layer_idx,
                 'rotary_dim': rotary_dim,
                 'n_hidden': n_hidden,
-                'n_head': n_head}
+                'n_head': n_head,
+                'num_kv_heads': num_kv_heads,
+                'rope_type': rope_type}
 
     if qkvs_len == 1:
         mha_attr['arg_q'] = 0
@@ -40,10 +45,12 @@ def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab, layer_idx,
     return output
 
 def make_fc(key, input, consts, name_suffix=''):
-    weights = opset.constant(consts[f'{key}.weight'], Type.f32, name=f'{key}.weight{name_suffix}')
+    weights = Constant(consts[f'{key}.weight'], True)
+    weights.set_friendly_name(name=f'{key}.weight{name_suffix}')
     matmul = opset.matmul(input, weights, transpose_a=False, transpose_b=True, name=f'{key}.matmul{name_suffix}')
     if consts[f'{key}.bias'] is not None:
-        bias = opset.constant(consts[f'{key}.bias'], Type.f32, name=f'{key}.bias{name_suffix}')
+        bias = Constant(consts[f'{key}.bias'], True)
+        bias.set_friendly_name(name=f'{key}.bias{name_suffix}')
         matmul = opset.add(matmul, bias, auto_broadcast='numpy', name=f'{key}.add{name_suffix}')
     return matmul
 
