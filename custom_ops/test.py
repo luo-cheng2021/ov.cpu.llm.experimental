@@ -38,7 +38,7 @@ if __name__ == "__main__":
     k = opset.parameter([batch, q_len, n_head * head_size ], Type.f32)
     v = opset.parameter([batch, q_len, n_head * head_size ], Type.f32)
     kv_cache = opset.parameter([2*n_layers, batch, n_head, max_kv_len, head_size], Type.f32)
-    beam_table = opset.parameter([batch, max_kv_len], Type.f32)
+    beam_table = opset.parameter([batch, max_kv_len], Type.i32)
     kv_len = opset.parameter([1], Type.i32)
     attn_mask = opset.parameter([batch, 1, 1, -1], Type.f32)
     cos_tab = opset.parameter([max_kv_len, rotary_dims//2], Type.f32)
