@@ -4,55 +4,7 @@ import numpy as np
 import sys, os
 import argparse
 import time
-
-ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
-custom_opset = opset_utils._get_node_factory()
-custom_opset.add_extension(ext_path)
-
-def show_model(m):
-    print('inputs of the model:')
-    for port, _input in enumerate(m.inputs):
-        print('	[{}] {}'.format(port, _input))
-    print('outputs of the model:')
-    for port, _output in enumerate(m.outputs):
-        print('	[{}] {}'.format(port, _output))
-
-def make_mha(qkv, kv_cache, beam_table, attn_mask, cos_tab, sin_tab, layer_idx, rotary_dim, n_hidden, n_head, name):
-    mha_attr = {'arg_q': 0,
-                'arg_k': 0,
-                'arg_v': 0,
-                'arg_kv_cache': 1,
-                'arg_beam_table': 2,
-                'arg_attn_mask': 3,
-                'arg_cos': 4,
-                'arg_sin': 5,
-                'layer_id': layer_idx,
-                'rotary_dim': rotary_dim,
-                'n_hidden': n_hidden,
-                'n_head': n_head}
-
-    output = custom_opset.create('MultiHeadAttention', 
-        [qkv, kv_cache, beam_table, attn_mask, cos_tab, sin_tab], mha_attr)
-    output.set_friendly_name(name)
-    return output
-
-def make_fc(key, input, consts, name_suffix=''):
-    weights = opset.constant(consts[f'{key}.weight'], Type.f32, name=f'{key}.weight{name_suffix}')
-    matmul = opset.matmul(input, weights, transpose_a=False, transpose_b=True, name=f'{key}.matmul{name_suffix}')
-    if consts[f'{key}.bias'] is not None:
-        bias = opset.constant(consts[f'{key}.bias'], Type.f32, name=f'{key}.bias{name_suffix}')
-        matmul = opset.add(matmul, bias, auto_broadcast='numpy', name=f'{key}.add{name_suffix}')
-    return matmul
-
-def make_mvn(key, input, consts, configs, name_suffix=''):
-    mvn = opset.mvn(input, axes=[-1], normalize_variance=True, eps=configs['layer_norm_eps'], eps_mode="inside_sqrt", name=f'{key}.mvn{name_suffix}')
-    if consts[f'{key}.weight'] is not None:
-        weights = opset.constant(consts[f'{key}.weight'], Type.f32, name=f'{key}.weight{name_suffix}')
-        mvn = opset.multiply(mvn, weights, auto_broadcast='numpy', name=f'{key}.mul{name_suffix}')
-    if consts[f'{key}.bias'] is not None:
-        bias = opset.constant(consts[f'{key}.bias'], Type.f32, name=f'{key}.bias{name_suffix}')
-        mvn = opset.add(mvn, bias, auto_broadcast='numpy', name=f'{key}.add{name_suffix}')
-    return mvn
+from utils import show_model, make_mha, make_fc, make_mvn
 
 def layer(configs, consts, layer_idx, hidden_states, kv_cache, beam_table, attn_mask, cos_tab, sin_tab):
     name_suffix = f'.layer{layer_idx}'
@@ -63,7 +15,7 @@ def layer(configs, consts, layer_idx, hidden_states, kv_cache, beam_table, attn_
     qkv = make_fc('gpt_neox.layers.attention.query_key_value', input_layernorm, consts['layers'][layer_idx], name_suffix)
 
     # custom op
-    attn_output = make_mha(qkv, kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
+    attn_output = make_mha([qkv], kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
                            layer_idx, configs['rotary_dim'], configs['hidden_size'], configs['head_num'],
                            name=f'{name_prefix}.mha{name_suffix}')
 
