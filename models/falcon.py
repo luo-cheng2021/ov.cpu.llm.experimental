@@ -17,7 +17,7 @@ def layer(configs, consts, layer_idx, hidden_states, kv_cache, beam_table, attn_
 
     # custom op
     attn_output = make_mha([qkv], kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
-                           layer_idx, configs['rotary_dim'], configs['hidden_size'], configs['head_num'],
+                           layer_idx, configs['rotary_dims'], configs['hidden_size'], configs['head_num'],
                            name=f'{name_prefix}.mha{name_suffix}', num_kv_heads=configs['num_kv_heads'])
 
     attn_output = make_fc('transformer.h.self_attention.dense', attn_output, consts['layers'][layer_idx], name_suffix)
@@ -47,9 +47,9 @@ def create_model(configs, consts):
     beam_table = opset.parameter([-1, -1], Type.i32, name='beam_table')
     # [batch, query_len+past_len]
     attn_mask = opset.parameter([-1, -1], Type.f32, name='attn_mask')
-    # [max_kv_len, rotary_dim//2]
-    cos_tab = opset.parameter([-1, configs['rotary_dim'] // 2], Type.f32, name='cos_tab')
-    sin_tab = opset.parameter([-1, configs['rotary_dim'] // 2], Type.f32, name='sin_tab')
+    # [max_kv_len, rotary_dims//2]
+    cos_tab = opset.parameter([-1, configs['rotary_dims'] // 2], Type.f32, name='cos_tab')
+    sin_tab = opset.parameter([-1, configs['rotary_dims'] // 2], Type.f32, name='sin_tab')
 
     key = 'transformer.word_embeddings.weight'
     embed_in_const = opset.constant(consts[key], Type.f32, name=key)
@@ -84,7 +84,7 @@ def get_params_from_model(path):
         'hidden_size': model.config.hidden_size,
         'layer_norm_eps': model.config.layer_norm_epsilon,
         'num_kv_heads': model.config.num_kv_heads,
-        'rotary_dim': model.config.hidden_size // model.config.num_attention_heads,
+        'rotary_dims': model.config.hidden_size // model.config.num_attention_heads,
         'gelu_mode': 'erf'
     }
     consts = {
