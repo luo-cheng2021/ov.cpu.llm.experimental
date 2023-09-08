@@ -1,9 +1,10 @@
 import numpy as np
 
-def softmax(x):
-    e_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
-    summation = e_x.sum(axis=-1, keepdims=True)
-    return e_x / summation
+def logsoftmax(x: np.ndarray, axis: int = -1):
+    x_max = np.max(x, axis=axis, keepdims=True)
+    tmp = np.exp(x - x_max)
+    s = np.sum(tmp, axis=axis, keepdims=True)
+    return (x - x_max) - np.log(s)
 
 def get_top_k_logits(scores, top_k):
     """

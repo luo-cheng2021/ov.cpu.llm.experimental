@@ -1,6 +1,6 @@
 import utils 
 import numpy as np
-import pipeline.utils as utils
+import pipeline.utils
 from openvino.runtime import Tensor, Type
 
 def prepare_next_input(model_inputs, next_tokens):
@@ -28,7 +28,7 @@ def generate_greedy(model, input_ids, attention_mask, max_new_tokens, eos_token_
     for b in range(batch_size):
         beam_table[b, :] = b
 
-    sin_tab, cos_tab = utils.create_sinusoidal_positions(max_kv_len, model.pipeline_config.rotary_dims)
+    sin_tab, cos_tab = pipeline.utils.create_sinusoidal_positions(max_kv_len, model.pipeline_config.rotary_dims)
     model_inputs = {"input_ids": input_ids,
                     "attn_mask": attention_mask,
                     "kv_cache": kv_cache,

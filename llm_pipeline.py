@@ -30,7 +30,7 @@ def prepare_next_input(model_inputs, next_tokens):
     if 'attn_mask' in model_inputs:
         attention_mask = model_inputs['attn_mask']
         model_inputs['attn_mask'] = np.concatenate([attention_mask,
-                                                    np.ones([attention_mask.shape[0], 1], dtype=np.int32)], axis=-1)
+                                                    np.zeros([attention_mask.shape[0], 1], dtype=np.int32)], axis=-1)
     return model_inputs
 
 def create_sinusoidal_positions(num_pos: int, dim: int):
@@ -91,7 +91,7 @@ if __name__ == "__main__":
                 ppp.input(key.get_any_name()).tensor().set_element_type(kv_cache_precision)
         ov_model = ppp.build()
 
-    ov_config={"PERFORMANCE_HINT": "LATENCY",
+    ov_config={"PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": 1,
                 "INFERENCE_PRECISION_HINT" : "bf16" if args.bf16 else "f32",
                 "CPU_DENORMALS_OPTIMIZATION" : "YES",
                 "CACHE_DIR" : None}
@@ -110,7 +110,7 @@ if __name__ == "__main__":
                 args.prompt_length))
             exit(-1)
 
-        text = prompts[str(args.prompt_length)]
+        text = prompts[str(args.prompt_length)] * 2
 
     if tokenizer.pad_token is None:
         tokenizer.add_special_tokens({'pad_token': '[PAD]'})
@@ -137,7 +137,6 @@ if __name__ == "__main__":
     gen_sequence_end = time.time()
     output_text = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
 
-    gen_sequence_length = len(output_ids[0]) - len(input_ids[0])
     gen_latency = gen_sequence_end - gen_sequence_start
 
     for i, out in enumerate(output_text):
