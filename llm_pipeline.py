@@ -53,6 +53,7 @@ if __name__ == "__main__":
                         default=32, help="generated token length")
     parser.add_argument("--greedy", action="store_true")
     parser.add_argument("--bf16", action="store_true")
+    parser.add_argument("-r", "--repeat", type=int, default=1)
     # Parse the argument
     args = parser.parse_args()
 
@@ -69,6 +70,11 @@ if __name__ == "__main__":
         raise "pytorch_model path is required for tokenizer"
 
     tokenizer = AutoTokenizer.from_pretrained(args.pytorch_model, trust_remote_code=True)
+    if tokenizer.pad_token is None:
+        tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+        tokenizer.pad_token = tokenizer.eos_token_id
+    tokenizer.padding_side = "left"             # pad to left
+
     eos_token_id = tokenizer.eos_token_id
     pad_token_id = tokenizer.pad_token_id
     # initialize openvino core
@@ -98,46 +104,54 @@ if __name__ == "__main__":
 
     compiled_model = core.compile_model(ov_model, "CPU", ov_config)
     compiled_model.pipeline_config = ModelConfig(ov_model)
+    print(compiled_model)
+    last_output_text = None
+    print("Start test ...")
+    for round in range(args.repeat):
+        if args.prompt:
+            text = args.prompt
+        else:
+            prompts = {}
+            with open("prompts.json") as f:
+                prompts = json.load(f)
+            if str(args.prompt_length) not in prompts:
+                print("Prompt with length {0} is not provided in prompt.json".format(
+                    args.prompt_length))
+                exit(-1)
 
-    if args.prompt:
-        text = args.prompt
-    else:
-        prompts = {}
-        with open("prompts.json") as f:
-            prompts = json.load(f)
-        if str(args.prompt_length) not in prompts:
-            print("Prompt with length {0} is not provided in prompt.json".format(
-                args.prompt_length))
-            exit(-1)
+            text = prompts[str(args.prompt_length)]
 
-        text = prompts[str(args.prompt_length)] * 2
+        inputs = tokenizer(text, return_tensors="np", padding=True, return_token_type_ids=False)
+        input_ids = inputs['input_ids']
+        attention_mask = inputs['attention_mask']
+        attention_mask = (1.0 - attention_mask) * np.finfo(np.float32).min
 
-    if tokenizer.pad_token is None:
-        tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-        tokenizer.pad_token = tokenizer.eos_token_id
-    tokenizer.padding_side = "left"             # pad to left
+        gen_sequence_start = time.time()
+        if args.greedy:
+            output_ids, latency = generate_greedy(compiled_model, input_ids, attention_mask, 
+                                        max_new_tokens=args.answer_length,
+                                        eos_token_id=eos_token_id,
+                                        pad_token_id=pad_token_id)
+        else:
+            output_ids, latency = generate_beam(compiled_model, input_ids, attention_mask, 
+                                        max_new_tokens=args.answer_length,
+                                        eos_token_id=eos_token_id,
+                                        pad_token_id=pad_token_id)
+        gen_sequence_end = time.time()
+        output_text = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
 
-    inputs = tokenizer(text, return_tensors="np", padding=True, return_token_type_ids=False)
-    input_ids = inputs['input_ids']
-    attention_mask = inputs['attention_mask']
-    attention_mask = (1.0 - attention_mask) * np.finfo(np.float32).min
+        gen_sequence_length = len(output_ids[0]) - len(input_ids[0])
+        gen_latency = gen_sequence_end - gen_sequence_start
 
-    gen_sequence_start = time.time()
-    print("Start generate sequence ...")
-    if args.greedy:
-        output_ids = generate_greedy(compiled_model, input_ids, attention_mask, 
-                                    max_new_tokens=args.answer_length,
-                                    eos_token_id=eos_token_id,
-                                    pad_token_id=pad_token_id)
-    else:
-        output_ids = generate_beam(compiled_model, input_ids, attention_mask, 
-                                    max_new_tokens=args.answer_length,
-                                    eos_token_id=eos_token_id,
-                                    pad_token_id=pad_token_id)
-    gen_sequence_end = time.time()
-    output_text = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
+        if not last_output_text or last_output_text != output_text:
+            last_output_text = output_text
+            for i, out in enumerate(output_text):
+                if len(out) > 120:
+                    out = out[:120] + "..."
+                print(f"answer {i} : {[out]}")
 
-    gen_latency = gen_sequence_end - gen_sequence_start
+        n_latency = len(latency)
+        sum_lat2 = sum(latency[2:])
+        token_total = sum(latency)
 
-    for i, out in enumerate(output_text):
-        print(f"answer {i} : {[out]}")
+        print(f"round {round}: {gen_latency*1e3:.1f}ms = {latency[0]*1e3:.1f}ms + {latency[1]*1e3:.1f}ms + ({sum(latency[2:])/(n_latency-2)*1e3:.1f}ms x {n_latency-2}) + {(gen_latency - token_total)*1e3:.1f}ms")

@@ -2,6 +2,7 @@ import numpy as np
 import pipeline.utils
 import utils
 from openvino.runtime import Tensor, Type
+import time
 
 def topk(array, k, axis=-1, sorted=True):
     # Use np.argpartition is faster than np.argsort, but do not return the values in order
@@ -321,13 +322,18 @@ def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id
     )
     beam_scores[:, 1:] = -1e9
     beam_scores = beam_scores.reshape((batch_size * num_beams,))
+    latency = []
     while True:
+        time0 = time.time()
         cur_input_len = len(input_ids[0])
         if first_iteration:
             first_iteration = False
             model_inputs['attn_mask'] = original_attention_mask
             outputs = model(model_inputs)
             logits = next(iter(outputs.values()))
+            print(logits)
+            import sys
+            sys.exit(1)
             # broadcast batch 1 to num_beams
             logits = np.repeat(logits, num_beams, axis=0)
             model_inputs["attn_mask"] = attention_mask
@@ -345,8 +351,12 @@ def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id
         global_beam_idx[:, cur_len] = beam_idx
         utils.update_beam_table(global_beam_idx, beam_table, cur_len+1)
         cur_len = cur_len + 1
+        print(beam_idx)
+        print(input_ids.shape, input_ids)
+        print(beam_next_tokens.shape, beam_next_tokens)
         input_ids = np.concatenate([input_ids[beam_idx, :], np.expand_dims(beam_next_tokens, -1)], axis=-1)
         model_inputs = prepare_next_input(model_inputs, beam_next_tokens)
+        latency.append(time.time() - time0)
         if cur_len == max_new_tokens + prompt_length:
             break
 
@@ -359,7 +369,7 @@ def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id
         pad_token_id,
         eos_token_id
     )
-    return sequence_outputs["sequences"]    
+    return sequence_outputs["sequences"], latency
 
 if __name__ == "__main__":
     _beam_search = BeamSearch(1, 4)

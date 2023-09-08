@@ -1,6 +1,7 @@
 import utils 
 import numpy as np
 import pipeline.utils
+import time
 from openvino.runtime import Tensor, Type
 
 def prepare_next_input(model_inputs, next_tokens):
@@ -36,14 +37,16 @@ def generate_greedy(model, input_ids, attention_mask, max_new_tokens, eos_token_
                     "cos_tab": cos_tab,
                     "sin_tab": sin_tab
                     }
+    latency = []
     cur_len = 0
     while True:
+        time0 = time.time()
         if first_iteration:
             first_iteration = False
             outputs = model(model_inputs)
         else:
             outputs = model(model_inputs)
-        
+
         logits = next(iter(outputs.values()))
         next_token_logits = logits[:, -1, :]
         
@@ -54,9 +57,11 @@ def generate_greedy(model, input_ids, attention_mask, max_new_tokens, eos_token_
         # break the loop if max length or end of text token is reached
         cur_len = cur_len + 1
         if cur_len == max_new_tokens or (next_tokens == eos_token_id).all():
+            latency.append(time.time() - time0)
             break
         else:
             input_ids = np.concatenate((input_ids, next_tokens[:, None]), axis=-1)
             model_inputs = prepare_next_input(model_inputs, next_tokens)
+        latency.append(time.time() - time0)
 
-    return input_ids
+    return input_ids, latency
