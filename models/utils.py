@@ -6,6 +6,10 @@ ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
 custom_opset = opset_utils._get_node_factory()
 custom_opset.add_extension(ext_path)
 
+def pt_as_np(t):
+    if t is not None: return t.detach().numpy()
+    return None
+
 def show_model(m):
     print('inputs of the model:')
     for port, _input in enumerate(m.inputs):
