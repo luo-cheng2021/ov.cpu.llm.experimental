@@ -6,7 +6,6 @@ struct tensor {
 
     tensor(pybind11::buffer& b) {
         info = b.request();
-        std::cout << info.format << std::endl;
         if (sizeof(T) != info.itemsize) {
             throw std::invalid_argument("tensor data type mismatch with pybind11::buffer");
         }

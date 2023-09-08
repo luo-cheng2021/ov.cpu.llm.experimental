@@ -1,5 +1,5 @@
 import numpy as np
-import utils
+import pipeline.utils as utils
 def softmax(x):
     e_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
     summation = e_x.sum(axis=-1, keepdims=True)
@@ -30,7 +30,7 @@ def process_logits(batch_size, num_beams, logits, scores):
     next_tokens, next_token_scores = topk_by_partition(
         next_token_scores, 2 * num_beams, 1
     )
-    next_indices = next_tokens / vocab_size
+    next_indices = np.floor(next_tokens / vocab_size).astype("int32")
     next_tokens = next_tokens % vocab_size
     
     return next_token_scores, next_tokens, next_indices
@@ -162,9 +162,9 @@ class BeamSearch():
                 next_scores[batch_idx].max().item(), cur_len
             )
         return  {
-                "next_beam_scores": next_beam_scores,
-                "next_beam_tokens": next_beam_tokens,
-                "next_beam_indices": next_beam_indices,
+                "next_beam_scores": next_beam_scores.reshape(-1),
+                "next_beam_tokens": next_beam_tokens.reshape(-1),
+                "next_beam_indices": next_beam_indices.reshape(-1),
             }
         
     def finalize(
@@ -260,7 +260,7 @@ class BeamSearch():
             }
 
 def prepare_next_input(model_inputs, next_tokens):
-    model_inputs['input_ids'] = np.array(next_tokens)
+    model_inputs['input_ids'] = np.array([next_tokens]).reshape(-1, 1)
 
     if 'attn_mask' in model_inputs:
         attention_mask = model_inputs['attn_mask']
@@ -268,7 +268,7 @@ def prepare_next_input(model_inputs, next_tokens):
                                                     np.ones([attention_mask.shape[0], 1], dtype=np.int32)], axis=-1)
     return model_inputs
 
-def generate_beam(model, input_ids, attention_mask, max_sequence_length, eos_token_id, pad_token_id):
+def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id, pad_token_id):
     """
     text prediction cycle.
 
@@ -282,12 +282,14 @@ def generate_beam(model, input_ids, attention_mask, max_sequence_length, eos_tok
       predicted token ids sequence
     """
     model_inputs = {}
-    batch_size = 1
+    batch_size = input_ids.shape[0]
     num_beams = 4
     first_iteration = True
-    kv_cache = np.zeros([56, batch_size * num_beams, 16, max_sequence_length, 256]).astype("float32")
+    kv_cache = np.zeros([56, batch_size * num_beams, 16, 2048, 256]).astype("float32")
     beam_table = np.zeros([2048, batch_size * num_beams]).astype("int32")
     sin_tab, cos_tab = utils.create_sinusoidal_positions(2048, 64)
+    input_ids = np.repeat(input_ids, num_beams, axis=0)
+    attention_mask = np.repeat(attention_mask, num_beams, axis=0)
     model_inputs = {"input_ids": input_ids,
                     "attn_mask": attention_mask,
                     "kv_cache": kv_cache,
@@ -301,7 +303,10 @@ def generate_beam(model, input_ids, attention_mask, max_sequence_length, eos_tok
     )
     beam_scores[:, 1:] = -1e9
     beam_scores = beam_scores.reshape((batch_size * num_beams,))
+    cur_len = 0
     while True:
+        for key in model_inputs:
+            print("input {0} input shape {1}".format(key, model_inputs[key].shape))
         cur_input_len = len(input_ids[0])
         if first_iteration:
             first_iteration = False
@@ -309,8 +314,8 @@ def generate_beam(model, input_ids, attention_mask, max_sequence_length, eos_tok
         else:
             outputs = model(model_inputs)
 
-        logits = outputs['logits']
-        next_token_logits = logits[:, -1, :]    
+        logits = next(iter(outputs.values()))
+        next_token_logits = logits   
         # pre-process distribution
         next_token_scores, next_tokens, next_indices = process_logits(batch_size, num_beams, next_token_logits, beam_scores)
         beam_outputs = beam_searcher.process(input_ids, next_token_scores, next_tokens, next_indices)
@@ -318,11 +323,11 @@ def generate_beam(model, input_ids, attention_mask, max_sequence_length, eos_tok
         beam_scores = beam_outputs["next_beam_scores"]
         beam_next_tokens = beam_outputs["next_beam_tokens"]
         beam_idx = beam_outputs["next_beam_indices"]
-        
-        if cur_input_len == max_sequence_length or beam_next_tokens == eos_token_id:
+        cur_len = cur_len + 1
+        if cur_len == max_new_tokens:
             break
         else:
-            input_ids = np.concatenate((input_ids, np.expand_dims(beam_next_tokens, -1)), axis=-1)
+            input_ids = np.concatenate([input_ids[beam_idx, :], np.expand_dims(beam_next_tokens, -1)], axis=-1)
             model_inputs = prepare_next_input(model_inputs, beam_next_tokens)
         # break the loop if max length or end of text token is reached
 
@@ -331,7 +336,7 @@ def generate_beam(model, input_ids, attention_mask, max_sequence_length, eos_tok
         beam_scores,
         next_tokens,
         next_indices,
-        max_sequence_length,
+        None,
         pad_token_id,
         eos_token_id
     )

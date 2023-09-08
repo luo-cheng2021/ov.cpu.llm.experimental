@@ -34,7 +34,7 @@ if __name__ == "__main__":
                         help="prompt length")
     parser.add_argument('-al', '--answer-length', type=int,
                         default=32, help="generated token length")
-    parser.add_argument('--greedy', type=bool, default=False)
+    parser.add_argument("--greedy", action="store_true")
     # Parse the argument
     args = parser.parse_args()
 
@@ -54,29 +54,30 @@ if __name__ == "__main__":
 
     compiled_model = core.compile_model(ov_model, "CPU")
     prompts = {}
-    with open("promtps.json") as f:
+    with open("prompts.json") as f:
         prompts = json.load(f)
     if str(args.prompt_length) not in prompts:
         print("Prompt with length {0} is not provided in prompt.json".format(
             args.prompt_length))
         exit(-1)
 
-    text = prompts[str(args.prompt_length)]
-    print("Input text: ", text)
+    # text = prompts[str(args.prompt_length)]
+    text = "What's Oxygen?"
+    print("Input text size", len(text))
     inputs = tokenizer(text, return_tensors="np")
     input_ids = inputs['input_ids']
     attention_mask = inputs['attention_mask']
-
+    attention_mask = (1.0 - attention_mask) * np.finfo(np.float32).min
     gen_sequence_start = time.time()
     print("Start generate sequence ...")
     if args.greedy:
         output_ids = generate_greedy(compiled_model, input_ids, attention_mask, 
-                                    max_sequence_length=args.prompt_length + args.answer_length,
+                                    max_new_tokens=args.answer_length,
                                     eos_token_id=eos_token_id,
                                     pad_token_id=pad_token_id)
     else:
         output_ids = generate_beam(compiled_model, input_ids, attention_mask, 
-                                    max_sequence_length=args.prompt_length + args.answer_length,
+                                    max_new_tokens=args.answer_length,
                                     eos_token_id=eos_token_id,
                                     pad_token_id=pad_token_id)
     gen_sequence_end = time.time()
@@ -84,3 +85,4 @@ if __name__ == "__main__":
 
     gen_sequence_length = len(output_ids[0]) - len(input_ids[0])
     gen_latency = gen_sequence_end - gen_sequence_start
+    print(output_text)
