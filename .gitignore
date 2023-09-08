@@ -30,9 +30,11 @@
 *.exe
 *.out
 *.app
-
 build
 .cache
+# Vscode
+.env
+.vscode
 
 __pycache__/
 *.egg-info/
