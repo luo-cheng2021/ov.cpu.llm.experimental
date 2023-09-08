@@ -304,7 +304,7 @@ def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id
     kv_cache = Tensor(model.input("kv_cache").get_element_type(), kvcache_shape)
     global_beam_idx = np.zeros([batch_size * num_beams, 2048]).astype("int32")
     beam_table = np.zeros([batch_size * num_beams, 2048]).astype("int32")
-    sin_tab, cos_tab = pipeline.utils.create_sinusoidal_positions(2048, 64)
+    sin_tab, cos_tab = pipeline.utils.create_sinusoidal_positions(max_kv_len, model.pipeline_config.rotary_dims)
     # input_ids = np.repeat(input_ids, num_beams, axis=0)
     original_attention_mask = attention_mask
     attention_mask = np.repeat(attention_mask, num_beams, axis=0)
