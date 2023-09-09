@@ -27,19 +27,18 @@ class ModelConfig:
 
 last_output_text_map = {}
 
-def generate(round, args, text, tokenizer, compiled_model, enforce_input_tokens = None):
-    global last_output_text, last_round
-    eos_token_id = tokenizer.eos_token_id
-    pad_token_id = tokenizer.pad_token_id
+def generate(args, text, tokenizer, compiled_model, enforce_input_tokens = None):
+    global last_output_text_map
 
     if enforce_input_tokens:
-        inputs = tokenizer(["Hi"], return_tensors="np", padding=True, return_token_type_ids=False)
+        inputs = tokenizer(text, return_tensors="np", padding=True, return_token_type_ids=False)
         input_ids = inputs['input_ids']
         attention_mask = inputs['attention_mask']
         attention_mask = (1.0 - attention_mask) * np.finfo(np.float32).min
 
-        input_ids = np.tile(input_ids, enforce_input_tokens)
-        attention_mask = np.tile(attention_mask, enforce_input_tokens)
+        input_ids = np.tile(input_ids[:, 0:1], enforce_input_tokens)
+        attention_mask = np.tile(attention_mask[:, 0:1], enforce_input_tokens)
+
         input_token_len = input_ids.shape[1]
         input_batch_size = input_ids.shape[0]
     else:
@@ -55,14 +54,14 @@ def generate(round, args, text, tokenizer, compiled_model, enforce_input_tokens 
     if args.greedy:
         output_ids, latency = generate_greedy(compiled_model, input_ids, attention_mask, 
                                     max_new_tokens=args.answer_length,
-                                    eos_token_id=eos_token_id,
-                                    pad_token_id=pad_token_id,
+                                    eos_token_id=tokenizer.eos_token_id,
+                                    pad_token_id=tokenizer.pad_token_id,
                                     max_kv_len=input_token_len + args.answer_length*2)
     else:
         output_ids, latency = generate_beam(compiled_model, input_ids, attention_mask, 
                                     max_new_tokens=args.answer_length,
-                                    eos_token_id=eos_token_id,
-                                    pad_token_id=pad_token_id,
+                                    eos_token_id=tokenizer.eos_token_id,
+                                    pad_token_id=tokenizer.pad_token_id,
                                     max_kv_len=input_token_len + args.answer_length*2)
     gen_sequence_end = time.time()
     output_text = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
@@ -161,13 +160,13 @@ if __name__ == "__main__":
         if args.prompt:
             # prompt from command line
             text = args.prompt
-            generate(round, args, text, tokenizer, compiled_model)
+            generate(args, text, tokenizer, compiled_model)
         else:
             # prompt from json config
             for plen in args.prompt_length:
                 if str(plen) in prompts:
                     text = prompts[str(plen)]
-                    generate(round, args, [text], tokenizer, compiled_model)
+                    generate(args, [text], tokenizer, compiled_model)
                 else:
                     # Prompt with length {plen} is not provided in prompt.json, will forge"
-                    generate(round, args, [], tokenizer, compiled_model, enforce_input_tokens=plen)
+                    generate(args, ["Hi"], tokenizer, compiled_model, enforce_input_tokens=plen)
