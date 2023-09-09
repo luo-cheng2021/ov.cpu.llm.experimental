@@ -303,8 +303,8 @@ def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id
                      max_kv_len,
                      model.pipeline_config.head_size]
     kv_cache = Tensor(model.input("kv_cache").get_element_type(), kvcache_shape)
-    global_beam_idx = np.zeros([batch_size * num_beams, 2048]).astype("int32")
-    beam_table = np.zeros([batch_size * num_beams, 2048]).astype("int32")
+    global_beam_idx = np.zeros([batch_size * num_beams, max_kv_len]).astype("int32")
+    beam_table = np.zeros([batch_size * num_beams, max_kv_len]).astype("int32")
     sin_tab, cos_tab = pipeline.utils.create_sinusoidal_positions(max_kv_len, model.pipeline_config.rotary_dims)
     # input_ids = np.repeat(input_ids, num_beams, axis=0)
     original_attention_mask = attention_mask
@@ -331,9 +331,6 @@ def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id
             model_inputs['attn_mask'] = original_attention_mask
             outputs = model(model_inputs)
             logits = next(iter(outputs.values()))
-            print(logits)
-            import sys
-            sys.exit(1)
             # broadcast batch 1 to num_beams
             logits = np.repeat(logits, num_beams, axis=0)
             model_inputs["attn_mask"] = attention_mask
@@ -351,9 +348,7 @@ def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id
         global_beam_idx[:, cur_len] = beam_idx
         utils.update_beam_table(global_beam_idx, beam_table, cur_len+1)
         cur_len = cur_len + 1
-        print(beam_idx)
-        print(input_ids.shape, input_ids)
-        print(beam_next_tokens.shape, beam_next_tokens)
+
         input_ids = np.concatenate([input_ids[beam_idx, :], np.expand_dims(beam_next_tokens, -1)], axis=-1)
         model_inputs = prepare_next_input(model_inputs, beam_next_tokens)
         latency.append(time.time() - time0)

@@ -1,6 +1,7 @@
 import argparse
 import json
 import time
+import hashlib
 import numpy as np
 from openvino.runtime import Core
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
@@ -24,19 +25,66 @@ class ModelConfig:
     def __str__(self) -> str:
         return f"\tn_layers={self.n_layers}, n_head={self.n_head}, head_size={self.head_size}, rotary_dims={self.rotary_dims}"
 
-def prepare_next_input(model_inputs, next_tokens):
-    model_inputs['input_ids'] = np.array(next_tokens)
+last_output_text_map = {}
 
-    if 'attn_mask' in model_inputs:
-        attention_mask = model_inputs['attn_mask']
-        model_inputs['attn_mask'] = np.concatenate([attention_mask,
-                                                    np.zeros([attention_mask.shape[0], 1], dtype=np.int32)], axis=-1)
-    return model_inputs
+def generate(round, args, text, tokenizer, compiled_model, enforce_input_tokens = None):
+    global last_output_text, last_round
+    eos_token_id = tokenizer.eos_token_id
+    pad_token_id = tokenizer.pad_token_id
 
-def create_sinusoidal_positions(num_pos: int, dim: int):
-    inv_freq = 1.0 / (10000 ** (np.arange(0, dim, 2) / dim))
-    sinusoid_inp = np.einsum("i , j -> i j", np.arange(num_pos, dtype=np.float), inv_freq).astype("float32")
-    return np.sin(sinusoid_inp), np.cos(sinusoid_inp)
+    if enforce_input_tokens:
+        inputs = tokenizer(["Hi"], return_tensors="np", padding=True, return_token_type_ids=False)
+        input_ids = inputs['input_ids']
+        attention_mask = inputs['attention_mask']
+        attention_mask = (1.0 - attention_mask) * np.finfo(np.float32).min
+
+        input_ids = np.tile(input_ids, enforce_input_tokens)
+        attention_mask = np.tile(attention_mask, enforce_input_tokens)
+        input_token_len = input_ids.shape[1]
+        input_batch_size = input_ids.shape[0]
+    else:
+        inputs = tokenizer(text, return_tensors="np", padding=True, return_token_type_ids=False)
+        input_ids = inputs['input_ids']
+        attention_mask = inputs['attention_mask']
+        attention_mask = (1.0 - attention_mask) * np.finfo(np.float32).min
+
+        input_token_len = input_ids.shape[1]
+        input_batch_size = input_ids.shape[0]
+
+    gen_sequence_start = time.time()
+    if args.greedy:
+        output_ids, latency = generate_greedy(compiled_model, input_ids, attention_mask, 
+                                    max_new_tokens=args.answer_length,
+                                    eos_token_id=eos_token_id,
+                                    pad_token_id=pad_token_id,
+                                    max_kv_len=input_token_len + args.answer_length*2)
+    else:
+        output_ids, latency = generate_beam(compiled_model, input_ids, attention_mask, 
+                                    max_new_tokens=args.answer_length,
+                                    eos_token_id=eos_token_id,
+                                    pad_token_id=pad_token_id,
+                                    max_kv_len=input_token_len + args.answer_length*2)
+    gen_sequence_end = time.time()
+    output_text = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
+
+    gen_sequence_length = len(output_ids[0]) - len(input_ids[0])
+    gen_latency = gen_sequence_end - gen_sequence_start
+
+    n_latency = len(latency)
+    token_total = sum(latency)
+
+    print(f"  [{input_batch_size}, {input_token_len:4}+{gen_sequence_length}]  {gen_latency*1e3:.1f}ms = {latency[0]*1e3:.1f}ms + {latency[1]*1e3:.1f}ms + ({sum(latency[2:])/(n_latency-2)*1e3:.1f}ms x {n_latency-2}) + {(gen_latency - token_total)*1e3:.1f}ms")
+
+    text_key = ",".join(text)
+
+    if text_key not in last_output_text_map or last_output_text_map[text_key] != output_text:
+        last_output_text_map[text_key] = output_text
+        for i, out in enumerate(output_text):
+            md5sum = hashlib.md5(out.encode('utf-8')).hexdigest()
+            if len(out) > 160:
+                out = out[:80] + "..." + md5sum
+            print(f"\t{i}. {[out]}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -45,7 +93,7 @@ if __name__ == "__main__":
                         help="path to model file")
     parser.add_argument('-pm', '--pytorch-model', type=str, required=False,
                     help="path to pytorch model file")
-    parser.add_argument('-pl', '--prompt-length', type=int, default=32, required=False,
+    parser.add_argument('-pl', '--prompt-length', type=int, nargs='+', default=32, required=False,
                         help="prompt length")
     parser.add_argument('-p', '--prompt', type=str, nargs='+', required=False,
                         help="prompt")
@@ -75,10 +123,7 @@ if __name__ == "__main__":
         tokenizer.pad_token = tokenizer.eos_token_id
     tokenizer.padding_side = "left"             # pad to left
 
-    eos_token_id = tokenizer.eos_token_id
-    pad_token_id = tokenizer.pad_token_id
     # initialize openvino core
-    read_model_start = time.time()
     core = Core()
     ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
     custom_opset = opset_utils._get_node_factory()
@@ -104,54 +149,24 @@ if __name__ == "__main__":
 
     compiled_model = core.compile_model(ov_model, "CPU", ov_config)
     compiled_model.pipeline_config = ModelConfig(ov_model)
-    print(compiled_model)
-    last_output_text = None
+
+    prompts = {}
+    with open("prompts.json") as f:
+        prompts = json.load(f)
+
     print("Start test ...")
     for round in range(args.repeat):
+        print(f"round {round}:")
         if args.prompt:
+            # prompt from command line
             text = args.prompt
+            generate(round, args, text, tokenizer, compiled_model)
         else:
-            prompts = {}
-            with open("prompts.json") as f:
-                prompts = json.load(f)
-            if str(args.prompt_length) not in prompts:
-                print("Prompt with length {0} is not provided in prompt.json".format(
-                    args.prompt_length))
-                exit(-1)
-
-            text = prompts[str(args.prompt_length)]
-
-        inputs = tokenizer(text, return_tensors="np", padding=True, return_token_type_ids=False)
-        input_ids = inputs['input_ids']
-        attention_mask = inputs['attention_mask']
-        attention_mask = (1.0 - attention_mask) * np.finfo(np.float32).min
-
-        gen_sequence_start = time.time()
-        if args.greedy:
-            output_ids, latency = generate_greedy(compiled_model, input_ids, attention_mask, 
-                                        max_new_tokens=args.answer_length,
-                                        eos_token_id=eos_token_id,
-                                        pad_token_id=pad_token_id)
-        else:
-            output_ids, latency = generate_beam(compiled_model, input_ids, attention_mask, 
-                                        max_new_tokens=args.answer_length,
-                                        eos_token_id=eos_token_id,
-                                        pad_token_id=pad_token_id)
-        gen_sequence_end = time.time()
-        output_text = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
-
-        gen_sequence_length = len(output_ids[0]) - len(input_ids[0])
-        gen_latency = gen_sequence_end - gen_sequence_start
-
-        if not last_output_text or last_output_text != output_text:
-            last_output_text = output_text
-            for i, out in enumerate(output_text):
-                if len(out) > 120:
-                    out = out[:120] + "..."
-                print(f"answer {i} : {[out]}")
-
-        n_latency = len(latency)
-        sum_lat2 = sum(latency[2:])
-        token_total = sum(latency)
-
-        print(f"round {round}: {gen_latency*1e3:.1f}ms = {latency[0]*1e3:.1f}ms + {latency[1]*1e3:.1f}ms + ({sum(latency[2:])/(n_latency-2)*1e3:.1f}ms x {n_latency-2}) + {(gen_latency - token_total)*1e3:.1f}ms")
+            # prompt from json config
+            for plen in args.prompt_length:
+                if str(plen) in prompts:
+                    text = prompts[str(plen)]
+                    generate(round, args, [text], tokenizer, compiled_model)
+                else:
+                    # Prompt with length {plen} is not provided in prompt.json, will forge"
+                    generate(round, args, [], tokenizer, compiled_model, enforce_input_tokens=plen)
