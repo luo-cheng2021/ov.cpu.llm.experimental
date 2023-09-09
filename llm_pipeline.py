@@ -111,6 +111,7 @@ if __name__ == "__main__":
         pm_map["gptj_6b.xml"] = "/home/llm_irs/pytorch_frontend_models/gpt-j-6b/pytorch_original/"
         pm_map["dolly_v2_12b.xml"] = "/home/llm_irs/pytorch_frontend_models/dolly-v2-12b/pytorch_original/"
         pm_map["falcon_40b.xml"] = "/home/openvino-ci-68/falcon-40b/"
+        pm_map["llama-2-7b-chat.xml"] = "/home/llm_irs/pytorch_frontend_models/llama-2-7b-chat/pytorch_original/"
         for k in pm_map:
             if k in args.model:
                 args.pytorch_model = pm_map[k]
