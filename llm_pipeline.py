@@ -62,7 +62,8 @@ def generate(args, text, tokenizer, compiled_model, enforce_input_tokens = None)
                                     max_new_tokens=args.answer_length,
                                     eos_token_id=tokenizer.eos_token_id,
                                     pad_token_id=tokenizer.pad_token_id,
-                                    max_kv_len=input_token_len + args.answer_length*2)
+                                    max_kv_len=input_token_len + args.answer_length*2,
+                                    beam_size=args.beam_size)
     gen_sequence_end = time.time()
     output_text = tokenizer.batch_decode(output_ids, skip_special_tokens=True)
 
@@ -100,6 +101,7 @@ if __name__ == "__main__":
                         default=32, help="generated token length")
     parser.add_argument("--greedy", action="store_true")
     parser.add_argument("--bf16", action="store_true")
+    parser.add_argument("-bs", "--beam-size", type=int, default=4)
     parser.add_argument("-r", "--repeat", type=int, default=1)
     # Parse the argument
     args = parser.parse_args()
@@ -111,6 +113,7 @@ if __name__ == "__main__":
         pm_map["dolly_v2_12b.xml"] = "/home/llm_irs/pytorch_frontend_models/dolly-v2-12b/pytorch_original/"
         pm_map["falcon_40b.xml"] = "/home/openvino-ci-68/falcon-40b/"
         pm_map["llama-2-7b-chat.xml"] = "/home/llm_irs/pytorch_frontend_models/llama-2-7b-chat/pytorch_original/"
+        pm_map["chatglm2-6b.xml"] = "/home/llm_irs/pytorch_frontend_models/chatglm2-6b/"
         for k in pm_map:
             if k in args.model:
                 args.pytorch_model = pm_map[k]

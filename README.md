@@ -7,6 +7,8 @@ git clone https://github.com/usstq/openvino.git
 git checkout vnode-lc
 cd openvino && mkdir build && cd build
 cmake -DENABLE_INTEL_GPU=OFF -DENABLE_PYTHON=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<ov install dir> ..
+# if want to run the model on multiple numa nodes, use the following
+# cmake -DENABLE_INTEL_GPU=OFF -DENABLE_PYTHON=ON -DCMAKE_BUILD_TYPE=Release -DTHREADING=OMP -DCMAKE_INSTALL_PREFIX=<ov install dir> ..
 make --jobs=$(nproc --all)
 ```
 ## Enable OpenVINO Environment
@@ -50,5 +52,7 @@ numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b.xml -p "What's
 numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b.xml -p "What's Oxygen?" -r 3 --bf16
 # specific input token length (support multiple langth, multiple round)
 numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b.xml -pl 32 512 1024 2016 8192 -r 3 --bf16
+# run on all numa nodes
+python llm_pipeline.py -m ./gen/falcon_40b.xml -bs 1 --bf16 -pl 8000
 
 ```

@@ -279,7 +279,7 @@ def prepare_next_input(model_inputs, next_tokens):
                                                     np.zeros([attention_mask.shape[0], 1], dtype=np.int32)], axis=-1)
     return model_inputs
 
-def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id, pad_token_id, max_kv_len = 2048):
+def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id, pad_token_id, max_kv_len = 2048, beam_size = 4):
     """
     text prediction cycle.
 
@@ -295,7 +295,7 @@ def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id
     model_inputs = {}
     batch_size = input_ids.shape[0]
     cur_len = prompt_length = input_ids.shape[1]
-    num_beams = 4
+    num_beams = beam_size
     first_iteration = True
     kvcache_shape = [2 * model.pipeline_config.n_layers,
                      batch_size * num_beams,
