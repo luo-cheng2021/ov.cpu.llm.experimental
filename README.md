@@ -1,5 +1,19 @@
 # ov.cpu.llm.experimental
-
+This repo demonstrates a LLM optimization method by custom-ops for OpenVINO. In order to inference the LLM efficiently, this repo introduces a new Op called `MHA` and re-construct the LLM based on this new-ops.
+## Build Customized OpenVINO
+You could refer to [build_linux](https://github.com/openvinotoolkit/openvino/blob/master/docs/dev/build_linux.md) for more details. Please set the install dir for openvino
+```bash
+git clone https://github.com/usstq/openvino.git
+git checkout vnode-lc
+cd openvino && mkdir build && cd build
+cmake -DENABLE_INTEL_GPU=OFF -DENABLE_PYTHON=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<ov install dir> ..
+make --jobs=$(nproc --all)
+```
+## Enable OpenVINO Environment
+Please Do Reminder to enable the customized OpenVINO environment for this repo
+```
+source <ov install dir>/setvars.sh
+```
 ## build dependency
 OpenVINO custom ops : 
 ```bash
