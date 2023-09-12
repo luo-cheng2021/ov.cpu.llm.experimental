@@ -25,10 +25,10 @@ cmake ..
 make -j8
 # custom_ops/build/libov-cpu-llm-experimental.so
 ```
-
-some function implemented in pybind11 :
+Install python env
 ```bash
-pip install -e .
+pip3 install -r requirements.txt
+pip3 install -e .
 ```
 ## model convert
 
