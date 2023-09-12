@@ -1,13 +1,14 @@
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
 from openvino.runtime import opset10 as opset
 from openvino.runtime.op import Constant
+import numpy as np
 
 ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
 custom_opset = opset_utils._get_node_factory()
 custom_opset.add_extension(ext_path)
 
 def pt_as_np(t):
-    if t is not None: return t.detach().numpy()
+    if t is not None: return t.detach().numpy().astype(np.float32)
     return None
 
 def show_model(m):
@@ -19,7 +20,7 @@ def show_model(m):
         print('	[{}] {}'.format(port, _output))
 
 def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
-             layer_idx, rotary_dim, n_hidden, n_head, name, num_kv_heads=0, rope_type='modified'):
+             layer_idx, rotary_dim, n_hidden, n_head, name, num_kv_heads=0, rope_type='modified', multi_query_is_planar=False):
     qkvs_len = len(qkvs)
     mha_attr = {'arg_kv_cache': qkvs_len,
                 'arg_beam_table': qkvs_len + 1,
@@ -31,6 +32,7 @@ def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
                 'n_hidden': n_hidden,
                 'n_head': n_head,
                 'num_kv_heads': num_kv_heads,
+                'multi_query_is_planar': multi_query_is_planar,
                 'rope_type': ['original', 'modified'].index(rope_type)}
 
     if qkvs_len == 1:
@@ -67,3 +69,13 @@ def make_mvn(key, input, consts, configs, name_suffix=''):
         mvn = opset.add(mvn, bias, auto_broadcast='numpy', name=f'{key}.add{name_suffix}')
     return mvn
 
+def make_rms_norm(key, input, consts, epsilon, name_suffix=''):
+    weights = opset.constant(consts[f'{key}.weight'], Type.f32, name=f'{key}.weight{name_suffix}')
+    pow = opset.multiply(input, input, name=f'{key}.pow{name_suffix}')
+    #pow = opset.power(input, np.array([2], np.float32), name=f'{key}.pow{name_suffix}')
+    variance = opset.reduce_mean(pow, reduction_axes=[-1], keep_dims=True, name=f'{key}.var{name_suffix}')
+    add = opset.add(variance, opset.constant(epsilon, Type.f32), name=f'{key}.add{name_suffix}')
+    sqrt = opset.sqrt(add, name=f'{key}.sqrt{name_suffix}')
+    div = opset.divide(input, sqrt, name=f'{key}.div{name_suffix}')
+    mul = opset.multiply(div, weights, auto_broadcast='numpy', name=f'{key}.mul{name_suffix}')
+    return mul

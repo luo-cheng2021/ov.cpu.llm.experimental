@@ -39,6 +39,7 @@ python models/gptj.py
 python models/gptneox.py
 python models/falcon.py
 python models/llama.py
+python models/chatglm2.py
 ```
 
 ## run pipeline

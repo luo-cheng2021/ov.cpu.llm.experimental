@@ -4,23 +4,13 @@ import numpy as np
 import sys, os
 import argparse
 import time
-from utils import show_model, make_mha, make_fc, pt_as_np
-
-def make_rms_norm(key, input, consts, configs, name_suffix=''):
-    weights = opset.constant(consts[f'{key}.weight'], Type.f32, name=f'{key}.weight{name_suffix}')
-    pow = opset.multiply(input, input, name=f'{key}.pow{name_suffix}')
-    variance = opset.reduce_mean(pow, reduction_axes=[-1], keep_dims=True, name=f'{key}.var{name_suffix}')
-    add = opset.add(variance, opset.constant(configs['rms_norm_eps'], Type.f32), name=f'{key}.add{name_suffix}')
-    sqrt = opset.sqrt(add, name=f'{key}.sqrt{name_suffix}')
-    div = opset.divide(input, sqrt, name=f'{key}.div{name_suffix}')
-    mul = opset.multiply(div, weights, auto_broadcast='numpy', name=f'{key}.mul{name_suffix}')
-    return mul
+from utils import show_model, make_mha, make_fc, pt_as_np, make_rms_norm
 
 def layer(configs, consts, layer_idx, hidden_states, kv_cache, beam_table, attn_mask, cos_tab, sin_tab):
     name_suffix = f'.layer{layer_idx}'
     name_prefix = 'model.layers.self_attn'
     # layerNorm operation
-    input_layernorm = make_rms_norm('model.layers.input_layernorm', hidden_states, consts['layers'][layer_idx], configs, name_suffix)
+    input_layernorm = make_rms_norm('model.layers.input_layernorm', hidden_states, consts['layers'][layer_idx], configs['rms_norm_eps'], name_suffix)
 
     q = make_fc('model.layers.self_attn.q_proj', input_layernorm, consts['layers'][layer_idx], name_suffix)
     k = make_fc('model.layers.self_attn.k_proj', input_layernorm, consts['layers'][layer_idx], name_suffix)
@@ -34,7 +24,7 @@ def layer(configs, consts, layer_idx, hidden_states, kv_cache, beam_table, attn_
     attn_output = make_fc('model.layers.self_attn.o_proj', attn_output, consts['layers'][layer_idx], name_suffix)
 
     attn_output = opset.add(hidden_states, attn_output, auto_broadcast='numpy', name=f'{name_prefix}.add0{name_suffix}')
-    post_attention_layernorm = make_rms_norm('model.layers.post_attention_layernorm', attn_output, consts['layers'][layer_idx], configs, name_suffix)
+    post_attention_layernorm = make_rms_norm('model.layers.post_attention_layernorm', attn_output, consts['layers'][layer_idx], configs['rms_norm_eps'], name_suffix)
 
     # mlp
     def mlp(states):
@@ -73,7 +63,7 @@ def create_model(configs, consts):
     for i in range(configs['layer_num']):
         hidden_states = layer(configs, consts, i, hidden_states, kv_cache, beam_table, attn_mask, cos_tab, sin_tab)
     # final_layernorm
-    final_layernorm = make_rms_norm('model.norm', hidden_states, consts, configs)
+    final_layernorm = make_rms_norm('model.norm', hidden_states, consts, configs['rms_norm_eps'])
     # embed_out
     embed_out = make_fc('lm_head', final_layernorm, consts)
     embed_out_result = opset.result(embed_out, name='logits')

@@ -31,8 +31,8 @@ class MultiHeadAttention : public ov::op::Op {
         int n_hidden = 0;
         int n_head = 0;
         int num_kv_heads = 0;
-        int rope_type = 0;   // 0: gptj style, 1: gptneox style
-
+        int rope_type = 0;                    // 0: gptj style, 1: gptneox style
+        int multi_query_is_planar = 0;        // chatglm2 is true, others are false
     };
     MultiHeadAttention(const ov::OutputVector &args, Config cfg);
     void validate_and_infer_types() override;

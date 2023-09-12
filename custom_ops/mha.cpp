@@ -42,6 +42,7 @@ bool MultiHeadAttention::visit_attributes(ov::AttributeVisitor &visitor) {
     visitor.on_attribute("n_head", m_config.n_head);
     visitor.on_attribute("num_kv_heads", m_config.num_kv_heads);
     visitor.on_attribute("rope_type", m_config.rope_type);
+    visitor.on_attribute("multi_query_is_planar", m_config.multi_query_is_planar);
     return true;
 }
 
