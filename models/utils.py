@@ -2,10 +2,65 @@ from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize,
 from openvino.runtime import opset10 as opset
 from openvino.runtime.op import Constant
 import numpy as np
+import torch
 
 ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
 custom_opset = opset_utils._get_node_factory()
 custom_opset.add_extension(ext_path)
+
+configs = {
+    'compressed_weight': False,
+}
+
+# copy from nncf/torch/quantization/weights_compression.py: _insert_pre_compression_operations
+def _compress_weight_nncf(weight_np, bits:int = 8):
+    def get_scale_zp_from_input_low_input_high(level_low, level_high, input_low, input_high):
+        y_scale = (input_high - input_low) / (level_high - level_low)
+        y_zero_point = (level_low * input_high - level_high * input_low) / (input_high - input_low)
+
+        type_ = torch.int8 if level_low < 0 else torch.uint8
+        level_low *= torch.ones_like(y_zero_point).to(type_)
+        level_high *= torch.ones_like(y_zero_point).to(type_)
+        level_low = level_low.to(y_zero_point.device)
+        level_high = level_high.to(y_zero_point.device)
+        y_zero_point = torch.min(torch.max(level_low, torch.round(y_zero_point).to(type_)), level_high)
+
+        y_scale = torch.squeeze(y_scale)
+        y_zero_point = torch.squeeze(y_zero_point)
+        return y_scale, y_zero_point
+    
+    level_high = 2**bits - 1
+
+    assert level_high < 256
+    weight = torch.from_numpy(weight_np)
+
+    target_dim = 0 # layer.target_weight_dim_for_compression
+    stat_dim = (target_dim + 1) % 2
+    input_low = torch.min(weight, dim=stat_dim).values.detach()
+    input_high = torch.max(weight, dim=stat_dim).values.detach()
+    scale, zero_point = get_scale_zp_from_input_low_input_high(0, level_high, input_low, input_high)
+
+    scale = scale.unsqueeze(stat_dim)
+    zero_point = zero_point.unsqueeze(stat_dim)
+
+    compressed_weight = weight.data / scale + zero_point
+    compressed_weight = torch.clamp(torch.round(compressed_weight), 0, level_high)
+
+    return compressed_weight.type(dtype=torch.uint8).numpy(), zero_point.numpy(), scale.numpy()
+
+def _make_compressed_weight(weight, key, bits:int = 8):
+    compressed_weight, zero_point, scale = _compress_weight_nncf(weight, bits)
+    weight_node = Constant(compressed_weight, True)
+    zp_node = Constant(zero_point, True)
+    scale_node = Constant(scale, True)
+    weight_node.set_friendly_name(f'{key}.weight')
+    zp_node.set_friendly_name(f'{key}.weight.zp')
+    scale_node.set_friendly_name(f'{key}.weight.scale')
+    weight_node = opset.convert(weight_node, 'f32', name=f'{key}.weight.convert')
+    zp_node = opset.convert(zp_node, 'f32', name=f'{key}.weight.zp.convert')
+    sub = opset.subtract(weight_node, zp_node, name=f'{key}.weight.sub')
+    scale = opset.multiply(sub, scale_node, name=f'{key}.weight.mul')
+    return scale
 
 def pt_as_np(t):
     if t is not None: return t.detach().numpy().astype(np.float32)
@@ -50,8 +105,11 @@ def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
     return output
 
 def make_fc(key, input, consts, name_suffix=''):
-    weights = Constant(consts[f'{key}.weight'], True)
-    weights.set_friendly_name(name=f'{key}.weight{name_suffix}')
+    if configs['compressed_weight']:
+        weights = _make_compressed_weight(consts[f'{key}.weight'], key)
+    else:
+        weights = Constant(consts[f'{key}.weight'], True)
+        weights.set_friendly_name(name=f'{key}.weight{name_suffix}')
     matmul = opset.matmul(input, weights, transpose_a=False, transpose_b=True, name=f'{key}.matmul{name_suffix}')
     if consts[f'{key}.bias'] is not None:
         bias = Constant(consts[f'{key}.bias'], True)
@@ -79,3 +137,12 @@ def make_rms_norm(key, input, consts, epsilon, name_suffix=''):
     div = opset.divide(input, sqrt, name=f'{key}.div{name_suffix}')
     mul = opset.multiply(div, weights, auto_broadcast='numpy', name=f'{key}.mul{name_suffix}')
     return mul
+
+def make_embedding(key, input, consts):
+    if configs['compressed_weight']:
+        embed_in_const = _make_compressed_weight(consts[key], key)
+    else:
+        embed_in_const = Constant(consts[key], True)
+        embed_in_const.set_friendly_name(name=key)
+    inputs_embeds = opset.gather(embed_in_const, indices=input, axis=0)
+    return inputs_embeds

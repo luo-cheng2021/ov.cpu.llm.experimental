@@ -4,7 +4,7 @@ import numpy as np
 import sys, os
 import argparse
 import time
-from utils import show_model, make_mha, make_fc, pt_as_np, make_rms_norm
+from utils import show_model, make_mha, make_fc, pt_as_np, make_rms_norm, make_embedding, configs as make_configs
 
 def layer(configs, consts, layer_idx, hidden_states, kv_cache, beam_table, attn_mask, cos_tab, sin_tab):
     name_suffix = f'.layer{layer_idx}'
@@ -53,9 +53,7 @@ def create_model(configs, consts):
     cos_tab = opset.parameter([-1, configs['rotary_dims'] // 2], Type.f32, name='cos_tab')
     sin_tab = opset.parameter([-1, configs['rotary_dims'] // 2], Type.f32, name='sin_tab')
 
-    key = 'transformer.embedding.word_embeddings.weight'
-    embed_in_const = opset.constant(consts[key], Type.f32, name=key)
-    inputs_embeds = opset.gather(embed_in_const, indices=input_ids, axis=0)
+    inputs_embeds = make_embedding('transformer.embedding.word_embeddings.weight', input_ids, consts)
     hidden_states = inputs_embeds
 
     for i in range(configs['layer_num']):
@@ -130,9 +128,11 @@ def get_params_from_model(path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('')
-    parser.add_argument('org_model_path', type=str, nargs='?', default='/home/llm_irs/pytorch_frontend_models/chatglm2-6b/')
-    parser.add_argument('ov_model_path', type=str, nargs='?', default='./gen/chatglm2-6b.xml')
+    parser.add_argument('--org_model_path', type=str, nargs='?', default='/home/llm_irs/pytorch_frontend_models/chatglm2-6b/')
+    parser.add_argument('--ov_model_path', type=str, nargs='?', default='./gen/chatglm2-6b.xml')
+    parser.add_argument('--compressed_weight', type=bool, nargs='?', default=False)
     args = parser.parse_args()
+    make_configs['compressed_weight'] = args.compressed_weight
 
     configs, consts = get_params_from_model(args.org_model_path)
     model = create_model(configs, consts)
