@@ -41,8 +41,8 @@ def create_model(configs, consts):
     beg = time.time()
     # [batch, query_len]
     input_ids = opset.parameter([-1, -1], Type.i32, name='input_ids')
-    # [2 * n_layers, batch, n_head, max_kv_len, head_size]
-    kv_cache = opset.parameter([2 * configs['layer_num'], -1, configs['head_num'], -1, configs['head_size']], Type.f32, name='kv_cache')
+    # [2 * n_layers, batch, num_kv_heads, max_kv_len, head_size]
+    kv_cache = opset.parameter([2 * configs['layer_num'], -1, configs['num_kv_heads'], -1, configs['head_size']], Type.f32, name='kv_cache')
     # [batch, max_kv_len]
     beam_table = opset.parameter([-1, -1], Type.i32, name='beam_table')
     # [batch, query_len+past_len]
