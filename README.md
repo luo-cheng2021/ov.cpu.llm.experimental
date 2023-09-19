@@ -41,7 +41,14 @@ python models/falcon.py
 python models/llama.py
 python models/chatglm2.py
 ```
-
+convert orginal model into OpenVINO IR with INT8 weight compression:
+```bash
+python models/gptj.py --compressed_weight=true
+python models/gptneox.py --compressed_weight=true
+python models/falcon.py --compressed_weight=true
+python models/llama.py --compressed_weight=true
+python models/chatglm2.py --compressed_weight=true
+```
 ## run pipeline
 
 ```bash
