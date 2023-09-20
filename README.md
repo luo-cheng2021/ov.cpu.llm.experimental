@@ -4,7 +4,7 @@ This repo demonstrates a LLM optimization method by custom-ops for OpenVINO. In 
 ## Build OpenVINO and Custom Ops on Linux
 You could refer to [build_linux](https://github.com/openvinotoolkit/openvino/blob/master/docs/dev/build_linux.md) for more details. Please set the install dir for openvino. Note, please make sure the gcc version is at least 11.2.
 
-### Build Customized OpenVINO
+### Build OpenVINO
 ```bash
 git clone https://github.com/usstq/openvino.git -b vnode-lc
 cd openvino && git submodule update --init --recursive 
@@ -23,14 +23,10 @@ cd <ov install dir>/tools/
 python3 -m pip install  openvino*.whl
 
 ```
-### Build OpenVINO Custom Ops library
+### Build Custom Ops Library
 Please Do Reminder to enable the customized OpenVINO environment for this repo
-#### Enable OpenVINO Environment
 ```bash
 source <ov install dir>/setupvars.sh
-```
-#### Build custom ops library
-```bash
 cd custom_ops
 mkdir build && cd build
 cmake ..
@@ -41,7 +37,7 @@ make -j8
 ## Build OpenVINO and Custom Ops on Windows
 You could refer to [build_windows](https://github.com/openvinotoolkit/openvino/blob/master/docs/dev/build_windows.md) for more details. Please set the install dir for openvino. Note, please make sure the MSVC version is at least Visual Studio 16 2019.
 
-### Build Customized OpenVINO
+### Build OpenVINO
 ```bash
 git clone https://github.com/usstq/openvino.git -b vnode-lc
 cd openvino && git submodule update --init --recursive
@@ -59,13 +55,10 @@ cmake --install .
 cd <ov install dir>/tools/
 python3 -m pip install  openvino*.whl
 ```
-### Build OpenVINO Custom Ops library
+### Build Custom Ops Library
 Please Do Reminder to enable the customized OpenVINO environment for this repo
-#### Enable OpenVINO Environment
 ```bash
 source <ov install dir>/setupvars.sh
-```
-#### Build OpenVINO custom ops
 ```bash
 <ov install dir>/setupvars.bat
 cd custom_ops
@@ -75,15 +68,14 @@ cmake --build . --config Release --verbose -j8 ..
 ```
 
 ## Setup Demo Environment
-```
 Install python env
 ```bash
 pip3 install -r requirements.txt
 pip3 install -e .
 ```
-## Model Conversion
 
-convert orginal model into OpenVINO IR:
+## Model Conversion
+convert orginal model into OpenVINO FP32 IR:
 
 ```bash
 python models/gptj.py
@@ -92,7 +84,7 @@ python models/falcon.py
 python models/llama.py
 python models/chatglm2.py
 ```
-convert orginal model into OpenVINO IR with INT8 weight compression:
+convert orginal model into OpenVINO INT8 IR with weight compression:
 ```bash
 python models/gptj.py --compressed_weight=true
 python models/gptneox.py --compressed_weight=true
