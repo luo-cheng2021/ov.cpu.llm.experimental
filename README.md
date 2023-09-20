@@ -1,7 +1,7 @@
 # ov.cpu.llm.experimental
 This repo demonstrates a LLM optimization method by custom-ops for OpenVINO. In order to inference the LLM efficiently, this repo introduces a new Op called `MHA` and re-construct the LLM based on this new-ops.
 
-## 1.1 Build Dependency on Linux
+## 1.1. Build Dependency on Linux
 You could refer to [build_linux](https://github.com/openvinotoolkit/openvino/blob/master/docs/dev/build_linux.md) for more details. Please set the install dir for openvino. Note, please make sure the gcc version is at least 11.2.
 
 ### Build OpenVINO
@@ -34,7 +34,7 @@ make -j8
 # custom_ops/build/libov-cpu-llm-experimental.so
 ```
 
-## 1.2 Build Dependency on Windows
+## 1.2. Build Dependency on Windows
 You could refer to [build_windows](https://github.com/openvinotoolkit/openvino/blob/master/docs/dev/build_windows.md) for more details. Please set the install dir for openvino. Note, please make sure the MSVC version is at least Visual Studio 16 2019.
 
 ### Build OpenVINO
