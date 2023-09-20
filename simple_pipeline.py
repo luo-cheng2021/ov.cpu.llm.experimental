@@ -5,8 +5,17 @@ import sys
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
 
+ext_path = None
+if sys.platform == 'win32':
+    ext_path = ".\\custom_ops\\build\\Release\\ov-cpu-llm-experimental.dll"
+elif sys.platform == 'linux':
+    ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
+else:
+    print(f"Sample code not supported on platform: {sys.platform}")
+    exit(1)
+
 core = Core()
-core.add_extension("./custom_ops/build/libov-cpu-llm-experimental.so")
+core.add_extension(ext_path)
 
 np.set_printoptions(linewidth=np.inf)
 
@@ -69,6 +78,7 @@ class OVModel:
 m1 = OVModel("gen/gptj_6b.xml", "/home/llm_irs/pytorch_frontend_models/gpt-j-6b/pytorch_original/")
 m1 = OVModel("gen/dolly_v2_12b.xml", "/home/llm_irs/pytorch_frontend_models/dolly-v2-12b/pytorch_original/")
 m1 = OVModel("gen/falcon_40b.xml", "/home/openvino-ci-68/falcon-40b/")
+#m1 = OVModel(".\\Chinese-LLaMA\\FP32\\chinese-alpaca-2-7b.xml", "..\\Chinese-LLaMA\\tokenizer")
 
 m1.load()
 

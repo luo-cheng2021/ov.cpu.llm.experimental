@@ -3,6 +3,7 @@ import json
 import time
 import hashlib
 import numpy as np
+import sys
 from openvino.runtime import Core
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
 from openvino.runtime import opset10 as opset
@@ -126,9 +127,17 @@ if __name__ == "__main__":
         tokenizer.pad_token = tokenizer.eos_token_id
     tokenizer.padding_side = "left"             # pad to left
 
+    ext_path = None
+    if sys.platform == 'win32':
+        ext_path = ".\\custom_ops\\build\\Release\\ov-cpu-llm-experimental.dll"
+    elif sys.platform == 'linux':
+        ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
+    else:
+        print(f"Sample code not supported on platform: {sys.platform}")
+        exit(1)
+
     # initialize openvino core
     core = Core()
-    ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
     custom_opset = opset_utils._get_node_factory()
     custom_opset.add_extension(ext_path)
     core.add_extension(ext_path)

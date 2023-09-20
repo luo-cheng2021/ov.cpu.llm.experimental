@@ -2,9 +2,18 @@ from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize,
 from openvino.runtime import opset10 as opset
 from openvino.runtime.op import Constant
 import numpy as np
+import sys
 import torch
 
-ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
+ext_path = None
+if sys.platform == 'win32':
+    ext_path = ".\\custom_ops\\build\\Release\\ov-cpu-llm-experimental.dll"
+elif sys.platform == 'linux':
+    ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
+else:
+    print(f"Sample code not supported on platform: {sys.platform}")
+    exit(1)
+
 custom_opset = opset_utils._get_node_factory()
 custom_opset.add_extension(ext_path)
 
