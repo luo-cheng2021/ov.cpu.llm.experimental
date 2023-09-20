@@ -318,7 +318,7 @@ def generate_beam(model, input_ids, attention_mask, max_new_tokens, eos_token_id
                     }
     beam_searcher = BeamSearch(batch_size, num_beams)
     beam_scores = np.zeros(
-        (batch_size, num_beams), dtype=np.float
+        (batch_size, num_beams), dtype=np.float32
     )
     beam_scores[:, 1:] = -1e9
     beam_scores = beam_scores.reshape((batch_size * num_beams,))
