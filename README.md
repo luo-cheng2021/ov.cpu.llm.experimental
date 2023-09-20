@@ -58,8 +58,6 @@ python3 -m pip install  openvino*.whl
 ### Build Custom Ops Library
 Please Do Reminder to enable the customized OpenVINO environment for this repo
 ```bash
-source <ov install dir>/setupvars.sh
-```bash
 <ov install dir>/setupvars.bat
 cd custom_ops
 mkdir build && cd build
