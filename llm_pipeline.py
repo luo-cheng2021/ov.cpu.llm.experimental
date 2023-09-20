@@ -12,6 +12,7 @@ from openvino.preprocess import PrePostProcessor
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from pipeline.greedy_search import generate_greedy
 from pipeline.beam_search import generate_beam
+from models.utils import OV_XML_FILE_NAME
 
 class ModelConfig:
     def __init__(self, ov_model) -> None:
@@ -92,7 +93,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # Add an argument
     parser.add_argument('-m', '--model', type=str, required=True,
-                        help="path to model file")
+                        help="path to model directory, which contains OpenVINO model and tokenzier")
     parser.add_argument('-pl', '--prompt-length', type=int, nargs='+', default=32, required=False,
                         help="prompt length")
     parser.add_argument('-p', '--prompt', type=str, nargs='+', required=False,
@@ -128,7 +129,7 @@ if __name__ == "__main__":
     core.add_extension(ext_path)
     print("Init OpenVINO model ...")
     # read the model and corresponding weights from file
-    ov_model = core.read_model(args.model)
+    ov_model = core.read_model(os.path.join(args.model, OV_XML_FILE_NAME))
 
     # add preprocessor for bf16 kv_cache
     if args.bf16:

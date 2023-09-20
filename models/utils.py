@@ -7,6 +7,8 @@ import os
 import sys
 import torch
 
+OV_XML_FILE_NAME="openvino.xml"
+
 ext_path = None
 if sys.platform == 'win32':
     ext_path = ".\\custom_ops\\build\\Release\\ov-cpu-llm-experimental.dll"
@@ -160,4 +162,4 @@ def make_embedding(key, input, consts):
 
 def save_tokenzier(orig_model_path, ov_model_path):
     tokenizer = AutoTokenizer.from_pretrained(orig_model_path)
-    tokenizer.save_pretrained(os.path.dirname(ov_model_path))
+    tokenizer.save_pretrained(ov_model_path)

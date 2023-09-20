@@ -95,13 +95,13 @@ python models/chatglm2.py --compressed_weight=true
 
 ```bash
 # greedy search:  f32/bf16 
-numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/gptj_6b.xml -p "What's Oxygen?" -r 3 --greedy
-numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/gptj_6b.xml -p "What's Oxygen?" -r 3 --greedy --bf16
+numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/ -p "What's Oxygen?" -r 3 --greedy
+numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/ -p "What's Oxygen?" -r 3 --greedy --bf16
 # beam search:  f32/bf16 
-numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/gptj_6b.xml -p "What's Oxygen?" -r 3
-numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/gptj_6b.xml -p "What's Oxygen?" -r 3 --bf16
+numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/ -p "What's Oxygen?" -r 3
+numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/ -p "What's Oxygen?" -r 3 --bf16
 # specific input token length (support multiple langth, multiple round)
-numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/gptj_6b.xml -pl 32 512 1024 2016 8192 -r 3 --bf16
+numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/ -pl 32 512 1024 2016 8192 -r 3 --bf16
 # run on all numa nodes
-python llm_pipeline.py -m ./gen/falcon_40b/falcon_40b.xml -bs 1 --bf16 -pl 8000
+python llm_pipeline.py -m ./gen/falcon_40b -bs 1 --bf16 -pl 8000
 ```

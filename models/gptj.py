@@ -4,7 +4,7 @@ import numpy as np
 import sys, os
 import argparse
 import time
-from utils import show_model, make_mha, make_fc, make_mvn, make_embedding, save_tokenizer, configs as make_configs
+from utils import show_model, make_mha, make_fc, make_mvn, make_embedding, save_tokenizer, OV_XML_FILE_NAME, configs as make_configs
 
 def layer(configs, consts, layer_idx, hidden_states, kv_cache, beam_table, attn_mask, cos_tab, sin_tab):
     name_suffix = f'.layer{layer_idx}'
@@ -119,7 +119,7 @@ def get_params_from_model(path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('')
     parser.add_argument('--org_model_path', type=str, nargs='?', default='/home/llm_irs/pytorch_frontend_models/gpt-j-6b/pytorch_original/')
-    parser.add_argument('--ov_model_path', type=str, nargs='?', default='./gen/gptj_6b/gptj_6b.xml')
+    parser.add_argument('--ov_model_path', type=str, nargs='?', default='./gen/gptj_6b/')
     parser.add_argument('--compressed_weight', type=bool, nargs='?', default=False)
     args = parser.parse_args()
     make_configs['compressed_weight'] = args.compressed_weight
@@ -132,5 +132,5 @@ if __name__ == "__main__":
     serialize(model, args.ov_model_path)
     cost = time.time() - beg
     print(f'serialize done, cost {cost:.2f} seconds.')
-    print(f'save tokenzier to "{os.path.dirname(args.ov_model_path)}" ...')
+    print(f'save tokenzier to "{args.ov_model_path}" ...')
     save_tokenzier(args.org_model_path, args.ov_model_path)
