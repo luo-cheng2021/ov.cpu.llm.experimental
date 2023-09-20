@@ -119,7 +119,7 @@ def get_params_from_model(path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('')
     parser.add_argument('--org_model_path', type=str, nargs='?', default='/home/llm_irs/pytorch_frontend_models/gpt-j-6b/pytorch_original/')
-    parser.add_argument('--ov_model_path', type=str, nargs='?', default='./gen/gptj_6b.xml')
+    parser.add_argument('--ov_model_path', type=str, nargs='?', default='./gen/gptj_6b/gptj_6b.xml')
     parser.add_argument('--compressed_weight', type=bool, nargs='?', default=False)
     args = parser.parse_args()
     make_configs['compressed_weight'] = args.compressed_weight

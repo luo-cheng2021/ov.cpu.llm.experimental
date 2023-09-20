@@ -93,8 +93,6 @@ if __name__ == "__main__":
     # Add an argument
     parser.add_argument('-m', '--model', type=str, required=True,
                         help="path to model file")
-    #parser.add_argument('-pm', '--pytorch-model', type=str, required=False,
-    #                help="path to pytorch model file")
     parser.add_argument('-pl', '--prompt-length', type=int, nargs='+', default=32, required=False,
                         help="prompt length")
     parser.add_argument('-p', '--prompt', type=str, nargs='+', required=False,
@@ -107,22 +105,6 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--repeat", type=int, default=1)
     # Parse the argument
     args = parser.parse_args()
-
-    """
-    # derive pytorch_model path
-    if not args.pytorch_model:
-        pm_map = {}
-        pm_map["gptj_6b.xml"] = "/home/llm_irs/pytorch_frontend_models/gpt-j-6b/pytorch_original/"
-        pm_map["dolly_v2_12b.xml"] = "/home/llm_irs/pytorch_frontend_models/dolly-v2-12b/pytorch_original/"
-        pm_map["falcon_40b.xml"] = "/home/openvino-ci-68/falcon-40b/"
-        pm_map["llama-2-7b-chat.xml"] = "/home/llm_irs/pytorch_frontend_models/llama-2-7b-chat/pytorch_original/"
-        pm_map["chatglm2-6b.xml"] = "/home/llm_irs/pytorch_frontend_models/chatglm2-6b/"
-        for k in pm_map:
-            if k in args.model:
-                args.pytorch_model = pm_map[k]
-    if not args.pytorch_model:
-        raise "pytorch_model path is required for tokenizer"
-    """
 
     tokenizer = AutoTokenizer.from_pretrained(os.path.dirname(args.model), trust_remote_code=True)
     if tokenizer.pad_token is None:
