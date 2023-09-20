@@ -4,7 +4,7 @@ import numpy as np
 import sys, os
 import argparse
 import time
-from utils import show_model, make_mha, make_fc, make_mvn, make_embedding, configs as make_configs
+from utils import show_model, make_mha, make_fc, make_mvn, make_embedding, save_tokenizer, configs as make_configs
 
 def layer(configs, consts, layer_idx, hidden_states, kv_cache, beam_table, attn_mask, cos_tab, sin_tab):
     name_suffix = f'.layer{layer_idx}'
@@ -132,3 +132,5 @@ if __name__ == "__main__":
     serialize(model, args.ov_model_path)
     cost = time.time() - beg
     print(f'serialize done, cost {cost:.2f} seconds.')
+    print(f'save tokenzier to "{os.path.dirname(args.ov_model_path)}" ...')
+    save_tokenzier(args.org_model_path, args.ov_model_path)

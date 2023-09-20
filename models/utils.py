@@ -1,7 +1,9 @@
+from transformers import AutoTokenizer
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
 from openvino.runtime import opset10 as opset
 from openvino.runtime.op import Constant
 import numpy as np
+import os
 import sys
 import torch
 
@@ -155,3 +157,7 @@ def make_embedding(key, input, consts):
         embed_in_const.set_friendly_name(name=key)
     inputs_embeds = opset.gather(embed_in_const, indices=input, axis=0)
     return inputs_embeds
+
+def save_tokenzier(orig_model_path, ov_model_path):
+    tokenizer = AutoTokenizer.from_pretrained(orig_model_path)
+    tokenizer.save_pretrained(os.path.dirname(ov_model_path))

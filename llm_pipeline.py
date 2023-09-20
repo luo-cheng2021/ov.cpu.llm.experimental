@@ -3,6 +3,7 @@ import json
 import time
 import hashlib
 import numpy as np
+import os
 import sys
 from openvino.runtime import Core
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
@@ -92,8 +93,8 @@ if __name__ == "__main__":
     # Add an argument
     parser.add_argument('-m', '--model', type=str, required=True,
                         help="path to model file")
-    parser.add_argument('-pm', '--pytorch-model', type=str, required=False,
-                    help="path to pytorch model file")
+    #parser.add_argument('-pm', '--pytorch-model', type=str, required=False,
+    #                help="path to pytorch model file")
     parser.add_argument('-pl', '--prompt-length', type=int, nargs='+', default=32, required=False,
                         help="prompt length")
     parser.add_argument('-p', '--prompt', type=str, nargs='+', required=False,
@@ -107,6 +108,7 @@ if __name__ == "__main__":
     # Parse the argument
     args = parser.parse_args()
 
+    """
     # derive pytorch_model path
     if not args.pytorch_model:
         pm_map = {}
@@ -120,8 +122,9 @@ if __name__ == "__main__":
                 args.pytorch_model = pm_map[k]
     if not args.pytorch_model:
         raise "pytorch_model path is required for tokenizer"
+    """
 
-    tokenizer = AutoTokenizer.from_pretrained(args.pytorch_model, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(os.path.dirname(args.model), trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.add_special_tokens({'pad_token': '[PAD]'})
         tokenizer.pad_token = tokenizer.eos_token_id
