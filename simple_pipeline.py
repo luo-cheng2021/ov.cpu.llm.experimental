@@ -75,9 +75,9 @@ class OVModel:
     def decode(self, all_tokens):
         return self.tokenizer.batch_decode(all_tokens, skip_special_tokens=True)
 
-m1 = OVModel("gen/gptj_6b.xml", "/home/llm_irs/pytorch_frontend_models/gpt-j-6b/pytorch_original/")
-m1 = OVModel("gen/dolly_v2_12b.xml", "/home/llm_irs/pytorch_frontend_models/dolly-v2-12b/pytorch_original/")
-m1 = OVModel("gen/falcon_40b.xml", "/home/openvino-ci-68/falcon-40b/")
+m1 = OVModel("gen/gptj_6b/gptj_6b.xml", "gen/gptj_6b")
+m1 = OVModel("gen/dolly_v2_12b/dolly_v2_12b.xml", "gen/dolly_v2_12b")
+m1 = OVModel("gen/falcon_40b/falcon_40b.xml", "gen/falcon_40b")
 
 m1.load()
 
