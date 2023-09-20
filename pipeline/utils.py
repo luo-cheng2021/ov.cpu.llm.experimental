@@ -25,5 +25,6 @@ def get_top_k_logits(scores, top_k):
 
 def create_sinusoidal_positions(num_pos: int, dim: int):
     inv_freq = 1.0 / (10000 ** (np.arange(0, dim, 2) / dim))
-    sinusoid_inp = np.einsum("i , j -> i j", np.arange(num_pos, dtype=np.float), inv_freq).astype("float32")
+    sinusoid_inp = np.einsum("i , j -> i j", np.arange(num_pos, dtype=np.float32), inv_freq).astype("float32")
     return np.sin(sinusoid_inp), np.cos(sinusoid_inp)
+

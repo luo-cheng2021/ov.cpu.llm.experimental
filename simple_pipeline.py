@@ -1,12 +1,22 @@
 
 import numpy as np
 from openvino.runtime import Core
-import sys
+import sys, os
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
+from models.utils import OV_XML_FILE_NAME
+
+ext_path = None
+if sys.platform == 'win32':
+    ext_path = ".\\custom_ops\\build\\Release\\ov-cpu-llm-experimental.dll"
+elif sys.platform == 'linux':
+    ext_path = "./custom_ops/build/libov-cpu-llm-experimental.so"
+else:
+    print(f"Sample code not supported on platform: {sys.platform}")
+    exit(1)
 
 core = Core()
-core.add_extension("./custom_ops/build/libov-cpu-llm-experimental.so")
+core.add_extension(ext_path)
 
 np.set_printoptions(linewidth=np.inf)
 
@@ -19,9 +29,9 @@ def create_sinusoidal_positions(num_pos: int, dim: int):
 
 
 class OVModel:
-    def __init__(self, ir_path, tokenizer_path):
-        self.tokenizer_path = tokenizer_path
-        self.ir_path = ir_path
+    def __init__(self, model_path):
+        self.tokenizer_path = model_path
+        self.ir_path = os.path.join(model_path, OV_XML_FILE_NAME)
 
     def load(self):
         print(f"load Tokenizer from {self.tokenizer_path}...")
@@ -66,9 +76,9 @@ class OVModel:
     def decode(self, all_tokens):
         return self.tokenizer.batch_decode(all_tokens, skip_special_tokens=True)
 
-m1 = OVModel("gen/gptj_6b.xml", "/home/llm_irs/pytorch_frontend_models/gpt-j-6b/pytorch_original/")
-m1 = OVModel("gen/dolly_v2_12b.xml", "/home/llm_irs/pytorch_frontend_models/dolly-v2-12b/pytorch_original/")
-m1 = OVModel("gen/falcon_40b.xml", "/home/openvino-ci-68/falcon-40b/")
+m1 = OVModel("gen/gptj_6b/")
+m1 = OVModel("gen/dolly_v2_12b/")
+m1 = OVModel("gen/falcon_40b/")
 
 m1.load()
 
