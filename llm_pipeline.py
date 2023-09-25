@@ -3,8 +3,8 @@ import json
 import time
 import hashlib
 import numpy as np
-import os
 import sys
+from pathlib import Path
 from openvino.runtime import Core
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
 from openvino.runtime import opset10 as opset
@@ -27,6 +27,13 @@ class ModelConfig:
 
     def __str__(self) -> str:
         return f"\tn_layers={self.n_layers}, n_head={self.n_head}, head_size={self.head_size}, rotary_dims={self.rotary_dims}"
+
+def post_processing(result, input_text): 
+    """post processing the model output"""
+    ans = result
+    if result[:len(input_text)] == input_text:
+        ans = result[len(input_text):]
+    return ans
 
 last_output_text_map = {}
 
@@ -86,6 +93,7 @@ def generate(args, text, tokenizer, compiled_model, enforce_input_tokens = None,
         last_output_text_map[text_key] = output_text
         for i, out in enumerate(output_text):
             md5sum = hashlib.md5(out.encode('utf-8')).hexdigest()
+            out = post_processing(out, text)
             if len(out) > 160:
                 out = out[:80] + "..." + md5sum
             print(f"\t{i}. {[out]}")
@@ -110,7 +118,7 @@ if __name__ == "__main__":
     # Parse the argument
     args = parser.parse_args()
 
-    tokenizer = AutoTokenizer.from_pretrained(os.path.dirname(args.model), trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.add_special_tokens({'pad_token': '[PAD]'})
         tokenizer.pad_token = tokenizer.eos_token_id
@@ -132,7 +140,7 @@ if __name__ == "__main__":
     core.add_extension(ext_path)
     print("Init OpenVINO model ...")
     # read the model and corresponding weights from file
-    ov_model = core.read_model(os.path.join(args.model, OV_XML_FILE_NAME))
+    ov_model = core.read_model(Path(args.model) / OV_XML_FILE_NAME)
 
     # add preprocessor for bf16 kv_cache
     if args.bf16:
