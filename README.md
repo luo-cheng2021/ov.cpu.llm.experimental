@@ -33,8 +33,8 @@ This will put the optimized OpenVINO IR (and associated tokenizer) into `~/model
 Now we're ready to run the benchmarks using this model, again mounting that directory into the launched docker container. The following command runs the benchmark of the compressed model for 3 iterations, with BF16 precision, for each of the prompts in the `custom_prompts.json` file. 
 
 ```bash
-docker run --rm -v $HOME/models:/models -it openvino-llm \
-  python3 llm_pipeline.py -m /models/llama-2-7b-chat-ov --bf16 -r 3 --greedy --prompts custom_prompts.json
+docker run --privileged --rm -v $HOME/models:/models -v $(pwd):/results -it openvino-llm \
+  python3 llm_pipeline.py -m /models/llama-2-7b-chat-ov --bf16 -r 3 --greedy --prompts custom_prompts.json --output-results /results/results.csv
 ```
 
 A sample output is below:
@@ -49,6 +49,7 @@ round 0:
         0. [' Hello! I am an AI assistant, How can I help you?']
 ...
 ```
+Since we applied `--output-results` above, you will find the results in the `results.csv` file.
 
 See section 2 below for more examples of model generation and benchmark options.
 
