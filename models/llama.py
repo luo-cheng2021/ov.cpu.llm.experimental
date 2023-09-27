@@ -58,7 +58,9 @@ def create_model(configs, consts):
     inputs_embeds = make_embedding('model.embed_tokens.weight', input_ids, consts)
     hidden_states = inputs_embeds
 
-    for i in range(configs['layer_num']):
+    from tqdm import tqdm
+
+    for i in tqdm(range(configs['layer_num'])):
         hidden_states = layer(configs, consts, i, hidden_states, kv_cache, beam_table, attn_mask, cos_tab, sin_tab)
     # final_layernorm
     final_layernorm = make_rms_norm('model.norm', hidden_states, consts, configs['rms_norm_eps'])
@@ -129,9 +131,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser('')
     parser.add_argument('--org_model_path', type=str, nargs='?', default='/home/llm_irs/pytorch_frontend_models/llama-2-7b-chat/pytorch_original/')
     parser.add_argument('--ov_model_path', type=str, nargs='?', default='./gen/llama-2-7b-chat/')
-    parser.add_argument('--compressed_weight', type=bool, nargs='?', default=False)
+    parser.add_argument('--quant_type', type=str, nargs='?', default='llama_w8_0')
     args = parser.parse_args()
-    make_configs['compressed_weight'] = args.compressed_weight
+    make_configs['quant_type'] = args.quant_type
 
     configs, consts = get_params_from_model(args.org_model_path)
     model = create_model(configs, consts)
