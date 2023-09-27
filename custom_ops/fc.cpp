@@ -55,9 +55,9 @@ void FC::validate_and_infer_types() {
         auto Ngroups = (N + group_n - 1) / group_n;
 
         // every 4 rows in (group_k x group_n) sub-block is interleaved to become (group_k/4 by group_n*4)
-        set_output_type(0, ov::element::i8, ov::PartialShape{Ngroups, Kgroups, group_k / 4, group_n * 4});
-        // scale is shared along group_k
-        set_output_type(1, ov::element::f32, ov::PartialShape{Kgroups, Ngroups * group_n});
+        // totally group_n scales for sub-block is "embedded" in quantized weights in f16 format, so
+        // it's 2*group_n more i8 elements
+        set_output_type(0, ov::element::i8, ov::PartialShape{Ngroups, Kgroups, (group_k * group_n) + (2 * group_n)});
         return;
     }
 
@@ -159,8 +159,12 @@ struct VNNI_INT8_Sequence {
     }
 };
 
-bool FC::quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized,
-                    d_tensor::PlainTensor<float> wei_scales) const {
+struct q8_0_block {
+    int8_t w[32 / 4][32 * 4];
+    ov::float16 wd[32];
+} __attribute__((packed));
+
+bool FC::quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized) const {
     // raw weight input is NxK (transpose_b is true)
     // strides is decreasing, so inner-most dimension is at higher ranks
     size_t N = wei.size(0);
@@ -172,14 +176,18 @@ bool FC::quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8
     size_t Kgroups = (K + group_k - 1) / group_k;
     size_t Ngroups = (N + group_n - 1) / group_n;
 
-    wei_quantized.assert_dims({Ngroups, Kgroups, group_k / 4, group_n * 4});
-    wei_scales.assert_dims({Kgroups, Ngroups * group_n});
+    assert(group_k == 32);
+    assert(group_n == 32);
+
+    wei_quantized.assert_dims({Ngroups, Kgroups, (group_k * group_n) + (2 * group_n)});
 
     // each 32x32 sub-block is further interleaved every 4-rows into (32/4)x(32*4)
     // and each column of 32x32 sub-block share a quantization scales
     ov::parallel_for(Ngroups, [&](int nb) {
         auto n0 = nb * group_n;
-        for (int kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k) {
+        q8_0_block *wq8_0 = reinterpret_cast<q8_0_block *>(&wei_quantized({nb, 0, 0}));
+        for (int kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k, wq8_0++) {
+            // w_q composed of
             for (int ni = 0; ni < group_n; ni++) {
                 // derive quantization scales from group_k :  round(x * qs)
                 //  amax = np.abs(weight_np_pad).max(axis=3, keepdims=True)
@@ -196,16 +204,16 @@ bool FC::quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8
                 float id = (d != 0) ? (1.0f / d) : 0;
 
                 // save dequantize scale for runtime to use
-                wei_scales({kb, src_n}) = d;
+                wq8_0->wd[ni] = d;
 
                 for (int ki = 0; ki < group_k; ki += 4) {
                     for (int i = 0; i < 4; i++) {
                         auto src_k = k0 + ki + i;
+                        int8_t w_quantized = 0;
                         if (src_n < N && src_k < K) {
-                            wei_quantized({nb, kb, ki / 4, ni * 4 + i}) = std::roundf(wei({src_n, src_k}) * id);
-                        } else {
-                            wei_quantized({nb, kb, ki / 4, ni * 4 + i}) = 0;
+                            w_quantized = std::roundf(wei({src_n, src_k}) * id);
                         }
+                        wq8_0->w[ki / 4][ni * 4 + i] = w_quantized;
                     }
                 }
             }
@@ -218,7 +226,7 @@ bool FC::quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8
 }
 
 bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor<int8_t> wei_quantized,
-                       d_tensor::PlainTensor<float> wei_scales, d_tensor::PlainTensor<float> output) const {
+                       d_tensor::PlainTensor<float> output) const {
     auto Ngroups = wei_quantized.size(0);
     auto Kgroups = wei_quantized.size(1);
     int group_k = m_config.llama_group_k;
@@ -240,6 +248,7 @@ bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
     // dynamically quantize whole inputs
     const_cast<FC *>(this)->x_quantized.resize({B, M, Kgroups * group_k});
     const_cast<FC *>(this)->x_scales.resize({B, M, Kgroups});
+
     {
         auto prof = myprofiler.Profile("quantize");
         // kernel is light-weight to parallel, unless we have multiple rows
@@ -271,19 +280,21 @@ bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
                 for (int m = 0; m < M; m++, py += y_stride) {
                     const float *q8_xd = &x_scales({b, m, 0});
                     const int8_t *q8_xq = &x_quantized({b, m, 0});
-                    const int8_t *q8_weight = &wei_quantized({nb, 0, 0, 0});
+
                     __m256 acc0 = _mm256_setzero_ps();
                     __m256 acc1 = _mm256_setzero_ps();
                     __m256 acc2 = _mm256_setzero_ps();
                     __m256 acc3 = _mm256_setzero_ps();
-                    for (int kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k, q8_xd++) {
 
+                    const q8_0_block *wq8_0 = reinterpret_cast<q8_0_block *>(&wei_quantized({nb, 0, 0}));
+                    for (int kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k, q8_xd++, wq8_0++) {
                         // K group is smallest quantization unit which shares single scale
                         auto acci0 = _mm256_setzero_si256();
                         auto acci1 = _mm256_setzero_si256();
                         auto acci2 = _mm256_setzero_si256();
                         auto acci3 = _mm256_setzero_si256();
                         const __m256i ones = _mm256_set1_epi16(1);
+                        auto *q8_weight = wq8_0->w[0];
                         for (int ki = 0; ki < group_k; ki += 4, q8_weight += 32 * 4, q8_xq += 4) {
                             // 4x32 vnni kernel
                             __m256i x0 = _mm256_set1_epi32(*reinterpret_cast<const int32_t *>(q8_xq));
@@ -299,18 +310,12 @@ bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
                         }
                         // load de-quantize coeff and combine with input's dequantize coeff
                         // const u_int16_t *f16_scale = reinterpret_cast<const u_int16_t *>(&wei_scales({kb, n0}));
-                        const float *f32_scale = &wei_scales({kb, n0});
                         auto dx = _mm256_broadcast_ss(q8_xd);
 
-                        auto d0 = _mm256_loadu_ps(f32_scale);
-                        auto d1 = _mm256_loadu_ps(f32_scale + 8 * 1);
-                        auto d2 = _mm256_loadu_ps(f32_scale + 8 * 2);
-                        auto d3 = _mm256_loadu_ps(f32_scale + 8 * 3);
-
-                        // auto d0 = _mm256_cvtph_ps(_mm_loadu_si128((const __m128i *)f16_scale));
-                        // auto d1 = _mm256_cvtph_ps(_mm_loadu_si128((const __m128i *)(f16_scale + 8 * 1)));
-                        // auto d2 = _mm256_cvtph_ps(_mm_loadu_si128((const __m128i *)(f16_scale + 8 * 2)));
-                        // auto d3 = _mm256_cvtph_ps(_mm_loadu_si128((const __m128i *)(f16_scale + 8 * 3)));
+                        auto d0 = _mm256_cvtph_ps(_mm_loadu_si128((const __m128i *)wq8_0->wd));
+                        auto d1 = _mm256_cvtph_ps(_mm_loadu_si128((const __m128i *)(&wq8_0->wd[8 * 1])));
+                        auto d2 = _mm256_cvtph_ps(_mm_loadu_si128((const __m128i *)(&wq8_0->wd[8 * 2])));
+                        auto d3 = _mm256_cvtph_ps(_mm_loadu_si128((const __m128i *)(&wq8_0->wd[8 * 3])));
 
                         d0 = _mm256_mul_ps(d0, dx);
                         d1 = _mm256_mul_ps(d1, dx);
@@ -339,10 +344,10 @@ bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
 
 bool FC::evaluate(ov::TensorVector &outputs, const ov::TensorVector &inputs) const {
     if (m_config.evaluate_qweight) {
-        return quant_q8_0(&inputs[0], &outputs[0], &outputs[1]);
+        return quant_q8_0(&inputs[0], &outputs[0]);
     }
 
-    evaluate_q8_0(&inputs[0], &inputs[1], &inputs[2], &outputs[0]);
+    evaluate_q8_0(&inputs[0], &inputs[1], &outputs[0]);
     return true;
 }
 

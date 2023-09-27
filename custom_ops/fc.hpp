@@ -37,8 +37,8 @@ class FC : public ov::op::Op {
     }
     bool evaluate(ov::TensorVector& outputs, const ov::TensorVector& inputs) const override;
 
-    bool quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized, d_tensor::PlainTensor<float> wei_scales) const;
-    bool evaluate_q8_0(d_tensor::PlainTensor<float> x, d_tensor::PlainTensor<int8_t> wei_quantized, d_tensor::PlainTensor<float> wei_scales, d_tensor::PlainTensor<float> y) const;
+    bool quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized) const;
+    bool evaluate_q8_0(d_tensor::PlainTensor<float> x, d_tensor::PlainTensor<int8_t> wei_quantized, d_tensor::PlainTensor<float> y) const;
 
   private:
     Config m_config;
