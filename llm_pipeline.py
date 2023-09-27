@@ -9,7 +9,7 @@ from openvino.runtime import Core
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
 from openvino.runtime import opset10 as opset
 from openvino.preprocess import PrePostProcessor
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
 from pipeline.greedy_search import generate_greedy
 from pipeline.beam_search import generate_beam
 from models.utils import OV_XML_FILE_NAME
@@ -30,7 +30,7 @@ class ModelConfig:
 
 last_output_text_map = {}
 
-def generate(args, text, tokenizer, compiled_model, enforce_input_tokens = None):
+def generate(args, text, tokenizer, compiled_model, enforce_input_tokens = None, streamer = None):
     global last_output_text_map
 
     if enforce_input_tokens:
@@ -59,7 +59,8 @@ def generate(args, text, tokenizer, compiled_model, enforce_input_tokens = None)
                                     max_new_tokens=args.answer_length,
                                     eos_token_id=tokenizer.eos_token_id,
                                     pad_token_id=tokenizer.pad_token_id,
-                                    max_kv_len=input_token_len + args.answer_length*2)
+                                    max_kv_len=input_token_len + args.answer_length*2,
+                                    streamer = streamer)
     else:
         output_ids, latency = generate_beam(compiled_model, input_ids, attention_mask, 
                                     max_new_tokens=args.answer_length,
@@ -156,9 +157,14 @@ if __name__ == "__main__":
     for round in range(args.repeat):
         print(f"round {round}:")
         if args.prompt:
+            if round == 0 and len(args.prompt) == 1:
+                # TextStreamer only supports batch size 1
+                streamer = TextStreamer(tokenizer)
+            else:
+                streamer = None
             # prompt from command line
             text = args.prompt
-            generate(args, text, tokenizer, compiled_model)
+            generate(args, text, tokenizer, compiled_model, streamer = streamer)
         else:
             # prompt from json config
             for plen in args.prompt_length:
