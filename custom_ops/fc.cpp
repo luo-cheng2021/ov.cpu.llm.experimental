@@ -10,7 +10,7 @@
 #include "profiler.hpp"
 
 // global thread_local profiler
-static thread_local ProfilerManager myprofiler("fc.json");
+//static thread_local ProfilerManager myprofiler("fc.json");
 
 #ifdef _WIN32
 #include <intrin.h>
@@ -137,7 +137,7 @@ struct VNNI_INT8_Sequence {
     __m256i operator()(__m256i acc, const __m256i x, const __m256i y) {
 #if __AVXVNNIINT8__
         return _mm256_dpbssd_epi32(acc, x, y);
-#elif __AVXVNNI__
+#elif defined (__AVXVNNI__) //|| (defined (_WIN32) && defined (__AVX2__))
         // Get absolute values of x vectors (x becomes u8 : 0~128)
         const __m256i ax = _mm256_sign_epi8(x, x);
         // Sign the values of the y vectors (negative sign of x is combined with y)
@@ -162,7 +162,7 @@ struct VNNI_INT8_Sequence {
 struct q8_0_block {
     int8_t w[32 / 4][32 * 4];
     ov::float16 wd[32];
-} __attribute__((packed));
+}; // __attribute__((packed));
 
 bool FC::quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized) const {
     // raw weight input is NxK (transpose_b is true)
@@ -183,12 +183,12 @@ bool FC::quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8
 
     // each 32x32 sub-block is further interleaved every 4-rows into (32/4)x(32*4)
     // and each column of 32x32 sub-block share a quantization scales
-    ov::parallel_for(Ngroups, [&](int nb) {
+    ov::parallel_for(Ngroups, [&](size_t nb) {
         auto n0 = nb * group_n;
         q8_0_block *wq8_0 = reinterpret_cast<q8_0_block *>(&wei_quantized({nb, 0, 0}));
-        for (int kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k, wq8_0++) {
+        for (size_t kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k, wq8_0++) {
             // w_q composed of
-            for (int ni = 0; ni < group_n; ni++) {
+            for (size_t ni = 0; ni < group_n; ni++) {
                 // derive quantization scales from group_k :  round(x * qs)
                 //  amax = np.abs(weight_np_pad).max(axis=3, keepdims=True)
                 //  d = amax / ((1 << 7) - 1)
@@ -206,8 +206,8 @@ bool FC::quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8
                 // save dequantize scale for runtime to use
                 wq8_0->wd[ni] = d;
 
-                for (int ki = 0; ki < group_k; ki += 4) {
-                    for (int i = 0; i < 4; i++) {
+                for (size_t ki = 0; ki < group_k; ki += 4) {
+                    for (size_t i = 0; i < 4; i++) {
                         auto src_k = k0 + ki + i;
                         int8_t w_quantized = 0;
                         if (src_n < N && src_k < K) {
@@ -250,9 +250,9 @@ bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
     const_cast<FC *>(this)->x_scales.resize({B, M, Kgroups});
 
     {
-        auto prof = myprofiler.Profile("quantize");
+        //auto prof = myprofiler.Profile("quantize");
         // kernel is light-weight to parallel, unless we have multiple rows
-        ov::parallel_for2d(B, M, [&](int b, int m) {
+        ov::parallel_for2d(B, M, [&](size_t b, size_t m) {
             // a single row quantized in K groups
             float *q8_xd = &x_scales({b, m, 0});
             int8_t *q8_xq = &x_quantized({b, m, 0});
@@ -271,13 +271,13 @@ bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
     }
 
     {
-        auto prof = myprofiler.Profile("vnni");
-        ov::parallel_for(Ngroups, [&](int nb) {
-            int n0 = nb * group_n;
+        //auto prof = myprofiler.Profile("vnni");
+        ov::parallel_for(Ngroups, [&](size_t nb) {
+            size_t n0 = nb * group_n;
             float *py = &output({0, 0, n0});
             // B & M dimensions are collapsed as 1 dimension
-            for (int b = 0; b < B; b++) {
-                for (int m = 0; m < M; m++, py += y_stride) {
+            for (size_t b = 0; b < B; b++) {
+                for (size_t m = 0; m < M; m++, py += y_stride) {
                     const float *q8_xd = &x_scales({b, m, 0});
                     const int8_t *q8_xq = &x_quantized({b, m, 0});
 
@@ -287,7 +287,7 @@ bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
                     __m256 acc3 = _mm256_setzero_ps();
 
                     const q8_0_block *wq8_0 = reinterpret_cast<q8_0_block *>(&wei_quantized({nb, 0, 0}));
-                    for (int kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k, q8_xd++, wq8_0++) {
+                    for (size_t kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k, q8_xd++, wq8_0++) {
                         // K group is smallest quantization unit which shares single scale
                         auto acci0 = _mm256_setzero_si256();
                         auto acci1 = _mm256_setzero_si256();
@@ -295,7 +295,7 @@ bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
                         auto acci3 = _mm256_setzero_si256();
                         const __m256i ones = _mm256_set1_epi16(1);
                         auto *q8_weight = wq8_0->w[0];
-                        for (int ki = 0; ki < group_k; ki += 4, q8_weight += 32 * 4, q8_xq += 4) {
+                        for (size_t ki = 0; ki < group_k; ki += 4, q8_weight += 32 * 4, q8_xq += 4) {
                             // 4x32 vnni kernel
                             __m256i x0 = _mm256_set1_epi32(*reinterpret_cast<const int32_t *>(q8_xq));
                             __m256i y0 = _mm256_loadu_si256((const __m256i *)(q8_weight));

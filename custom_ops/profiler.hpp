@@ -2,6 +2,7 @@
 
 #include <map>
 #include <deque>
+#include <mutex>
 #include <thread>
 #include <memory>
 #include <vector>
@@ -9,15 +10,21 @@
 #include <sstream>
 #include <fstream>
 
-#include "x86intrin.h"
-
+#ifdef _WIN32
+#include <intrin.h>
+#include <windows.h>
+using pid_t = int;
+#else
+#include <immintrin.h>
+#include <x86intrin.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/syscall.h>
 
-#include <fcntl.h>           /* For O_* constants */
-#include <sys/stat.h>        /* For mode constants */
+#include <fcntl.h> /* For O_* constants */
 #include <semaphore.h>
+#include <sys/stat.h> /* For mode constants */
+#endif
 
 struct ProfileData {
     uint64_t start;
@@ -95,6 +102,7 @@ class ProfilerManager {
     uint64_t  tsc_ticks_base;
     const char* dump_file_name;
     pid_t thread_id;
+    std::mutex g_mutex;
 
 public:
     static uint64_t rdtsc_calibrate(int seconds = 1) {
@@ -118,7 +126,11 @@ public:
                 std::cout << "=== ProfilerManager2: tsc_ticks_per_second = " << tsc_ticks_per_second << std::endl;
                 tsc_ticks_base = 0;//__rdtsc();
             }
+#ifdef _WIN32
+            thread_id = static_cast<int>(GetCurrentThreadId());
+#else
             thread_id = syscall(__NR_gettid);
+#endif
         }
     }
 
@@ -126,24 +138,25 @@ public:
         finalize();
     }
 
-    struct SemMutex {
-        sem_t * sem;
-        SemMutex() {
-            sem = sem_open("/profiler_sem", O_CREAT, 0644, 1);
-            if (sem == SEM_FAILED) {
-                perror("Failed to open semphore for empty");
-                return;
-            }
-            sem_wait(sem);
-        }
-        ~SemMutex() {
-            if (sem != SEM_FAILED)
-                sem_post(sem);
-        }
-    };
+    // struct SemMutex {
+    //     sem_t * sem;
+    //     SemMutex() {
+    //         sem = sem_open("/profiler_sem", O_CREAT, 0644, 1);
+    //         if (sem == SEM_FAILED) {
+    //             perror("Failed to open semphore for empty");
+    //             return;
+    //         }
+    //         sem_wait(sem);
+    //     }
+    //     ~SemMutex() {
+    //         if (sem != SEM_FAILED)
+    //             sem_post(sem);
+    //     }
+    // };
 
     void SafeDump(const char * dump_file_name, const char * content) {
-        SemMutex sem_mutex;
+        //SemMutex sem_mutex;
+        std::lock_guard<std::mutex> guard(g_mutex);
 
         // the last ProfilerManagers is responsible for dump to file
         auto * fw = fopen(dump_file_name, "r+");    // Open for reading and writing
