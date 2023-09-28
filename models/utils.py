@@ -23,9 +23,6 @@ custom_opset.add_extension(ext_path)
 
 configs = {
     'quant_type': 'nncf_w8',        # valid: '', 'nncf_w8', 'llama_w8_0',
-    'llama_quant_type': 'group',    # only llama_xx support: 'tensor', 'channel', 'group'
-    'llama_group_k': 32,
-    'llama_group_n': 32,
 }
 
 # copy from nncf/torch/quantization/weights_compression.py: _insert_pre_compression_operations
@@ -124,63 +121,72 @@ def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
 def make_experimental_fc(input, weight, name):
     quant_type = configs['quant_type']
 
-    if 'w8' in quant_type:
-        weight_bits = 8
-    elif 'w4' in quant_type:
-        weight_bits = 4
-    else:
-        raise ValueError(f'invalid quant_type: {quant_type}, only w8, w4 support')
+    def quantize_weights(weight, quant_type):
+        try:
+            # build a FC node in `evaluate_qweight` mode to quantize & relayout weight
+            qweight_node = custom_opset.create('FC', [Constant(weight, True)], {
+                'quant_type':quant_type,
+                'N' : weight.shape[0],
+                'K' : weight.shape[1],
+                'evaluate_qweight' : 1
+            })
+        except RuntimeError:
+            # unsupported quant type
+            return []
 
-    fc_attr = {}
-    fc_attr['quant_type'] = ['', 'nncf_w8', 'llama_w8_0'].index(quant_type)
-    fc_attr['llama_quant_type'] = ['', 'tensor', 'channel', 'group'].index(configs['llama_quant_type'])
-    fc_attr['llama_group_k'] = configs['llama_group_k']
-    fc_attr['llama_group_n'] = configs['llama_group_n']
-    fc_attr['N'] = weight.shape[0]
-    fc_attr['K'] = weight.shape[1]
-    fc_attr['bits'] = weight_bits
-    fc_attr['evaluate_qweight'] = 1
+        # unsupported quant type
+        if qweight_node.get_output_size() == 0:
+            return []
 
-    # build a FC node in `evaluate_qweight` mode to quantize & relayout weight
-    # runtime FC node is built based on them
-    weight_node = Constant(weight, True)
-    qweight_node = custom_opset.create('FC', [weight_node], fc_attr)
+        # create tensors with required shape & dtype to hold quantized weights
+        output_vec = []
+        for i in range(qweight_node.get_output_size()):
+            ov_type = qweight_node.get_output_element_type(i)
+            ov_shape = qweight_node.get_output_shape(i)
+            output_vec.append(Tensor(ov_type, ov_shape))
 
-    # print(weight.shape, weight.dtype)
-    output_vec = []
-    for i in range(qweight_node.get_output_size()):
-        ov_type = qweight_node.get_output_element_type(i)
-        ov_shape = qweight_node.get_output_shape(i)
-        # print(f" output {i} : {ov_type}, {ov_shape}")
-        output_vec.append(Tensor(ov_type, ov_shape))
+        # evaluate_qweight
+        if not qweight_node.evaluate(output_vec, [Tensor(weight)]):
+            raise Exception("weight quantization failed!")
 
-    if not qweight_node.evaluate(output_vec, [Tensor(weight)]):
-        raise Exception("weight quantization failed!")
+        return [Constant(w) for w in output_vec]
 
-    # create actual FC node based on quantized weights
-    fc_inputs = [input]
-    for t in output_vec:
-        fc_inputs.append(Constant(t))
-    
-    fc_attr['evaluate_qweight'] = 0
-    fc_node = custom_opset.create('FC', fc_inputs, fc_attr)
-    # print(output_vec)
-    return fc_node
+    quantized_weights_list = quantize_weights(weight, quant_type)
+
+    if len(quantized_weights_list) == 0:
+        return None
+
+    return custom_opset.create('FC', [input, *quantized_weights_list] , {
+        'quant_type':quant_type,
+        'N' : weight.shape[0],
+        'K' : weight.shape[1],
+        'evaluate_qweight' : 0
+    })
 
 def make_fc(key, input, consts, name_suffix=''):
-    if 'llama' in configs['quant_type']:
-        matmul = make_experimental_fc(input, consts[f'{key}.weight'], key)
-    else:
+    # weight const f32 NxK
+    weight = consts[f'{key}.weight']
+
+    # try experimental fc first
+    matmul = make_experimental_fc(input, weight, key)
+
+    # fallbacks
+    if not matmul:
         if configs['quant_type'] == 'nncf_w8':
-            weights = _make_compressed_weight_nncf(consts[f'{key}.weight'], key)
-        else:
-            weights = Constant(consts[f'{key}.weight'], True)
+            weights = _make_compressed_weight_nncf(weight, key)
+        elif configs['quant_type'] == '':
+            weights = Constant(weight, True)
             weights.set_friendly_name(name=f'{key}.weight{name_suffix}')
+        else:
+            raise Exception(f"Unknown quant type: {configs['quant_type']}")
         matmul = opset.matmul(input, weights, transpose_a=False, transpose_b=True, name=f'{key}.matmul{name_suffix}')
+
+    # add bias
     if consts[f'{key}.bias'] is not None:
         bias = Constant(consts[f'{key}.bias'], True)
         bias.set_friendly_name(name=f'{key}.bias{name_suffix}')
         matmul = opset.add(matmul, bias, auto_broadcast='numpy', name=f'{key}.add{name_suffix}')
+
     return matmul
 
 def make_mvn(key, input, consts, configs, name_suffix=''):

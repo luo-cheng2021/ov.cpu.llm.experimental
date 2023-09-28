@@ -30,34 +30,39 @@ std::shared_ptr<ov::Node> FC::clone_with_new_inputs(const ov::OutputVector &new_
 
 bool FC::visit_attributes(ov::AttributeVisitor &visitor) {
     visitor.on_attribute("quant_type", m_config.quant_type);
-    visitor.on_attribute("llama_quant_type", m_config.llama_quant_type);
-    visitor.on_attribute("llama_group_k", m_config.llama_group_k);
-    visitor.on_attribute("llama_group_n", m_config.llama_group_n);
     visitor.on_attribute("K", m_config.K);
     visitor.on_attribute("N", m_config.N);
-    visitor.on_attribute("bits", m_config.bits);
     visitor.on_attribute("evaluate_qweight", m_config.evaluate_qweight);
+
+    m_qtype = quantType::Unkown;
+    if (m_config.quant_type == "Q8_0") {
+        m_qtype = quantType::Q8_0;
+    }
+
     return true;
 }
 
 void FC::validate_and_infer_types() {
+    auto K = m_config.K;
+    auto N = m_config.N;
+
     if (m_config.evaluate_qweight) {
         // in this mode, output quantized weight tensors instead of matmul results
-        // int8 array + scale array
-        auto group_k = m_config.llama_group_k;
-        auto group_n = m_config.llama_group_n;
-        assert(group_k % 4 == 0);
-        assert(group_n % 8 == 0);
 
-        auto K = m_config.K;
-        auto N = m_config.N;
-        auto Kgroups = (K + group_k - 1) / group_k;
-        auto Ngroups = (N + group_n - 1) / group_n;
+        // by-default no output
+        set_output_size(0);
 
         // every 4 rows in (group_k x group_n) sub-block is interleaved to become (group_k/4 by group_n*4)
         // totally group_n scales for sub-block is "embedded" in quantized weights in f16 format, so
         // it's 2*group_n more i8 elements
-        set_output_type(0, ov::element::i8, ov::PartialShape{Ngroups, Kgroups, (group_k * group_n) + (2 * group_n)});
+        if (m_config.quant_type == "Q8_0") {
+            const int group_k = 32;
+            const int group_n = 32;
+            auto Kgroups = (K + group_k - 1) / group_k;
+            auto Ngroups = (N + group_n - 1) / group_n;
+
+            set_output_type(0, ov::element::i8, ov::PartialShape{Ngroups, Kgroups, (group_k * group_n) + (2 * group_n)});
+        }
         return;
     }
 
@@ -159,6 +164,10 @@ struct VNNI_INT8_Sequence {
     }
 };
 
+struct q8_c_block {
+    int8_t w[32 / 4][32 * 4];
+} __attribute__((packed));
+
 struct q8_0_block {
     int8_t w[32 / 4][32 * 4];
     ov::float16 wd[32];
@@ -169,10 +178,8 @@ bool FC::quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8
     // strides is decreasing, so inner-most dimension is at higher ranks
     size_t N = wei.size(0);
     size_t K = wei.size(1);
-    size_t group_k = m_config.llama_group_k;
-    size_t group_n = m_config.llama_group_n;
-    assert(group_k % 4 == 0);
-    assert(group_n % 8 == 0);
+    size_t group_k = 32;
+    size_t group_n = 32;
     size_t Kgroups = (K + group_k - 1) / group_k;
     size_t Ngroups = (N + group_n - 1) / group_n;
 
@@ -229,8 +236,8 @@ bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
                        d_tensor::PlainTensor<float> output) const {
     auto Ngroups = wei_quantized.size(0);
     auto Kgroups = wei_quantized.size(1);
-    int group_k = m_config.llama_group_k;
-    int group_n = m_config.llama_group_n;
+    int group_k = 32;
+    int group_n = 32;
     auto B = input.size(0);
     auto M = input.size(1);
     auto K = input.size(2);
@@ -343,12 +350,18 @@ bool FC::evaluate_q8_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
 }
 
 bool FC::evaluate(ov::TensorVector &outputs, const ov::TensorVector &inputs) const {
-    if (m_config.evaluate_qweight) {
-        return quant_q8_0(&inputs[0], &outputs[0]);
+    switch (m_qtype) {
+    case quantType::Q8_0:
+        if (m_config.evaluate_qweight) {
+            return quant_q8_0(&inputs[0], &outputs[0]);
+        }
+        return evaluate_q8_0(&inputs[0], &inputs[1], &outputs[0]);
+    default:
+        std::cout << "Unknown quant Type !" << std::endl;
+        assert(false);
+        break;
     }
-
-    evaluate_q8_0(&inputs[0], &inputs[1], &outputs[0]);
-    return true;
+    return false;
 }
 
 } // namespace experimental

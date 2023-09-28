@@ -15,18 +15,14 @@ class FC : public ov::op::Op {
     OPENVINO_OP("FC", "llm::experimental");
 
     FC() = default;
-    //
+
     struct Config {
-      int quant_type = 2;         // ['', 'nncf_w8', 'llama_q8w8_0']
-      int llama_quant_type = 3;   // ['', 'tensor', 'channel', 'group']
-      int llama_group_k = 32;
-      int llama_group_n = 32;
-      // raw weight matrix size is known (K x N)
-      int K = 0;
-      int N = 0;
-      int bits = 8;
+      std::string quant_type;     // Q8_0
+      int K = 0;    // raw weight matrix shape 
+      int N = 0;    // raw weight matrix shape 
       int evaluate_qweight = 0;
     };
+
     FC(const ov::OutputVector &args, Config cfg);
     void validate_and_infer_types() override;
     std::shared_ptr<ov::Node> clone_with_new_inputs(const ov::OutputVector &new_args) const override;
@@ -35,12 +31,19 @@ class FC : public ov::op::Op {
     bool has_evaluate() const override {
         return true;
     }
+
     bool evaluate(ov::TensorVector& outputs, const ov::TensorVector& inputs) const override;
 
     bool quant_q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized) const;
     bool evaluate_q8_0(d_tensor::PlainTensor<float> x, d_tensor::PlainTensor<int8_t> wei_quantized, d_tensor::PlainTensor<float> y) const;
 
   private:
+
+    enum class quantType {
+        Unkown,
+        Q8_0,
+    } m_qtype;
+
     Config m_config;
     d_tensor::PlainTensor<int8_t> x_quantized{true};
     d_tensor::PlainTensor<float> x_scales{true};

@@ -131,9 +131,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser('')
     parser.add_argument('--org_model_path', type=str, nargs='?', default='/home/llm_irs/pytorch_frontend_models/llama-2-7b-chat/pytorch_original/')
     parser.add_argument('--ov_model_path', type=str, nargs='?', default='./gen/llama-2-7b-chat/')
-    parser.add_argument('--quant_type', type=str, nargs='?', default='llama_w8_0')
+    parser.add_argument('--quant_type', type=str, nargs='?', default='')
     args = parser.parse_args()
     make_configs['quant_type'] = args.quant_type
+
+    if args.quant_type:
+        args.ov_model_path = os.path.join(args.ov_model_path, args.quant_type)
 
     configs, consts = get_params_from_model(args.org_model_path)
     model = create_model(configs, consts)
