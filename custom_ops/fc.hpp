@@ -32,6 +32,10 @@ class FC : public ov::op::Op {
 
     bool evaluate(ov::TensorVector &outputs, const ov::TensorVector &inputs) const override;
 
+    bool quant_F16_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int32_t> wei_f16) const;
+    bool evaluate_F16_0(d_tensor::PlainTensor<float> x, d_tensor::PlainTensor<int32_t> wei_f16,
+                       d_tensor::PlainTensor<float> y) const;
+
     // every 32 weights within each output channel share a single scale
     bool quant_Q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized) const;
     bool evaluate_Q8_0(d_tensor::PlainTensor<float> x, d_tensor::PlainTensor<int8_t> wei_quantized,
@@ -57,6 +61,7 @@ class FC : public ov::op::Op {
   private:
     enum class quantType {
         Unkown,
+        F16,
         Q8_0,
         Q8_C,
         Q4_0,

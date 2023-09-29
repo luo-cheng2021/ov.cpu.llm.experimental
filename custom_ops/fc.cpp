@@ -34,6 +34,9 @@ bool FC::visit_attributes(ov::AttributeVisitor &visitor) {
     visitor.on_attribute("evaluate_qweight", m_config.evaluate_qweight);
 
     m_qtype = quantType::Unkown;
+    if (m_config.quant_type == "F16") {
+        m_qtype = quantType::F16;
+    }
     if (m_config.quant_type == "Q8_0") {
         m_qtype = quantType::Q8_0;
     }
@@ -48,6 +51,10 @@ bool FC::visit_attributes(ov::AttributeVisitor &visitor) {
     }
     return true;
 }
+
+struct f16_block {
+    ov::float16 w[32];
+};
 
 struct q8_0_block {
     int8_t w[32 / 4][32 * 4];
@@ -139,6 +146,12 @@ void FC::validate_and_infer_types() {
             auto Kgroups = (K + group_k - 1) / group_k;
             auto Ngroups = (N + group_n - 1) / group_n;
             set_output_type(0, ov::element::i8, ov::PartialShape{Ngroups, Kgroups, sizeof(q4_0_block)});
+        } break;
+        case quantType::F16: {
+            constexpr int group_n = 32;
+            auto Ngroups = (N + group_n - 1) / group_n;
+            // WA, use i32 containes 2 float16
+            set_output_type(0, ov::element::i32, ov::PartialShape{Ngroups, K, sizeof(f16_block) / sizeof(int32_t)});
         } break;
         default:
             break;
@@ -749,8 +762,80 @@ bool FC::evaluate_Q4_C(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
     return true;
 }
 
+// F16 weights are converted to F32 at runtime before FMA is applied
+bool FC::quant_F16_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int32_t> wei_f16_i32) const {
+    size_t N = wei.size(0);
+    size_t K = wei.size(1);
+    constexpr int group_n = 32;
+    auto Ngroups = (N + group_n - 1) / group_n;
+
+    d_tensor::PlainTensor<f16_block> wei_f16;
+    wei_f16.resize({Ngroups, K}, reinterpret_cast<f16_block *>(wei_f16_i32.data()));
+
+    ov::parallel_for(Ngroups, [&](size_t nb) {
+        size_t n0 = nb * group_n;
+        for (size_t k = 0; k < K; k++) {
+            f16_block &blk = wei_f16({nb, k});
+            for (size_t ni = 0; ni < 32; ni++) {
+                blk.w[ni] = wei({n0 + ni, k});
+            }
+        }
+    });
+    return true;
+}
+
+bool FC::evaluate_F16_0(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor<int32_t> wei_f16_i32,
+                        d_tensor::PlainTensor<float> output) const {
+    auto B = input.size(0);
+    auto M = input.size(1);
+    auto K = input.size(2);
+    constexpr int group_n = 32;
+    auto Ngroups = wei_f16_i32.size(0);
+    auto y_stride = output.stride(1);
+
+    d_tensor::PlainTensor<f16_block> wei_f16;
+    wei_f16.resize({Ngroups, K}, reinterpret_cast<f16_block *>(wei_f16_i32.data()));
+
+    ov::parallel_for(Ngroups, [&](size_t nb) {
+        size_t n0 = nb * group_n;
+        float *py = &output({0, 0, n0});
+        // B & M dimensions are collapsed as 1 dimension
+        for (size_t b = 0; b < B; b++) {
+            for (size_t m = 0; m < M; m++, py += y_stride) {
+                float *px = &input({b, m, 0});
+                f16_block *wf16 = &wei_f16({nb, 0});
+                __m256 acc0 = _mm256_setzero_ps();
+                __m256 acc1 = _mm256_setzero_ps();
+                __m256 acc2 = _mm256_setzero_ps();
+                __m256 acc3 = _mm256_setzero_ps();
+                for (size_t k = 0; k < K; k++, wf16++) {
+                    auto rx = _mm256_set1_ps(px[k]);
+                    auto d0 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(wf16->w)));
+                    auto d1 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(wf16->w + 8)));
+                    auto d2 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(wf16->w + 8 * 2)));
+                    auto d3 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(wf16->w + 8 * 3)));
+                    acc0 = _mm256_fmadd_ps(rx, d0, acc0);
+                    acc1 = _mm256_fmadd_ps(rx, d1, acc1);
+                    acc2 = _mm256_fmadd_ps(rx, d2, acc2);
+                    acc3 = _mm256_fmadd_ps(rx, d3, acc3);
+                }
+                _mm256_storeu_ps(py + 8 * 0, acc0);
+                _mm256_storeu_ps(py + 8 * 1, acc1);
+                _mm256_storeu_ps(py + 8 * 2, acc2);
+                _mm256_storeu_ps(py + 8 * 3, acc3);
+            }
+        }
+    });
+    return true;
+}
+
 bool FC::evaluate(ov::TensorVector &outputs, const ov::TensorVector &inputs) const {
     switch (m_qtype) {
+    case quantType::F16:
+        if (m_config.evaluate_qweight) {
+            return quant_F16_0(&inputs[0], &outputs[0]);
+        }
+        return evaluate_F16_0(&inputs[0], &inputs[1], &outputs[0]);
     case quantType::Q8_0:
         if (m_config.evaluate_qweight) {
             return quant_Q8_0(&inputs[0], &outputs[0]);

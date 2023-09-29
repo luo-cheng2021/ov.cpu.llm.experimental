@@ -105,3 +105,30 @@ numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/ -pl 32 512 10
 # run on all numa nodes
 python llm_pipeline.py -m ./gen/falcon_40b -bs 1 --bf16 -pl 8000
 ```
+
+# Quantization with experimental FC node
+
+Inspired by excellent project [llama.cpp](https://github.com/ggerganov/llama.cpp), we use following quantization methods: 
+  - Weights are quantized off-line
+  - Activations are quantized dynamically at runtime
+
+| quant_type            |  description |
+| ---------             |     -------  |
+| `F16`                 | FP16 weight format |
+| `Q8_C`, `Q4_C`        | per-output channel weight-quantization |
+| `Q8_0`, `Q4_0`        | llama.cpp style per-32 weights in each output channel weight-quantization |
+
+
+## performance report
+
+RPL: i9-13900K + dua-chanel DDR5 @ 4800MT/s (~70GB/s)
+
+```bash
+numactl -C0-15  python llm_pipeline.py -m ./gen/llama-2-7b-chat/Q8_0/ -p "I am retail store manager with new ice cream flavor Super Sweet White Coffee. Can you generate a twitter post to promote it?" -r 1 --greedy -al 32
+```
+
+| Model    | Measure |         F32     | F16      |     Q8_0 |  Q4_0  |  Q8_C  |   Q4_C |
+| -------- | ------- |         ------- |  ------- |  ------- |------- |------- |------- |
+| Llama-7B  | ms/tok @ 8 Pcore | 383   | 196      |   107    |  64    |  99    |    57  |
+|           |  perplexity      |  N/A  |  N/A     |   N/A    |  N/A   |  N/A   |  N/A   |
+
