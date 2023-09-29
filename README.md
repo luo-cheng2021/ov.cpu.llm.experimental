@@ -116,7 +116,9 @@ Inspired by excellent project [llama.cpp](https://github.com/ggerganov/llama.cpp
 | ---------             |     -------  |
 | `F16`                 | FP16 weight format |
 | `Q8_C`, `Q4_C`        | per-output channel weight-quantization |
-| `Q8_0`, `Q4_0`        | llama.cpp style per-32 weights in each output channel weight-quantization |
+| `Q8_0`, `Q4_0`        | llama.cpp style per-32 weights symmetric weight-quantization |
+| `Q4_1`        | llama.cpp style per-32 weights asymmetric weight-quantization |
+
 
 
 ## performance report
@@ -127,8 +129,9 @@ RPL: i9-13900K + dua-chanel DDR5 @ 4800MT/s (~70GB/s)
 numactl -C0-15  python llm_pipeline.py -m ./gen/llama-2-7b-chat/Q8_0/ -p "I am retail store manager with new ice cream flavor Super Sweet White Coffee. Can you generate a twitter post to promote it?" -r 1 --greedy -al 32
 ```
 
-| Model    | Measure |         F32     | F16      |     Q8_0 |  Q4_0  |  Q8_C  |   Q4_C |
-| -------- | ------- |         ------- |  ------- |  ------- |------- |------- |------- |
-| Llama-7B  | ms/tok @ 8 Pcore | 383   | 196      |   107    |  64    |  99    |    57  |
-|           |  perplexity      |  N/A  |  N/A     |   N/A    |  N/A   |  N/A   |  N/A   |
+| Model    | Measure |        F32     | F16      |     Q8_0 |  Q4_1  |  Q4_0  |  Q8_C  |   Q4_C |
+| -------- | ------- |        ------- |  ------- |  ------- |------- |------- |------- |------- |
+| Llama-7B | bin file size |   26G    | 13G      |   6.7G   | 4.0G   | 3.6G   |  6.3G  |   3.3G |
+|          | ms/tok @ 8 Pcore | 383   | 196      |   107    |  69    |  64    |  99    |    57  |
+|          |  perplexity      |  N/A  |  N/A     |   N/A    |  N/A   |  N/A   |  N/A   |  N/A   |
 

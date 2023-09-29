@@ -16,10 +16,21 @@ class FC : public ov::op::Op {
 
     FC() = default;
 
+    enum class QuantType {
+        Unkown,
+        F16,
+        Q8_0,
+        Q8_C,
+        Q4_0,
+        Q4_1,
+        Q4_C,
+        Q2_1,
+    };
+
     struct Config {
-        std::string quant_type; // Q8_0
-        int K = 0;              // raw weight matrix shape
-        int N = 0;              // raw weight matrix shape
+        std::string quant_type;
+        int K = 0; // raw weight matrix shape
+        int N = 0; // raw weight matrix shape
         int evaluate_qweight = 0;
     };
 
@@ -34,7 +45,7 @@ class FC : public ov::op::Op {
 
     bool quant_F16_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int32_t> wei_f16) const;
     bool evaluate_F16_0(d_tensor::PlainTensor<float> x, d_tensor::PlainTensor<int32_t> wei_f16,
-                       d_tensor::PlainTensor<float> y) const;
+                        d_tensor::PlainTensor<float> y) const;
 
     // every 32 weights within each output channel share a single scale
     bool quant_Q8_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized) const;
@@ -43,6 +54,14 @@ class FC : public ov::op::Op {
 
     bool quant_Q4_0(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized) const;
     bool evaluate_Q4_0(d_tensor::PlainTensor<float> x, d_tensor::PlainTensor<int8_t> wei_quantized,
+                       d_tensor::PlainTensor<float> y) const;
+
+    bool quant_Q4_1(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized) const;
+    bool evaluate_Q4_1(d_tensor::PlainTensor<float> x, d_tensor::PlainTensor<int8_t> wei_quantized,
+                       d_tensor::PlainTensor<float> y) const;
+
+    bool quant_Q2_1(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized) const;
+    bool evaluate_Q2_1(d_tensor::PlainTensor<float> x, d_tensor::PlainTensor<int8_t> wei_quantized,
                        d_tensor::PlainTensor<float> y) const;
 
     // all weights in each output channel share a single scale (per-OC)
@@ -56,20 +75,14 @@ class FC : public ov::op::Op {
     bool evaluate_Q4_C(d_tensor::PlainTensor<float> x, d_tensor::PlainTensor<int8_t> wei_quantized,
                        d_tensor::PlainTensor<int32_t> wei_scales, d_tensor::PlainTensor<float> y) const;
 
-    void dynamic_quantize_x(d_tensor::PlainTensor<float>& input, size_t Kgroups, size_t group_k);
+    void dynamic_quantize_x(d_tensor::PlainTensor<float> &input, size_t Kgroups, size_t group_k,
+                            bool require_group_sum = false, float scale = 1.0f);
 
   private:
-    enum class quantType {
-        Unkown,
-        F16,
-        Q8_0,
-        Q8_C,
-        Q4_0,
-        Q4_C,
-    } m_qtype;
-
+    QuantType m_qtype;
     Config m_config;
     d_tensor::PlainTensor<int8_t> x_quantized{true};
+    d_tensor::PlainTensor<float> x_group_sum{true}; // for asymmetric quantization
     d_tensor::PlainTensor<float> x_scales{true};
 };
 } // namespace experimental

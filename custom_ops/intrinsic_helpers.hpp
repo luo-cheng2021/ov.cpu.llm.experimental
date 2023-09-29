@@ -23,6 +23,18 @@ static inline float hmax_float_8(const __m256 x) {
     return _mm_cvtss_f32(res);
 }
 
+static inline void get_min_max(float *x, int len, float &vmin, float &vmax) {
+    int i = 1;
+    vmin = vmax = x[0];
+    for (; i < len; i++) {
+        auto a = x[i];
+        if (vmax < a)
+            vmax = a;
+        if (vmin > a)
+            vmin = a;
+    }
+}
+
 static inline float get_amax(float *x, int len) {
     int i = 0;
     float amax = 0;
@@ -67,6 +79,20 @@ static inline void quant_row_q8_0(float *x, int8_t *qx, int len, float id) {
         qx[i] = std::round(x[i] * id);
     }
 }
+struct VNNI_Sequence {
+    __m256i operator()(__m256i acc, const __m256i x_s8, const __m256i y_u8) {
+#if __AVXVNNI__
+        return _mm256_dpbusd_epi32(acc, y_u8, x_s8);
+#elif __AVX2__
+        const __m256i ones = _mm256_set1_epi16(1);
+        // u8 x s8
+        const __m256i dot = _mm256_maddubs_epi16(y_u8, x_s8);
+        return _mm256_add_epi32(acc, _mm256_madd_epi16(dot, ones));
+#else
+#error "at least AVX2 is required!"
+#endif
+    }
+};
 
 struct VNNI_INT8_Sequence {
     __m256i operator()(__m256i acc, const __m256i x, const __m256i y) {
