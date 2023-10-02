@@ -121,17 +121,25 @@ Inspired by excellent project [llama.cpp](https://github.com/ggerganov/llama.cpp
 
 
 
-## performance report
+## performance/accuracy report
 
 RPL: i9-13900K + dua-chanel DDR5 @ 4800MT/s (~70GB/s)
 
 ```bash
+# performance
 numactl -C0-15  python llm_pipeline.py -m ./gen/llama-2-7b-chat/Q8_0/ -p "I am retail store manager with new ice cream flavor Super Sweet White Coffee. Can you generate a twitter post to promote it?" -r 1 --greedy -al 32
+
+# perplexity
+# download wikitext-2-raw from :
+#   https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-raw-v1.zip?ref=salesforce-research
+#   https://blog.salesforceairesearch.com/the-wikitext-long-term-dependency-language-modeling-dataset/
+python ./llm_perplexity.py -f=./wikitext-2-raw/wiki.test.raw -ov ./gen/llama-2-7b-chat/F16/
 ```
 
-| Model    | Measure |        F32     | F16      |     Q8_0 |  Q4_1  |  Q4_0  |  Q8_C  |   Q4_C |
-| -------- | ------- |        ------- |  ------- |  ------- |------- |------- |------- |------- |
-| Llama-7B | bin file size |   26G    | 13G      |   6.7G   | 4.0G   | 3.6G   |  6.3G  |   3.3G |
-|          | ms/tok @ 8 Pcore | 383   | 196      |   107    |  69    |  64    |  99    |    57  |
-|          |  perplexity      |  N/A  |  N/A     |   N/A    |  N/A   |  N/A   |  N/A   |  N/A   |
+
+| Model    | Measure |        F32     | F16     |     Q8_0 |  Q4_1  |  Q4_0  |  Q8_C  |   Q4_C |
+| -------- | ------- |        ------- |  -------|  ------- |------- |------- |------- |------- |
+| Llama-7B | bin file size |   26G    | 13G     |   6.7G   | 4.0G   | 3.6G   |  6.3G  |   3.3G |
+|          | ms/tok @ 8 Pcore | 383   | 196     |   107    |  69    |  64    |  99    |    57  |
+|          |  perplexity      |  7.49 | 7.49    |   7.49   |  7.79  |  7.81  |  7.50  | 14.09  |
 

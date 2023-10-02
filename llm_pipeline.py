@@ -34,6 +34,7 @@ def generate(args, text, tokenizer, compiled_model, enforce_input_tokens = None,
     global last_output_text_map
 
     if enforce_input_tokens:
+        # repeat text up-to enforce_input_tokens length 
         inputs = tokenizer(text, return_tensors="np", padding=True, return_token_type_ids=False)
         input_ids = inputs['input_ids']
         attention_mask = inputs['attention_mask']
