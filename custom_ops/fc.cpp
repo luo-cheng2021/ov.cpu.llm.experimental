@@ -178,8 +178,9 @@ void FC::validate_and_infer_types() {
             auto Kgroups = (K + group_k - 1) / group_k;
             // per-OC quantized
             set_output_type(0, ov::element::i8, ov::PartialShape{Ngroups, Kgroups, sizeof(q4_c_block)});
-            // per-OC scale : in float16 format, use i32 to WA cpu plugin's internal reordering of f16
-            set_output_type(1, ov::element::i32, ov::PartialShape{Ngroups * group_n / 2});
+            // per-OC scale + zero-point: two float16 numbers are packed into i32 to WA cpu plugin's internal reordering
+            // of f16
+            set_output_type(1, ov::element::i32, ov::PartialShape{Ngroups * group_n});
         } break;
         case QuantType::Q8_0: {
             constexpr int group_k = 32;
@@ -1100,7 +1101,7 @@ bool FC::evaluate_Q8_C(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
 }
 
 bool FC::quant_Q4_C(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8_t> wei_quantized,
-                    d_tensor::PlainTensor<int32_t> wei_scales_i32) const {
+                    d_tensor::PlainTensor<int32_t> scale_zp_i32) const {
     size_t N = wei.size(0);
     size_t K = wei.size(1);
     constexpr size_t group_k = 32;
@@ -1108,40 +1109,52 @@ bool FC::quant_Q4_C(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8
     auto Ngroups = (N + group_n - 1) / group_n;
     auto Kgroups = (K + group_k - 1) / group_k;
 
-    d_tensor::PlainTensor<ov::float16> wei_scales;
-    wei_scales.resize({Ngroups * group_n}, reinterpret_cast<ov::float16 *>(wei_scales_i32.data()));
+    d_tensor::PlainTensor<ov::float16> scale_zp;
+    scale_zp.resize({Ngroups, 2, group_n}, reinterpret_cast<ov::float16 *>(scale_zp_i32.data()));
 
     ov::parallel_for(Ngroups * group_n, [&](size_t n) {
+        auto nb = n / group_n;
+        auto ni = (n - nb * group_n);
         if (n >= N) {
-            wei_scales({n}) = 0;
+            scale_zp({nb, 0, ni}) = 0;
+            scale_zp({nb, 1, ni}) = 0;
             return;
         }
-
-        float amax = 0.0f;
-        for (size_t k = 0; k < K; k++) {
-            auto a = std::abs(wei({n, k}));
-            if (amax < a)
-                amax = a;
+        // self.S = torch.div((v1 - v0), (Levels - 1))
+        // self.zp = torch.ceil(torch.div(-v0, self.S))
+        float v0 = wei({n, 0});
+        float v1 = wei({n, 0});
+        for (size_t k = 1; k < K; k++) {
+            auto a = wei({n, k});
+            if (v0 > a)
+                v0 = a;
+            if (v1 < a)
+                v1 = a;
         }
-        // x = (d * q)
-        // q = x / d = x * id
-        float d = amax / 7;
-        float id = (d != 0) ? (1.0f / d) : 0;
+        //    deq: (q+zp)*scale
+        //  quant: round(x/scale - zp)
+        const int Levels = 16; // 4bits
+        float scale = (v1 - v0) / (Levels - 1);
+        float zp = std::ceil(v0 / scale);
+        float iscale = (scale != 0) ? (1.0f / scale) : 0;
 
-        wei_scales({n}) = d / 16;
+        scale_zp({nb, 0, ni}) = scale;
+        scale_zp({nb, 1, ni}) = zp;
 
         // quantize column n
-        auto nb = n / group_n;
-        auto noff = (n - nb * group_n);
         q4_c_block *wq4 = reinterpret_cast<q4_c_block *>(&wei_quantized({nb, 0, 0}));
         for (size_t kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k, wq4++) {
             for (size_t ki = 0; ki < group_k; ki++) {
                 auto src_k = k0 + ki;
-                int8_t w_quantized = 0;
+                int w_quantized = 0;
                 if (src_k < K) {
-                    w_quantized = std::roundf(wei({n, src_k}) * id);
+                    w_quantized = std::roundf(wei({n, src_k}) * iscale - zp);
+                    if (w_quantized < 0)
+                        w_quantized = 0;
+                    if (w_quantized > Levels - 1)
+                        w_quantized = Levels - 1;
                 }
-                wq4->set(ki, noff, w_quantized);
+                wq4->set(ki, ni, w_quantized);
             }
         }
     });
@@ -1149,48 +1162,55 @@ bool FC::quant_Q4_C(d_tensor::PlainTensor<float> wei, d_tensor::PlainTensor<int8
 }
 
 bool FC::evaluate_Q4_C(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor<int8_t> wei_quantized,
-                       d_tensor::PlainTensor<int32_t> wei_scales_i32, d_tensor::PlainTensor<float> output) const {
+                       d_tensor::PlainTensor<int32_t> scale_zp_i32, d_tensor::PlainTensor<float> output) const {
     auto Ngroups = wei_quantized.size(0);
     auto Kgroups = wei_quantized.size(1);
-    int group_k = 32;
-    int group_n = 32;
+    constexpr size_t group_k = 32;
+    constexpr size_t group_n = 32;
     auto B = input.size(0);
     auto M = input.size(1);
     auto K = input.size(2);
     auto y_stride = output.stride(1);
 
-    d_tensor::PlainTensor<ov::float16> wei_scales;
-    wei_scales.resize({Ngroups * group_n}, reinterpret_cast<ov::float16 *>(wei_scales_i32.data()));
+    d_tensor::PlainTensor<ov::float16> scale_zp;
+    scale_zp.resize({Ngroups, 2, group_n}, reinterpret_cast<ov::float16 *>(scale_zp_i32.data()));
 
-    VNNI_INT8_Sequence vnni_i8;
+    VNNI_Sequence vnni_u8;
     assert(K == m_config.K);
 
-    const_cast<FC *>(this)->dynamic_quantize_x(input, Kgroups, group_k);
+    const_cast<FC *>(this)->dynamic_quantize_x(input, Kgroups, group_k, true);
 
     PROFILE(prof, "vnni");
     ov::parallel_for(Ngroups, [&](size_t nb) {
         size_t n0 = nb * group_n;
         float *py = &output({0, 0, n0});
-        ov::float16 *pwei_scales = &wei_scales({n0});
+        ov::float16 *p_scales = &scale_zp({nb, 0, 0});
+        ov::float16 *p_zp = &scale_zp({nb, 1, 0});
         // B & M dimensions are collapsed as 1 dimension
         for (size_t b = 0; b < B; b++) {
             for (size_t m = 0; m < M; m++, py += y_stride) {
                 const float *q8_xd = &x_scales({b, m, 0});
                 const int8_t *q8_xq = &x_quantized({b, m, 0});
+                const float *xg_sum = &x_group_sum({b, m, 0});
 
                 __m256 acc0 = _mm256_setzero_ps();
                 __m256 acc1 = _mm256_setzero_ps();
                 __m256 acc2 = _mm256_setzero_ps();
                 __m256 acc3 = _mm256_setzero_ps();
 
+                auto z0 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(p_zp)));
+                auto z1 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(p_zp + 8)));
+                auto z2 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(p_zp + 8 * 2)));
+                auto z3 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(p_zp + 8 * 3)));
+
                 const q4_c_block *wq4 = reinterpret_cast<q4_c_block *>(&wei_quantized({nb, 0, 0}));
-                for (int kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k, q8_xd++, wq4++) {
+                for (int kb = 0, k0 = 0; kb < Kgroups; kb++, k0 += group_k, q8_xd++, wq4++, xg_sum++) {
                     // K group is smallest quantization unit which shares single scale
                     auto acci0 = _mm256_setzero_si256();
                     auto acci1 = _mm256_setzero_si256();
                     auto acci2 = _mm256_setzero_si256();
                     auto acci3 = _mm256_setzero_si256();
-                    const __m256i high4_mask = _mm256_set1_epi32(0xF0F0F0F0);
+                    const __m256i low4_mask = _mm256_set1_epi32(0x0F0F0F0F);
                     auto *q4_weight = wq4->w[0];
                     for (int ki = 0; ki < group_k; ki += 8, q4_weight += 32 * 4, q8_xq += 8) {
                         // 4x32 vnni kernel
@@ -1200,35 +1220,44 @@ bool FC::evaluate_Q4_C(d_tensor::PlainTensor<float> input, d_tensor::PlainTensor
                         __m256i y2 = _mm256_loadu_si256((const __m256i *)(q4_weight + 32 * 2));
                         __m256i y3 = _mm256_loadu_si256((const __m256i *)(q4_weight + 32 * 3));
 
-                        acci0 = vnni_i8(acci0, x0, _mm256_and_si256(_mm256_slli_epi16(y0, 4), high4_mask));
-                        acci1 = vnni_i8(acci1, x0, _mm256_and_si256(_mm256_slli_epi16(y1, 4), high4_mask));
-                        acci2 = vnni_i8(acci2, x0, _mm256_and_si256(_mm256_slli_epi16(y2, 4), high4_mask));
-                        acci3 = vnni_i8(acci3, x0, _mm256_and_si256(_mm256_slli_epi16(y3, 4), high4_mask));
+                        acci0 = vnni_u8(acci0, x0, _mm256_and_si256(y0, low4_mask));
+                        acci1 = vnni_u8(acci1, x0, _mm256_and_si256(y1, low4_mask));
+                        acci2 = vnni_u8(acci2, x0, _mm256_and_si256(y2, low4_mask));
+                        acci3 = vnni_u8(acci3, x0, _mm256_and_si256(y3, low4_mask));
                         // high 4bit
                         __m256i x1 = _mm256_set1_epi32(*reinterpret_cast<const int32_t *>(q8_xq + 4));
-                        acci0 = vnni_i8(acci0, x1, _mm256_and_si256(y0, high4_mask));
-                        acci1 = vnni_i8(acci1, x1, _mm256_and_si256(y1, high4_mask));
-                        acci2 = vnni_i8(acci2, x1, _mm256_and_si256(y2, high4_mask));
-                        acci3 = vnni_i8(acci3, x1, _mm256_and_si256(y3, high4_mask));
+                        acci0 = vnni_u8(acci0, x1, _mm256_and_si256(_mm256_srli_epi16(y0, 4), low4_mask));
+                        acci1 = vnni_u8(acci1, x1, _mm256_and_si256(_mm256_srli_epi16(y1, 4), low4_mask));
+                        acci2 = vnni_u8(acci2, x1, _mm256_and_si256(_mm256_srli_epi16(y2, 4), low4_mask));
+                        acci3 = vnni_u8(acci3, x1, _mm256_and_si256(_mm256_srli_epi16(y3, 4), low4_mask));
                     }
-                    auto dx = _mm256_broadcast_ss(q8_xd);
                     // dequantize per-group k
-                    acc0 = _mm256_fmadd_ps(dx, _mm256_cvtepi32_ps(acci0), acc0);
-                    acc1 = _mm256_fmadd_ps(dx, _mm256_cvtepi32_ps(acci1), acc1);
-                    acc2 = _mm256_fmadd_ps(dx, _mm256_cvtepi32_ps(acci2), acc2);
-                    acc3 = _mm256_fmadd_ps(dx, _mm256_cvtepi32_ps(acci3), acc3);
+                    //   sum_gk(s1*q1 * (q2+zp)*s2)
+                    //   = sum_gk(s1*q1 * (q2+zp))*s2
+                    //   = sum_gk(s1*q1*q2 + s1*q1*zp))*s2
+                    //   = ([s1*sum_gk(q1*q2)] + [sum_gk(s1*q1)] * zp) * s2
+                    auto s1 = _mm256_broadcast_ss(q8_xd);
+                    acc0 = _mm256_fmadd_ps(s1, _mm256_cvtepi32_ps(acci0), acc0);
+                    acc1 = _mm256_fmadd_ps(s1, _mm256_cvtepi32_ps(acci1), acc1);
+                    acc2 = _mm256_fmadd_ps(s1, _mm256_cvtepi32_ps(acci2), acc2);
+                    acc3 = _mm256_fmadd_ps(s1, _mm256_cvtepi32_ps(acci3), acc3);
+                    // also remove zp term
+                    auto gsum = _mm256_broadcast_ss(xg_sum);
+                    acc0 = _mm256_fmadd_ps(gsum, z0, acc0);
+                    acc1 = _mm256_fmadd_ps(gsum, z1, acc1);
+                    acc2 = _mm256_fmadd_ps(gsum, z2, acc2);
+                    acc3 = _mm256_fmadd_ps(gsum, z3, acc3);
                 }
+                // dequant per-n (OC) s2
+                auto s20 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(p_scales)));
+                auto s21 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(p_scales + 8)));
+                auto s22 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(p_scales + 8 * 2)));
+                auto s23 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(p_scales + 8 * 3)));
 
-                // dequant per-n (OC)
-                auto d0 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(pwei_scales)));
-                auto d1 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(pwei_scales + 8)));
-                auto d2 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(pwei_scales + 8 * 2)));
-                auto d3 = _mm256_cvtph_ps(_mm_loadu_si128(reinterpret_cast<__m128i *>(pwei_scales + 8 * 3)));
-
-                acc0 = _mm256_mul_ps(d0, acc0);
-                acc1 = _mm256_mul_ps(d1, acc1);
-                acc2 = _mm256_mul_ps(d2, acc2);
-                acc3 = _mm256_mul_ps(d3, acc3);
+                acc0 = _mm256_mul_ps(s20, acc0);
+                acc1 = _mm256_mul_ps(s21, acc1);
+                acc2 = _mm256_mul_ps(s22, acc2);
+                acc3 = _mm256_mul_ps(s23, acc3);
 
                 // output 32 results
                 _mm256_storeu_ps(py + 8 * 0, acc0);

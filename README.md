@@ -112,14 +112,16 @@ Inspired by excellent project [llama.cpp](https://github.com/ggerganov/llama.cpp
   - Weights are quantized off-line
   - Activations are quantized dynamically at runtime
 
-| quant_type            |  description |
-| ---------             |     -------  |
-| `F16`                 | FP16 weight format |
-| `Q8_C`, `Q4_C`        | per-output channel weight-quantization |
-| `Q8_0`, `Q4_0`        | llama.cpp style per-32 weights symmetric weight-quantization |
+| quant_type    |  description |
+| ---------     |     -------  |
+| `F16`         | FP16 weight format |
+| `Q8_C`        | per-output channel symmetric weight-quantization |
+| `Q4_C`        | per-output channel asymmetric weight-quantization |
+| `Q8_0`, `Q4_0`| llama.cpp style per-32 weights symmetric weight-quantization |
 | `Q4_1`        | llama.cpp style per-32 weights asymmetric weight-quantization |
 
-
+> Note
+>  - asymmetric quantization improves accuracy (PPL) at lower quantization bits, so Q4_C uses asymmetric quantization (with integer zero-point which has higher accuracy than non-integer zero-point)
 
 ## performance/accuracy report
 
@@ -137,9 +139,9 @@ python ./llm_perplexity.py -f=./wikitext-2-raw/wiki.test.raw -ov ./gen/llama-2-7
 ```
 
 
-| Model    | Measure |        F32     | F16     |     Q8_0 |  Q4_1  |  Q4_0  |  Q8_C  |   Q4_C |
-| -------- | ------- |        ------- |  -------|  ------- |------- |------- |------- |------- |
-| Llama-7B | bin file size |   26G    | 13G     |   6.7G   | 4.0G   | 3.6G   |  6.3G  |   3.3G |
+| Model    | Measure          | F32   | F16     |  Q8_0    |  Q4_1  |  Q4_0  |  Q8_C  |   Q4_C |
+| -------- | -------          |-------|  -------|  ------- |------- |------- |------- |------- |
+| Llama-7B | bin file size    | 26G   | 13G     |   6.7G   | 4.0G   | 3.6G   |  6.3G  |   3.3G |
 |          | ms/tok @ 8 Pcore | 383   | 196     |   107    |  69    |  64    |  99    |    57  |
-|          |  perplexity      |  7.49 | 7.49    |   7.49   |  7.79  |  7.81  |  7.50  | 14.09  |
+|          |  perplexity      |  7.49 | 7.49    |   7.49   |  7.79  |  7.81  |  7.50  | 10.33  |
 
