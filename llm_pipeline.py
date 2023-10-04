@@ -106,6 +106,7 @@ if __name__ == "__main__":
     parser.add_argument("--bf16", action="store_true")
     parser.add_argument("-bs", "--beam-size", type=int, default=4)
     parser.add_argument("-r", "--repeat", type=int, default=1)
+    parser.add_argument("-ht", "--hyper-threading", action="store_true")
     # Parse the argument
     args = parser.parse_args()
 
@@ -145,6 +146,7 @@ if __name__ == "__main__":
     ov_config={"PERFORMANCE_HINT": "LATENCY", "NUM_STREAMS": 1,
                 "INFERENCE_PRECISION_HINT" : "bf16" if args.bf16 else "f32",
                 "CPU_DENORMALS_OPTIMIZATION" : "YES",
+                "ENABLE_HYPER_THREADING" : "YES" if args.hyper_threading else "NO",
                 "CACHE_DIR" : None}
 
     compiled_model = core.compile_model(ov_model, "CPU", ov_config)
