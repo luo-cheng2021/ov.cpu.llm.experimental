@@ -22,7 +22,7 @@ custom_opset = opset_utils._get_node_factory()
 custom_opset.add_extension(ext_path)
 
 configs = {
-    'compressed_weight': False,
+    'quant_type': 'nncf_w8',        # valid: '', 'nncf_w8', 'llama_w8_0',
 }
 
 # copy from nncf/torch/quantization/weights_compression.py: _insert_pre_compression_operations
@@ -61,7 +61,7 @@ def _compress_weight_nncf(weight_np, bits:int = 8):
 
     return compressed_weight.type(dtype=torch.uint8).numpy(), zero_point.numpy(), scale.numpy()
 
-def _make_compressed_weight(weight, key, bits:int = 8):
+def _make_compressed_weight_nncf(weight, key, bits:int = 8):
     compressed_weight, zero_point, scale = _compress_weight_nncf(weight, bits)
     weight_node = Constant(compressed_weight, True)
     zp_node = Constant(zero_point, True)
@@ -117,17 +117,76 @@ def make_mha(qkvs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
     output.set_friendly_name(name)
     return output
 
+# custom FC
+def make_experimental_fc(input, weight, name):
+    quant_type = configs['quant_type']
+
+    def quantize_weights(weight, quant_type):
+        try:
+            # build a FC node in `evaluate_qweight` mode to quantize & relayout weight
+            qweight_node = custom_opset.create('FC', [Constant(weight, True)], {
+                'quant_type':quant_type,
+                'N' : weight.shape[0],
+                'K' : weight.shape[1],
+                'evaluate_qweight' : 1
+            })
+        except RuntimeError:
+            # unsupported quant type
+            return []
+
+        # unsupported quant type
+        if qweight_node.get_output_size() == 0:
+            return []
+
+        # create tensors with required shape & dtype to hold quantized weights
+        output_vec = []
+        for i in range(qweight_node.get_output_size()):
+            ov_type = qweight_node.get_output_element_type(i)
+            ov_shape = qweight_node.get_output_shape(i)
+            output_vec.append(Tensor(ov_type, ov_shape))
+
+        # evaluate_qweight
+        if not qweight_node.evaluate(output_vec, [Tensor(weight)]):
+            raise Exception("weight quantization failed!")
+
+        return [Constant(w) for w in output_vec]
+
+    quantized_weights_list = quantize_weights(weight, quant_type)
+
+    if len(quantized_weights_list) == 0:
+        return None
+
+    return custom_opset.create('FC', [input, *quantized_weights_list] , {
+        'quant_type':quant_type,
+        'N' : weight.shape[0],
+        'K' : weight.shape[1],
+        'evaluate_qweight' : 0
+    })
+
 def make_fc(key, input, consts, name_suffix=''):
-    if configs['compressed_weight']:
-        weights = _make_compressed_weight(consts[f'{key}.weight'], key)
-    else:
-        weights = Constant(consts[f'{key}.weight'], True)
-        weights.set_friendly_name(name=f'{key}.weight{name_suffix}')
-    matmul = opset.matmul(input, weights, transpose_a=False, transpose_b=True, name=f'{key}.matmul{name_suffix}')
+    # weight const f32 NxK
+    weight = consts[f'{key}.weight']
+
+    # try experimental fc first
+    matmul = make_experimental_fc(input, weight, key)
+
+    # fallbacks
+    if not matmul:
+        if configs['quant_type'] == 'nncf_w8':
+            weights = _make_compressed_weight_nncf(weight, key)
+        elif configs['quant_type'] == '':
+            weights = Constant(weight, True)
+            weights.set_friendly_name(name=f'{key}.weight{name_suffix}')
+        else:
+            raise Exception(f"Unknown quant type: {configs['quant_type']}")
+        matmul = opset.matmul(input, weights, transpose_a=False, transpose_b=True, name=f'{key}.matmul{name_suffix}')
+
+    # add bias
     if consts[f'{key}.bias'] is not None:
         bias = Constant(consts[f'{key}.bias'], True)
         bias.set_friendly_name(name=f'{key}.bias{name_suffix}')
         matmul = opset.add(matmul, bias, auto_broadcast='numpy', name=f'{key}.add{name_suffix}')
+
     return matmul
 
 def make_mvn(key, input, consts, configs, name_suffix=''):
@@ -152,8 +211,8 @@ def make_rms_norm(key, input, consts, epsilon, name_suffix=''):
     return mul
 
 def make_embedding(key, input, consts):
-    if configs['compressed_weight']:
-        embed_in_const = _make_compressed_weight(consts[key], key)
+    if configs['quant_type'] != '':
+        embed_in_const = _make_compressed_weight_nncf(consts[key], key)
     else:
         embed_in_const = Constant(consts[key], True)
         embed_in_const.set_friendly_name(name=key)

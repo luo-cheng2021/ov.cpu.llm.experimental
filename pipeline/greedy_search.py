@@ -13,8 +13,7 @@ def prepare_next_input(model_inputs, next_tokens):
                                                     np.zeros([attention_mask.shape[0], 1], dtype=np.int32)], axis=-1)
     return model_inputs
 
-def generate_greedy(model, input_ids, attention_mask, max_new_tokens, eos_token_id, pad_token_id, max_kv_len = 2048):
-    first_iteration = True
+def generate_greedy(model, input_ids, attention_mask, max_new_tokens, eos_token_id, pad_token_id, max_kv_len = 2048, streamer = None):
     model_inputs = {}
     batch_size = input_ids.shape[0]
     kvcache_shape = [2 * model.pipeline_config.n_layers,
@@ -39,13 +38,16 @@ def generate_greedy(model, input_ids, attention_mask, max_new_tokens, eos_token_
                     }
     latency = []
     cur_len = 0
+
+    if streamer:
+        print("\033[0;32m")
+        streamer.put(input_ids)
+        streamer.end()
+        print("\033[0;33m")
+
     while True:
         time0 = time.time()
-        if first_iteration:
-            first_iteration = False
-            outputs = model(model_inputs)
-        else:
-            outputs = model(model_inputs)
+        outputs = model(model_inputs)
 
         logits = next(iter(outputs.values()))
         next_token_logits = logits[:, -1, :]
@@ -59,9 +61,14 @@ def generate_greedy(model, input_ids, attention_mask, max_new_tokens, eos_token_
         if cur_len == max_new_tokens or (next_tokens == eos_token_id).all():
             latency.append(time.time() - time0)
             break
-        else:
-            input_ids = np.concatenate((input_ids, next_tokens[:, None]), axis=-1)
-            model_inputs = prepare_next_input(model_inputs, next_tokens)
+
+        if streamer and len(next_tokens) == 1:
+            streamer.put(next_tokens)
+        input_ids = np.concatenate((input_ids, next_tokens[:, None]), axis=-1)
+        model_inputs = prepare_next_input(model_inputs, next_tokens)
         latency.append(time.time() - time0)
 
+    if streamer:
+        streamer.end()
+        print("\033[00m")
     return input_ids, latency

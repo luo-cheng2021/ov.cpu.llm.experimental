@@ -41,3 +41,5 @@ __pycache__/
 *.pyc
 *.xml
 *.bin
+
+gen/

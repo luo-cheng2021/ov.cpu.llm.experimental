@@ -84,11 +84,11 @@ python models/chatglm2.py
 ```
 convert orginal model into OpenVINO INT8 IR with weight compression:
 ```bash
-python models/gptj.py --compressed_weight=true
-python models/gptneox.py --compressed_weight=true
-python models/falcon.py --compressed_weight=true
-python models/llama.py --compressed_weight=true
-python models/chatglm2.py --compressed_weight=true
+python models/gptj.py --quant_type=Q4_1 # valid types: F16/Q8_C/Q4_C/Q8_0/Q4_0/Q4_1/nncf_w8
+python models/gptneox.py --quant_type=Q4_1
+python models/falcon.py --quant_type=Q4_1
+python models/llama.py --quant_type=Q4_1
+python models/chatglm2.py --quant_type=Q4_1
 ```
 
 ## 4. Run Pipeline
@@ -105,3 +105,77 @@ numactl -N 0 --membind=0  python llm_pipeline.py -m ./gen/gptj_6b/ -pl 32 512 10
 # run on all numa nodes
 python llm_pipeline.py -m ./gen/falcon_40b -bs 1 --bf16 -pl 8000
 ```
+
+# Quantization with experimental FC node
+
+Inspired by excellent project [llama.cpp](https://github.com/ggerganov/llama.cpp), we use following quantization methods: 
+  - Weights are quantized off-line
+  - Activations are quantized dynamically at runtime
+
+| quant_type    |  description |
+| ---------     |     -------  |
+| `F16`         | FP16 weight format |
+| `Q8_C`        | per-output channel symmetric weight-quantization |
+| `Q4_C`        | per-output channel asymmetric weight-quantization |
+| `Q8_0`, `Q4_0`| llama.cpp style per-32 weights symmetric weight-quantization |
+| `Q4_1`        | llama.cpp style per-32 weights asymmetric weight-quantization |
+| `nncf_w8`     | per-output channel asymmetric weight-quantization from nncf |
+
+> Note
+>  - asymmetric quantization improves accuracy (PPL) at lower quantization bits, so Q4_C uses asymmetric quantization (with integer zero-point which has higher accuracy than non-integer zero-point)
+
+## performance/accuracy report
+
+RPL: i9-13900K + dua-chanel DDR5 @ 4800MT/s (~70GB/s)
+
+```bash
+# performance
+numactl -C0-15  python llm_pipeline.py -m ./gen/llama-2-7b-chat/Q8_0/ -p "I am retail store manager with new ice cream flavor Super Sweet White Coffee. Can you generate a twitter post to promote it?" -r 1 --greedy -al 32
+
+# perplexity
+# download wikitext-2-raw from :
+#   https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-raw-v1.zip?ref=salesforce-research
+#   https://blog.salesforceairesearch.com/the-wikitext-long-term-dependency-language-modeling-dataset/
+python ./llm_perplexity.py -f=./wikitext-2-raw/wiki.test.raw -ov ./gen/llama-2-7b-chat/F16/
+```
+
+
+| Model    | Measure          | F32   | F16     |  Q8_0    |  Q4_1  |  Q4_0  |  Q8_C  |   Q4_C |
+| -------- | -------          |-------|  -------|  ------- |------- |------- |------- |------- |
+| Llama-7B | bin file size    | 26G   | 13G     |   6.7G   | 4.0G   | 3.6G   |  6.3G  |   3.3G |
+|          | ms/tok @ 8 Pcore | 383   | 196     |   107    |  69    |  64    |  99    |    57  |
+|          |  perplexity      |  7.49 | 7.49    |   7.49   |  7.79  |  7.81  |  7.50  | 10.33  |
+
+### comparisopn with llama.cpp
+
+our implementation is inspired by brgemm, and is faster than llama.cpp when HyperThreading is not used or not all P-cores are used.
+
+```bash
+# test llama.cpp with 4 p-cores
+# with hyper-threading
+$ numactl -C0,1,2,3,4,5,6,7 ./main ... -t 8
+# w/o hyper-threading
+$ numactl -C0,2,4,6 ./main ... -t 4
+
+# test ov experimental with 4 p-cores
+# with hyper-threading (8 worker threads)
+numactl -C0-7  python llm_pipeline.py ... -ht
+# w/o hyper-threading (4 worker threads)
+numactl -C0-7  python llm_pipeline.py ...
+```
+
+| ms/tok@(P-cores)     | 1 | 2 | 4 | 8 |
+|   ---------------    |---|---|---|---|
+| Q8_0: ours           |315|204|135|107|
+| Q8_0: ours + HT      |315|198|135|107|
+| Q8_0: llama.cpp      |385|211|155|103|
+| Q8_0: llama.cpp + HT |272|155|125|103|
+|                      |---|---|---|---|
+| Q4_1: ours           |180|140|89 |69 |
+| Q4_1: ours + HT      |147|89 |82 |66 |
+| Q4_1: llama.cpp      |277|150|114|74 |
+| Q4_1: llama.cpp + HT |209|112|79 |64 |
+
+> summary:
+> - llama.cpp is slower when not all cores are available
+> - llama.cpp benefits more from hyper-threading
