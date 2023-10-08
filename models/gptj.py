@@ -5,6 +5,7 @@ import sys, os
 import argparse
 import time
 from utils import show_model, make_mha, make_fc, make_mvn, make_embedding, save_tokenizer, OV_XML_FILE_NAME, configs as make_configs
+from tqdm import tqdm
 
 def layer(configs, consts, layer_idx, hidden_states, kv_cache, beam_table, attn_mask, cos_tab, sin_tab):
     name_suffix = f'.layer{layer_idx}'
@@ -55,7 +56,7 @@ def create_model(configs, consts):
     inputs_embeds = make_embedding('transformer.wte.weight', input_ids, consts)
     hidden_states = inputs_embeds
 
-    for i in range(configs['layer_num']):
+    for i in tqdm(range(configs['layer_num'])):
         hidden_states = layer(configs, consts, i, hidden_states, kv_cache, beam_table, attn_mask, cos_tab, sin_tab)
     # final_layernorm
     final_layernorm = make_mvn('transformer.ln_f', hidden_states, consts, configs)
@@ -121,8 +122,19 @@ if __name__ == "__main__":
     parser.add_argument('--org_model_path', type=str, nargs='?', default='/home/llm_irs/pytorch_frontend_models/gpt-j-6b/pytorch_original/')
     parser.add_argument('--ov_model_path', type=str, nargs='?', default='./gen/gptj_6b/')
     parser.add_argument('--compressed_weight', type=bool, nargs='?', default=False)
+    parser.add_argument('--quant_type', type=str, nargs='?', default='')
     args = parser.parse_args()
-    make_configs['compressed_weight'] = args.compressed_weight
+    # for compatible, will remove
+    if args.compressed_weight:
+        print(f'warning: please use "--quant=nncf_w8" instead.')
+        if args.quant_type:
+            raise ValueError('compressed_weight and quant_type can not be set at the same time.')
+        args.quant_type = 'nncf_w8'
+    make_configs['quant_type'] = args.quant_type
+
+    if args.quant_type:
+        args.ov_model_path = os.path.join(args.ov_model_path, args.quant_type)
+    os.makedirs(args.ov_model_path, exist_ok=True)
 
     configs, consts = get_params_from_model(args.org_model_path)
     model = create_model(configs, consts)

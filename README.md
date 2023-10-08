@@ -84,11 +84,11 @@ python models/chatglm2.py
 ```
 convert orginal model into OpenVINO INT8 IR with weight compression:
 ```bash
-python models/gptj.py --compressed_weight=true
-python models/gptneox.py --compressed_weight=true
-python models/falcon.py --compressed_weight=true
-python models/llama.py --compressed_weight=true
-python models/chatglm2.py --compressed_weight=true
+python models/gptj.py --quant_type=Q4_1 # valid types: F16/Q8_C/Q4_C/Q8_0/Q4_0/Q4_1/nncf_w8
+python models/gptneox.py --quant_type=Q4_1
+python models/falcon.py --quant_type=Q4_1
+python models/llama.py --quant_type=Q4_1
+python models/chatglm2.py --quant_type=Q4_1
 ```
 
 ## 4. Run Pipeline
@@ -119,6 +119,7 @@ Inspired by excellent project [llama.cpp](https://github.com/ggerganov/llama.cpp
 | `Q4_C`        | per-output channel asymmetric weight-quantization |
 | `Q8_0`, `Q4_0`| llama.cpp style per-32 weights symmetric weight-quantization |
 | `Q4_1`        | llama.cpp style per-32 weights asymmetric weight-quantization |
+| `nncf_w8`     | per-output channel asymmetric weight-quantization from nncf |
 
 > Note
 >  - asymmetric quantization improves accuracy (PPL) at lower quantization bits, so Q4_C uses asymmetric quantization (with integer zero-point which has higher accuracy than non-integer zero-point)
