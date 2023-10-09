@@ -128,7 +128,7 @@ def get_params_from_model(path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('')
-    parser.add_argument('--org_model_path', type=str, nargs='?', default='/home/llm_irs/pytorch_frontend_models/llama-2-7b-chat/pytorch_original/')
+    parser.add_argument('--org_model_path', type=str, default='Model ID (can be a Hugginface Hub id, or a local directory)')
     parser.add_argument('--ov_model_path', type=str, nargs='?', default='./gen/llama-2-7b-chat/')
     parser.add_argument('--compressed_weight', type=bool, nargs='?', default=False)
     parser.add_argument('--quant_type', type=str, nargs='?', default='')

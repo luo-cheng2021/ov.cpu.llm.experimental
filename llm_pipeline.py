@@ -3,9 +3,9 @@ import json
 import time
 import hashlib
 import numpy as np
-import os
 import sys
-from openvino.runtime import Core
+import csv
+from pathlib import Path
 from openvino.runtime import Core, Model, Tensor, PartialShape, Type, serialize, opset_utils
 from openvino.runtime import opset10 as opset
 from openvino.preprocess import PrePostProcessor
@@ -27,6 +27,13 @@ class ModelConfig:
 
     def __str__(self) -> str:
         return f"\tn_layers={self.n_layers}, n_head={self.n_head}, head_size={self.head_size}, rotary_dims={self.rotary_dims}"
+
+def post_processing(result, input_text): 
+    """post processing the model output"""
+    ans = result
+    if result[:len(input_text)] == input_text:
+        ans = result[len(input_text):]
+    return ans
 
 last_output_text_map = {}
 
@@ -78,7 +85,10 @@ def generate(args, text, tokenizer, compiled_model, enforce_input_tokens = None,
     n_latency = len(latency)
     token_total = sum(latency)
 
-    print(f"  [{input_batch_size}, {input_token_len:4}+{gen_sequence_length}]  {gen_latency*1e3:.1f}ms = {latency[0]*1e3:.1f}ms + {latency[1]*1e3:.1f}ms + ({sum(latency[2:])/(n_latency-2)*1e3:.1f}ms x {n_latency-2}) + {(gen_latency - token_total)*1e3:.1f}ms")
+    average_token_latency = sum(latency[2:])/(n_latency-2)
+    overhead_latency = gen_latency - token_total
+    
+    print(f"  [{input_batch_size}, {input_token_len:4}+{gen_sequence_length}]  {gen_latency*1e3:.1f}ms = {latency[0]*1e3:.1f}ms + {latency[1]*1e3:.1f}ms + ({average_token_latency*1e3:.1f}ms x {n_latency-2}) + {overhead_latency * 1e3:.1f}ms")
 
     text_key = ",".join(text)
 
@@ -86,9 +96,23 @@ def generate(args, text, tokenizer, compiled_model, enforce_input_tokens = None,
         last_output_text_map[text_key] = output_text
         for i, out in enumerate(output_text):
             md5sum = hashlib.md5(out.encode('utf-8')).hexdigest()
-            if len(out) > 160:
-                out = out[:80] + "..." + md5sum
-            print(f"\t{i}. {[out]}")
+            console_out = post_processing(out, text)
+            if len(console_out) > 160:
+                console_out = console_out[:80] + "..." + md5sum
+            print(f"\t{i}. {[console_out]}")
+
+    benchmark_data = {
+        'input_batch_size': input_batch_size,
+        'input_token_length': input_token_len,
+        'generated_sequence_length': gen_sequence_length,
+        'generation_latency_total_ms': gen_latency * 1e3,
+        'token_latency_first_ms': latency[0] * 1e3,
+        'average_token_latency_ms': average_token_latency * 1e3,
+        'overhead_ms': overhead_latency * 1e3,
+        'output': post_processing(output_text[0], text)
+    }
+
+    return benchmark_data
 
 
 if __name__ == "__main__":
@@ -107,13 +131,15 @@ if __name__ == "__main__":
     parser.add_argument("-bs", "--beam-size", type=int, default=4)
     parser.add_argument("-r", "--repeat", type=int, default=1)
     parser.add_argument("-ht", "--hyper-threading", action="store_true")
+    parser.add_argument("--output-results", type=str, help="Output results to CSV file")
     # Parse the argument
     args = parser.parse_args()
 
-    tokenizer = AutoTokenizer.from_pretrained(os.path.dirname(args.model), trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-        tokenizer.pad_token = tokenizer.eos_token_id
+        # This is not supported anymore with the latest transformers (https://github.com/huggingface/transformers/pull/23909)
+        #tokenizer.pad_token = tokenizer.eos_token_id
     tokenizer.padding_side = "left"             # pad to left
 
     ext_path = None
@@ -132,7 +158,7 @@ if __name__ == "__main__":
     core.add_extension(ext_path)
     print("Init OpenVINO model ...")
     # read the model and corresponding weights from file
-    ov_model = core.read_model(os.path.join(args.model, OV_XML_FILE_NAME))
+    ov_model = core.read_model(Path(args.model) / OV_XML_FILE_NAME)
 
     # add preprocessor for bf16 kv_cache
     if args.bf16:
@@ -157,6 +183,7 @@ if __name__ == "__main__":
         prompts = json.load(f)
 
     print("Start test ...")
+    benchmark_data = []
     for round in range(args.repeat):
         print(f"round {round}:")
         if args.prompt:
@@ -167,13 +194,22 @@ if __name__ == "__main__":
                 streamer = None
             # prompt from command line
             text = args.prompt
-            generate(args, text, tokenizer, compiled_model, streamer = streamer)
+            result = generate(args, text, tokenizer, compiled_model, streamer = streamer)
         else:
             # prompt from json config
             for plen in args.prompt_length:
                 if str(plen) in prompts:
                     text = prompts[str(plen)]
-                    generate(args, [text], tokenizer, compiled_model)
+                    result = generate(args, [text], tokenizer, compiled_model)
                 else:
                     # Prompt with length {plen} is not provided in prompt.json, will forge"
-                    generate(args, ["Hi"], tokenizer, compiled_model, enforce_input_tokens=plen)
+                    result = generate(args, ["Hi"], tokenizer, compiled_model, enforce_input_tokens=plen)
+
+        benchmark_data.append(result)
+
+    if args.output_results:
+        with open(args.output_results, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=benchmark_data[0].keys())
+            writer.writeheader()
+            for data in benchmark_data:
+                writer.writerow(data)

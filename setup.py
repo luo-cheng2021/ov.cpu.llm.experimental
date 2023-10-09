@@ -20,4 +20,5 @@ setup(
     version="0.1",
     ext_modules=ext_modules,
     cmdclass={"build_ext": build_ext},
+    setup_requires=["pybind11"]
 )
