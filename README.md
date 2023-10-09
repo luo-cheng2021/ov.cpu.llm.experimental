@@ -21,7 +21,7 @@ With this built Docker image, you can then generate the optimized OpenVINO IR (o
 mkdir -p $HOME/models
 docker run --rm -v $HOME/.cache/huggingface:/cache/huggingface -v $HOME/models:/models -it openvino-llm \
   python3 models/llama.py \
-    --compressed_weight=true \
+    --quant_type nncf_w8 \
     --org_model_path /cache/huggingface/hub/models--meta-llama--Llama-2-7b-chat-hf/snapshots/08751db2aca9bf2f7f80d2e516117a53d7450235 \
     --ov_model_path /models/llama-2-7b-chat-ov
 ```
@@ -30,11 +30,11 @@ This will put the optimized OpenVINO IR (and associated tokenizer) into `~/model
 
 ### 1.2 Benchmark optimized model with Docker
 
-Now we're ready to run the benchmarks using this model, again mounting that directory into the launched docker container. The following command runs the benchmark of the compressed model for 3 iterations, with BF16 precision, for each of the prompts in the `custom_prompts.json` file. 
+Now we're ready to run the benchmarks using this model, again mounting that directory into the launched docker container. The following command runs the benchmark of the compressed model for 3 iterations, with BF16 precision.
 
 ```bash
 docker run --privileged --rm -v $HOME/models:/models -v $(pwd):/results -it openvino-llm \
-  python3 llm_pipeline.py -m /models/llama-2-7b-chat-ov --bf16 -r 3 --greedy --prompts custom_prompts.json --output-results /results/results.csv
+  python3 llm_pipeline.py -m /models/llama-2-7b-chat-ov/nncf_w8 --bf16 -r 3 --greedy -p "What is OpenVINO?" --output-results /results/results.csv
 ```
 
 A sample output is below:

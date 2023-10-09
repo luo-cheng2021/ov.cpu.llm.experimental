@@ -131,15 +131,15 @@ if __name__ == "__main__":
     parser.add_argument("-bs", "--beam-size", type=int, default=4)
     parser.add_argument("-r", "--repeat", type=int, default=1)
     parser.add_argument("-ht", "--hyper-threading", action="store_true")
-    parser.add_argument("--prompts", type=str, help="Process prompts from given file")
-    parser.add_argument("--output-results", type=str, help="Output results to JSONLines file")
+    parser.add_argument("--output-results", type=str, help="Output results to CSV file")
     # Parse the argument
     args = parser.parse_args()
 
     tokenizer = AutoTokenizer.from_pretrained(args.model, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-        tokenizer.pad_token = tokenizer.eos_token_id
+        # This is not supported anymore with the latest transformers (https://github.com/huggingface/transformers/pull/23909)
+        #tokenizer.pad_token = tokenizer.eos_token_id
     tokenizer.padding_side = "left"             # pad to left
 
     ext_path = None
