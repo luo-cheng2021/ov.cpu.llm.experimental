@@ -115,7 +115,8 @@ Please Do Reminder to enable the customized OpenVINO environment for this repo
 <ov install dir>/setupvars.bat
 cd custom_ops
 mkdir build && cd build
-cmake --build . --config Release --verbose -j8 ..
+cmake -G "Visual Studio 16 2019" ..
+cmake --build . --config Release --verbose -j8
 # custom_ops\\build\\Release\\ov-cpu-llm-experimental.dll
 ```
 
