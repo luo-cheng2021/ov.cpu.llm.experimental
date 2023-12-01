@@ -126,8 +126,6 @@ Inspired by excellent project [llama.cpp](https://github.com/ggerganov/llama.cpp
 
 ## performance/accuracy report
 
-RPL: i9-13900K + dua-chanel DDR5 @ 4800MT/s (~70GB/s)
-
 ```bash
 # performance
 numactl -C0-15  python llm_pipeline.py -m ./gen/llama-2-7b-chat/Q8_0/ -p "I am retail store manager with new ice cream flavor Super Sweet White Coffee. Can you generate a twitter post to promote it?" -r 1 --greedy -al 32
@@ -139,21 +137,3 @@ numactl -C0-15  python llm_pipeline.py -m ./gen/llama-2-7b-chat/Q8_0/ -p "I am r
 python ./llm_perplexity.py -f=./wikitext-2-raw/wiki.test.raw -ov ./gen/llama-2-7b-chat/F16/
 ```
 
-
-### comparisopn with llama.cpp
-
-our implementation is inspired by brgemm, and is faster than llama.cpp when HyperThreading is not used or not all P-cores are used.
-
-```bash
-# test llama.cpp with 4 p-cores
-# with hyper-threading
-$ numactl -C0,1,2,3,4,5,6,7 ./main ... -t 8
-# w/o hyper-threading
-$ numactl -C0,2,4,6 ./main ... -t 4
-
-# test ov experimental with 4 p-cores
-# with hyper-threading (8 worker threads)
-numactl -C0-7  python llm_pipeline.py ... -ht
-# w/o hyper-threading (4 worker threads)
-numactl -C0-7  python llm_pipeline.py ...
-```
