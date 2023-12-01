@@ -140,12 +140,6 @@ python ./llm_perplexity.py -f=./wikitext-2-raw/wiki.test.raw -ov ./gen/llama-2-7
 ```
 
 
-| Model    | Measure          | F32   | F16     |  Q8_0    |  Q4_1  |  Q4_0  |  Q8_C  |   Q4_C |
-| -------- | -------          |-------|  -------|  ------- |------- |------- |------- |------- |
-| Llama-7B | bin file size    | 26G   | 13G     |   6.7G   | 4.0G   | 3.6G   |  6.3G  |   3.3G |
-|          | ms/tok @ 8 Pcore | 383   | 196     |   107    |  69    |  64    |  99    |    57  |
-|          |  perplexity      |  7.49 | 7.49    |   7.49   |  7.79  |  7.81  |  7.50  | 10.33  |
-
 ### comparisopn with llama.cpp
 
 our implementation is inspired by brgemm, and is faster than llama.cpp when HyperThreading is not used or not all P-cores are used.
@@ -163,19 +157,3 @@ numactl -C0-7  python llm_pipeline.py ... -ht
 # w/o hyper-threading (4 worker threads)
 numactl -C0-7  python llm_pipeline.py ...
 ```
-
-| ms/tok@(P-cores)     | 1 | 2 | 4 | 8 |
-|   ---------------    |---|---|---|---|
-| Q8_0: ours           |315|204|135|107|
-| Q8_0: ours + HT      |315|198|135|107|
-| Q8_0: llama.cpp      |385|211|155|103|
-| Q8_0: llama.cpp + HT |272|155|125|103|
-|                      |---|---|---|---|
-| Q4_1: ours           |180|140|89 |69 |
-| Q4_1: ours + HT      |147|89 |82 |66 |
-| Q4_1: llama.cpp      |277|150|114|74 |
-| Q4_1: llama.cpp + HT |209|112|79 |64 |
-
-> summary:
-> - llama.cpp is slower when not all cores are available
-> - llama.cpp benefits more from hyper-threading
