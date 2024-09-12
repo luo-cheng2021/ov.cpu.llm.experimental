@@ -8,6 +8,7 @@ from openvino.runtime.utils import replace_node
 import tqdm
 import pickle, sys, time
 from datasets import load_dataset
+import argparse
 
 from . import utils
 from . import llm
@@ -76,7 +77,7 @@ class OVLLMSmoothQuantCalib(llm.OVLLM):
                   continuation):
         batch_size = input_ids.shape[0]
 
-        print("input_ids=", input_ids.shape, " max_kv_len=", max_kv_len)
+        #print("input_ids=", input_ids.shape, " max_kv_len=", max_kv_len)
         # initialize "straight" beams in greedy search
         beam_table = np.zeros([batch_size, max_kv_len]).astype("int32")
 
@@ -89,8 +90,8 @@ class OVLLMSmoothQuantCalib(llm.OVLLM):
                         "sin_tab": sin_tab,
                         }
 
-        for k in model_inputs:
-            print(f" {k} = ", model_inputs[k].shape, " ")
+        # for k in model_inputs:
+        #     print(f" {k} = ", model_inputs[k].shape, " ")
         self.outputs = model(model_inputs)
 
         return None, None
