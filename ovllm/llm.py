@@ -147,6 +147,7 @@ class OVLLM(ABC):
             input_token_len = input_ids.shape[1]
             input_batch_size = input_ids.shape[0]
 
+        attention_mask = attention_mask.astype(np.float32)
         if continuation:
             # override new_token_length
             assert(type(text) is list)

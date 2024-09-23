@@ -27,7 +27,7 @@ def layer(configs, consts, layer_idx, hidden_states, kv_cache, beam_table, attn_
     # custom op
     attn_output = make_mha(inputs, kv_cache, beam_table, attn_mask, cos_tab, sin_tab,
                            layer_idx, configs['rotary_dims'], configs['hidden_size'], configs['head_num'],
-                           name=f'{name_prefix}.mha{name_suffix}')
+                           name=f'{name_prefix}.mha{name_suffix}', num_kv_heads=configs['num_key_value_heads'])
 
     attn_output = make_fc('model.layers.self_attn.o_proj', attn_output, consts['layers'][layer_idx], name_suffix)
 
@@ -88,7 +88,6 @@ def get_params_from_model(path):
     from transformers import AutoModelForCausalLM
     model = AutoModelForCausalLM.from_pretrained(path, trust_remote_code=True).to('cpu').eval()
 
-    assert(model.config.num_key_value_heads == model.config.num_attention_heads)
     assert(model.config.hidden_act in ['silu'])
     assert(model.config.use_sliding_window == False)
     assert(model.config.rope_theta == 1000000.0)
@@ -102,7 +101,7 @@ def get_params_from_model(path):
         'rotary_dims': int(model.config.hidden_size // model.config.num_attention_heads),
         #'gelu_mode': model.config.hidden_act,
         #'intermediate_size': model.config.intermediate_size,
-        #'num_key_value_heads': model.config.num_key_value_heads,
+        'num_key_value_heads': model.config.num_key_value_heads,
         'rms_norm_eps': model.config.rms_norm_eps,
     }
 
