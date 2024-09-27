@@ -11,7 +11,9 @@ python -m ovllm.export.llama --quant_type=f16
 
 # smooth-quantize the model
 python -m ovllm.sq_calibration  -m ./gen/llama-2-7b-chat/f16/ Llama2-7b-chat-ovllm.pickle
-python -m ovllm.sq_quant -m=./gen/llama-2-7b-chat/f16/openvino_model.xml  -s Llama2-7b-chat-ovllm.pickle gen/llama-2-7b-chat/SQ/openvino_model.xml -a 0.85 -skip_act to/Convert mlp.down_proj
+
+python -m ovllm.sq_quant -m=./gen/llama-2-7b-chat/f16/openvino_model.xml  -s Llama2-7b-chat-ovllm.pickle gen/llama-2-7b-chat/SQ/openvino_model.xml -c sq_config_llama2_7b.yaml
+# Edit sq_config_llama2_7b.yaml and run above command again
 
 
 # greedy search:  f32/bf16 

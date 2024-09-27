@@ -7,8 +7,8 @@ from openvino.runtime.passes import Manager, Matcher, MatcherPass, WrapType, Any
 from openvino.runtime.utils import replace_node
 import tqdm
 import pickle, sys, time, argparse
-
-
+import os, yaml
+from collections import OrderedDict
 
 def get_fc_weight(node):
     if node.get_type_name() != "MatMul":
@@ -29,7 +29,49 @@ def get_fc_weight(node):
     assert(IC == weight.shape[1])
     return weight
 
-def to_smooth_quant_model(model, fc_observations, skip_act_quant_names=[], skip_quant_names=[], act_quant_sym = False, outlier_thr = 1e9, alpha = 0.8):
+
+class LayerConfig:
+    def __init__(self, file_name):
+        self.file_name = file_name
+        self.dict_obj = None
+        if os.path.exists(file_name):
+            with open(file_name, 'r', encoding="utf-8") as fr:
+                self.dict_obj = yaml.safe_load(fr)
+        if self.dict_obj is None:
+            self.dict_obj = {}
+
+    def save(self):
+        with open(self.file_name, "w", encoding='utf-8') as file:
+            yaml.safe_dump(self.dict_obj, file, sort_keys=False, width=4096)
+
+    def __getitem__(self, layername):
+        if not (layername in self.dict_obj.keys()):
+            self.dict_obj[layername] = {}
+        return self.dict_obj[layername]
+
+    def pop(self, layername):
+        self.dict_obj.pop(layername)
+
+def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
+
+    cfg_rules = config['rules']
+    if len(cfg_rules) == 0:
+        # initialize rules, rules will be used to initialize layer configs
+        cfg_rules['q_proj'] = 'SW'
+        cfg_rules['k_proj'] = 'SW'
+        cfg_rules['v_proj'] = 'SW'
+        cfg_rules['gate_proj'] = 'SW'
+        cfg_rules['up_proj'] = 'SW'
+        cfg_rules['down_proj'] = 'W'
+        cfg_rules['o_proj'] = 'AW'
+        cfg_rules['alpha'] = 0.8
+        cfg_rules['outlier_rel_thr'] = 10
+        cfg_rules['outlier_abs_thr'] = 30
+        cfg_rules['act_quant_sym'] = False
+        print(f"Using rules: {cfg_rules}")
+
+    config['outlier_layers'].clear()
+
     # Simple: for Extensions. Without any classes and inheritance.
     def pattern_replacement():
         act = AnyInput()
@@ -51,30 +93,40 @@ def to_smooth_quant_model(model, fc_observations, skip_act_quant_names=[], skip_
             X_max = None
             X_absmax = None
             W_absmax = None
-            quant_activation = True
             per_token_quant = False
+
+            # all FC shares same source input will be quantized together
+            # with same scale or not
+            cfg_key = root.get_friendly_name()
+            cfg = config[cfg_key]
+            if 'quantize' not in cfg:
+                # initialize  cfg['quantize']  with rules
+                cfg['quantize'] = None
+                for rules_kw in cfg_rules:
+                    if rules_kw in cfg_key:
+                        cfg['quantize'] = cfg_rules[rules_kw]
+
+            if cfg['quantize'] is None:
+                print(f"SKIPPED {cfg_key}")
+                return
+
+            quant_activation = 'A' in cfg['quantize']
+            smooth_activation = 'S' in cfg['quantize']
+
+            if 'fc' not in cfg:
+                cfg['fc'] = []
 
             for iput in pvm[act].get_target_inputs():
                 fc_node = iput.get_node()
                 fc_weight = get_fc_weight(fc_node)
                 if fc_weight is not None:
                     tag = fc_node.get_friendly_name()
-
-                    # skip any FC in group will skip whole group!
-                    # since they share same activation
-                    if skip_act_quant_names is not None:
-                        for skip_name in skip_act_quant_names:
-                            if skip_name in tag:
-                                quant_activation = False
-                    if skip_quant_names is not None:
-                        for skip_name in skip_quant_names:
-                            if skip_name in tag:
-                                print(f"\t skipped {tag}")
-                                return False
                     #if "mlp.down_proj" in root.get_friendly_name():
                     #    #quant_activation = False
                     #    per_token_quant = True
                     #    pass
+                    if tag not in cfg['fc']:
+                        cfg['fc'].append(tag)
 
                     # merge all observations
                     if X_min is None:
@@ -89,13 +141,19 @@ def to_smooth_quant_model(model, fc_observations, skip_act_quant_names=[], skip_
                         W_absmax = np.maximum(W_absmax, abs(fc_weight).max(0).clip(min=1e-5))
                     fc_nodes.append((fc_node, fc_weight))
 
+            cfg['fc_observations'] = f"{X_min.min():.2f} ~ {X_max.max():.2f}"
+
+            if len(fc_nodes) == 0:
+                config.pop(cfg_key)
+                return
+
             # smooth-quant:
             X_absmax = X_absmax.clip(min=1e-5)
 
             # s : each IC channel of weight matrix * s
             # use big alpha, for bigger outlier |X|, so x_scale can scale it down further
 
-            per_channel_alpha = (X_absmax * 0 + alpha)
+            per_channel_alpha = (X_absmax * 0 + cfg_rules['alpha'])
             #per_channel_alpha[X_absmax > 10] = 0.7
             #per_channel_alpha[X_absmax > 100] = 0.8
 
@@ -119,11 +177,15 @@ def to_smooth_quant_model(model, fc_observations, skip_act_quant_names=[], skip_
             '''
 
             # [OC, IC] * [IC]
-            if quant_activation:
+            if smooth_activation:
+                x_min_per_tensor = (X_min * smoothquant_x_scales).min()
+                x_max_per_tensor = (X_max * smoothquant_x_scales).max()
+                node_act = opset.multiply(pvm[act], op.Constant(smoothquant_x_scales))
+            elif quant_activation:
                 x_min_per_tensor = (X_min * smoothquant_x_scales).min()
                 x_max_per_tensor = (X_max * smoothquant_x_scales).max()
                 # symmetrical quantization has lower accuracy than asymmetrical
-                if act_quant_sym:
+                if cfg_rules['act_quant_sym']:
                     absmax = max(abs(x_min_per_tensor), abs(x_max_per_tensor))
                     x_min_per_tensor = -absmax
                     x_max_per_tensor = absmax
@@ -151,26 +213,33 @@ def to_smooth_quant_model(model, fc_observations, skip_act_quant_names=[], skip_
                                             output_low,
                                             output_high,
                                             levels)
-                
             else:
                 node_act = pvm[act]
                 x_min_per_tensor = X_min.min()
                 x_max_per_tensor = X_max.max()
 
-            X_maxabs_thr = max(10*X_absmax.mean(), 30)
+            X_maxabs_thr = max(cfg_rules['outlier_rel_thr'] * X_absmax.mean(), cfg_rules['outlier_abs_thr'])
             quant_flag = f"Q{'A' if quant_activation else '_'}W"
-            print(f"{quant_flag} [x:{smoothquant_x_scales.min():.2f}~{smoothquant_x_scales.max():.2f} w:{smoothquant_w_scales.min():.2f}~{smoothquant_w_scales.max():.2f}]  {X_min.min():.2f}~{X_max.max():.2f} =>  {x_min_per_tensor:.2f}~{x_max_per_tensor:.2f} mean:{X_absmax.mean():.3f}  big:{X_absmax[X_absmax > X_maxabs_thr]}")
+            X_outliers = X_absmax[X_absmax > X_maxabs_thr].flatten()
+            info = f"{quant_flag} [x:{smoothquant_x_scales.min():.2f}~{smoothquant_x_scales.max():.2f} w:{smoothquant_w_scales.min():.2f}~{smoothquant_w_scales.max():.2f}]  {X_min.min():.2f}~{X_max.max():.2f} =>  {x_min_per_tensor:.2f}~{x_max_per_tensor:.2f} mean:{X_absmax.mean():.3f}  big:{X_outliers}"
+            print(info)
+            cfg['info'] = info
+            if X_outliers.size > 0:
+                for fc_node, weight in fc_nodes:
+                    name = fc_node.get_friendly_name()
+                    config['outlier_layers'][name] = info
 
             for fc_node, weight in fc_nodes:
                 # quantize weight to INT8 on per-OC basis (per-tensor is not enough)
-                if quant_activation:
+                if quant_activation or smooth_activation:
                     weight = weight * smoothquant_w_scales
                 w_deq_scales = abs(weight).max(1, keepdims=True) / 127
                 weight_quant = (weight / w_deq_scales).round().astype(np.int8)
                 w_deq = opset.multiply(opset.convert(op.Constant(weight_quant), Type.f32), op.Constant(w_deq_scales))
 
+                name = fc_node.get_friendly_name()
 
-                new_matmul = opset.matmul(node_act, w_deq, transpose_a, transpose_b, name = fc_node.get_friendly_name())
+                new_matmul = opset.matmul(node_act, w_deq, transpose_a, transpose_b, name = name)
                 replace_node(fc_node, new_matmul)
 
                 #if outlier_result is not None:
@@ -187,16 +256,11 @@ def to_smooth_quant_model(model, fc_observations, skip_act_quant_names=[], skip_
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--alpha", type=float, default=0.5)
     parser.add_argument("-m", "--xml_path", type=str, required=True, help="raw openvino IR XML file")
     parser.add_argument("-s", "--act_scales_path", type=str, required=True, help="target pickle file storing calibration result",
                         default="act_scales/llama-2-7b.pickle")
     parser.add_argument("-p", "--prompt", type=str, default="What's oxygen?")
-
-    parser.add_argument("-skip", "--skip", type=str, nargs='*')
-    parser.add_argument("-skip_act", "--skip_act", type=str, nargs='*')
-
-    parser.add_argument("-othr", "--outlier_thr", type=float, default=1e9)
+    parser.add_argument("-c", "--config", type=str, default="sq_config.yaml")
     parser.add_argument("output_xml_path", type=str, help="target openvino IR XML")
 
     args = parser.parse_args()
@@ -224,12 +288,11 @@ if __name__ == "__main__":
     # read the model and corresponding weights from file
     ov_model = core.read_model(args.xml_path)
 
-    to_smooth_quant_model(ov_model, fc_observations,
-        alpha = args.alpha, 
-        skip_act_quant_names=args.skip_act,
-        skip_quant_names=args.skip,
-        outlier_thr=args.outlier_thr)
+    config = LayerConfig(args.config)
 
+    to_smooth_quant_model(ov_model, fc_observations, config = config)
+
+    config.save()
 
     print(f"saving to {args.output_xml_path} ...")
     save_model(ov_model, args.output_xml_path, True)
