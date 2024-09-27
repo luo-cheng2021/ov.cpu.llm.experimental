@@ -1,0 +1,724 @@
+rules:
+  q_proj: SW
+  k_proj: SW
+  v_proj: SW
+  gate_proj: SW
+  up_proj: SW
+  down_proj: W
+  o_proj: AW
+  self_attention.query_key_value: SAW
+  self_attention.dense: SAW
+  mlp.dense_h_to_4h: SAW
+  mlp.dense_4h_to_h: SAW
+  transformer.output_layer.matmul: SAW
+  alpha: 0.8
+  outlier_rel_thr: 10
+  outlier_abs_thr: 30
+  act_quant_sym: false
+outlier_layers:
+  transformer.layers.mlp.dense_4h_to_h.matmul.layer0: "WSA  -207.57 ~ 150.41 outliers=[ 30.110474  43.106457 106.12819   35.196693 207.5674    39.60156\n 150.4125  ]"
+  transformer.layers.self_attention.query_key_value.matmul.layer2: WSA  -35.22 ~ 24.10 outliers=[35.221184]
+  transformer.layers.mlp.dense_4h_to_h.matmul.layer2: WSA  -13.79 ~ 43.30 outliers=[43.29603]
+  transformer.layers.self_attention.query_key_value.matmul.layer3: WSA  -41.65 ~ 32.64 outliers=[32.638027 41.646645 30.998194]
+  transformer.layers.self_attention.query_key_value.matmul.layer4: WSA  -36.02 ~ 36.09 outliers=[36.085842 31.17297  36.019978]
+  transformer.layers.self_attention.query_key_value.matmul.layer5: WSA  -31.20 ~ 35.07 outliers=[35.068203 30.62975  31.199097]
+  transformer.layers.self_attention.query_key_value.matmul.layer6: WSA  -38.68 ~ 37.24 outliers=[37.240906 37.1951   35.761898 38.68433 ]
+  transformer.layers.self_attention.query_key_value.matmul.layer7: WSA  -43.94 ~ 37.25 outliers=[35.36055  32.77371  37.253067 43.93642 ]
+  transformer.layers.self_attention.query_key_value.matmul.layer8: WSA  -47.77 ~ 40.57 outliers=[35.488598 34.008038 40.574936 47.771915]
+  transformer.layers.self_attention.query_key_value.matmul.layer9: WSA  -49.09 ~ 42.00 outliers=[34.10231  35.25409  41.999035 30.237125 49.08917 ]
+  transformer.layers.self_attention.query_key_value.matmul.layer10: WSA  -49.22 ~ 46.33 outliers=[37.46799  31.526453 46.331852 49.21792 ]
+  transformer.layers.self_attention.query_key_value.matmul.layer11: WSA  -47.67 ~ 44.35 outliers=[32.388817 32.095566 44.34977  47.668533]
+  transformer.layers.self_attention.query_key_value.matmul.layer12: WSA  -43.88 ~ 43.40 outliers=[32.079082 32.49785  43.39912  43.877907]
+  transformer.layers.self_attention.query_key_value.matmul.layer13: WSA  -48.63 ~ 50.95 outliers=[35.78553  32.954254 50.94661  48.627037]
+  transformer.layers.self_attention.query_key_value.matmul.layer14: WSA  -46.94 ~ 50.32 outliers=[38.008213 31.145079 50.319843 46.94171 ]
+  transformer.layers.self_attention.query_key_value.matmul.layer15: WSA  -58.14 ~ 61.04 outliers=[37.91576  36.335323 61.04209  58.139027]
+  transformer.layers.self_attention.query_key_value.matmul.layer16: WSA  -48.54 ~ 44.54 outliers=[34.8344   32.990788 44.536945 48.53679 ]
+  transformer.layers.self_attention.query_key_value.matmul.layer17: WSA  -46.75 ~ 48.22 outliers=[37.04349  48.221973 46.753304]
+  transformer.layers.self_attention.query_key_value.matmul.layer18: WSA  -44.35 ~ 35.71 outliers=[35.71451  44.353573]
+  transformer.layers.self_attention.query_key_value.matmul.layer19: WSA  -53.06 ~ 50.39 outliers=[39.712776 38.03081  37.629734 50.39199  53.057022]
+  transformer.layers.self_attention.query_key_value.matmul.layer20: WSA  -44.71 ~ 41.36 outliers=[37.581722 41.357468 44.71156 ]
+  transformer.layers.self_attention.query_key_value.matmul.layer21: WSA  -42.31 ~ 39.18 outliers=[39.181812 42.305912]
+  transformer.layers.self_attention.query_key_value.matmul.layer22: WSA  -39.23 ~ 33.95 outliers=[39.232418]
+  transformer.layers.mlp.dense_4h_to_h.matmul.layer22: WSA  -101.48 ~ 150.67 outliers=[150.66795]
+  transformer.layers.mlp.dense_4h_to_h.matmul.layer24: WSA  -169.99 ~ 132.76 outliers=[169.98647]
+  transformer.layers.mlp.dense_4h_to_h.matmul.layer25: WSA  -159.15 ~ 207.99 outliers=[207.98724]
+  transformer.layers.mlp.dense_4h_to_h.matmul.layer26: WSA  -196.83 ~ 242.08 outliers=[242.07646]
+  transformer.output_layer.matmul: WSA  -129.98 ~ 106.53 outliers=[ 97.29422 106.53062  73.23864 129.97972  72.82148]
+transformer.layers.self_attention.query_key_value.matmul.layer0:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer0
+  fc_observations: -2.52 ~ 3.63
+  info: WSA [x:0.32~5201.05 w:0.00~3.09]  -2.52~3.63 =>  -1.08~1.17 mean:0.075  big:[]
+transformer.layers.self_attention.dense.matmul.layer0:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer0
+  fc_observations: -0.24 ~ 0.47
+  info: WSA [x:1.07~22.11 w:0.05~0.93]  -0.24~0.47 =>  -0.62~0.75 mean:0.059  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer0:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer0
+  fc_observations: -3.19 ~ 3.94
+  info: WSA [x:0.25~2.10 w:0.48~3.98]  -3.19~3.94 =>  -0.84~1.01 mean:0.640  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer0:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer0
+  fc_observations: -207.57 ~ 150.41
+  info: "WSA [x:0.01~2.56 w:0.39~73.87]  -207.57~150.41 =>  -2.81~2.53 mean:1.544  big:[ 30.110474  43.106457 106.12819   35.196693 207.5674    39.60156\n 150.4125  ]"
+transformer.layers.self_attention.query_key_value.matmul.layer1:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer1
+  fc_observations: -21.64 ~ 13.36
+  info: WSA [x:0.06~2.32 w:0.43~17.39]  -21.64~13.36 =>  -1.24~1.12 mean:0.895  big:[]
+transformer.layers.self_attention.dense.matmul.layer1:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer1
+  fc_observations: -1.49 ~ 1.14
+  info: WSA [x:0.44~2.21 w:0.45~2.27]  -1.49~1.14 =>  -0.84~0.88 mean:0.557  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer1:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer1
+  fc_observations: -10.14 ~ 10.27
+  info: WSA [x:0.12~23.60 w:0.04~8.67]  -10.14~10.27 =>  -1.23~1.26 mean:0.704  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer1:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer1
+  fc_observations: -18.93 ~ 16.78
+  info: WSA [x:0.08~2.30 w:0.43~11.83]  -18.93~16.78 =>  -1.60~1.51 mean:2.031  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer2:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer2
+  fc_observations: -35.22 ~ 24.10
+  info: WSA [x:0.04~3.08 w:0.32~25.72]  -35.22~24.10 =>  -1.37~1.26 mean:1.260  big:[35.221184]
+transformer.layers.self_attention.dense.matmul.layer2:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer2
+  fc_observations: -1.58 ~ 1.64
+  info: WSA [x:0.39~2.27 w:0.44~2.57]  -1.58~1.64 =>  -0.95~0.97 mean:0.900  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer2:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer2
+  fc_observations: -19.26 ~ 20.08
+  info: WSA [x:0.06~0.83 w:1.20~15.96]  -19.26~20.08 =>  -1.38~1.26 mean:1.004  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer2:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer2
+  fc_observations: -13.79 ~ 43.30
+  info: WSA [x:0.05~1.43 w:0.70~21.10]  -13.79~43.30 =>  -1.56~2.05 mean:1.700  big:[43.29603]
+transformer.layers.self_attention.query_key_value.matmul.layer3:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer3
+  fc_observations: -41.65 ~ 32.64
+  info: WSA [x:0.03~1.14 w:0.88~30.01]  -41.65~32.64 =>  -1.39~1.35 mean:1.594  big:[32.638027 41.646645 30.998194]
+transformer.layers.self_attention.dense.matmul.layer3:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer3
+  fc_observations: -1.67 ~ 1.74
+  info: WSA [x:0.35~2.43 w:0.41~2.83]  -1.67~1.74 =>  -0.89~0.98 mean:0.829  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer3:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer3
+  fc_observations: -14.65 ~ 10.84
+  info: WSA [x:0.08~0.71 w:1.41~12.28]  -14.65~10.84 =>  -1.22~1.25 mean:1.214  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer3:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer3
+  fc_observations: -14.08 ~ 11.84
+  info: WSA [x:0.07~1.36 w:0.74~13.54]  -14.08~11.84 =>  -1.36~1.27 mean:2.231  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer4:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer4
+  fc_observations: -36.02 ~ 36.09
+  info: WSA [x:0.04~1.04 w:0.97~27.18]  -36.02~36.09 =>  -1.41~1.33 mean:2.160  big:[36.085842 31.17297  36.019978]
+transformer.layers.self_attention.dense.matmul.layer4:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer4
+  fc_observations: -2.47 ~ 2.94
+  info: WSA [x:0.27~1.21 w:0.82~3.66]  -2.47~2.94 =>  -1.03~1.17 mean:1.148  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer4:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer4
+  fc_observations: -15.88 ~ 7.54
+  info: WSA [x:0.07~0.61 w:1.64~13.80]  -15.88~7.54 =>  -1.15~1.11 mean:1.353  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer4:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer4
+  fc_observations: -27.72 ~ 17.68
+  info: WSA [x:0.05~1.07 w:0.94~21.10]  -27.72~17.68 =>  -1.35~1.33 mean:3.280  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer5:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer5
+  fc_observations: -31.20 ~ 35.07
+  info: WSA [x:0.04~0.57 w:1.76~24.80]  -31.20~35.07 =>  -1.34~1.41 mean:1.648  big:[35.068203 30.62975  31.199097]
+transformer.layers.self_attention.dense.matmul.layer5:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer5
+  fc_observations: -2.37 ~ 2.51
+  info: WSA [x:0.27~1.63 w:0.61~3.64]  -2.37~2.51 =>  -1.07~1.04 mean:1.240  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer5:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer5
+  fc_observations: -14.25 ~ 7.13
+  info: WSA [x:0.08~0.61 w:1.64~12.96]  -14.25~7.13 =>  -1.14~1.15 mean:1.383  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer5:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer5
+  fc_observations: -16.64 ~ 19.87
+  info: WSA [x:0.06~1.40 w:0.71~17.18]  -16.64~19.87 =>  -1.33~1.36 mean:3.351  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer6:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer6
+  fc_observations: -38.68 ~ 37.24
+  info: WSA [x:0.03~0.61 w:1.64~29.62]  -38.68~37.24 =>  -1.31~1.36 mean:2.462  big:[37.240906 37.1951   35.761898 38.68433 ]
+transformer.layers.self_attention.dense.matmul.layer6:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer6
+  fc_observations: -2.97 ~ 3.93
+  info: WSA [x:0.19~0.79 w:1.26~5.22]  -2.97~3.93 =>  -1.00~1.05 mean:1.723  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer6:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer6
+  fc_observations: -16.58 ~ 6.39
+  info: WSA [x:0.07~0.54 w:1.84~14.67]  -16.58~6.39 =>  -1.24~1.13 mean:1.571  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer6:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer6
+  fc_observations: -24.91 ~ 22.76
+  info: WSA [x:0.05~0.85 w:1.17~22.00]  -24.91~22.76 =>  -1.42~1.49 mean:4.210  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer7:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer7
+  fc_observations: -43.94 ~ 37.25
+  info: WSA [x:0.03~0.45 w:2.21~30.36]  -43.94~37.25 =>  -1.45~1.42 mean:2.118  big:[35.36055  32.77371  37.253067 43.93642 ]
+transformer.layers.self_attention.dense.matmul.layer7:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer7
+  fc_observations: -3.44 ~ 3.05
+  info: WSA [x:0.21~1.20 w:0.83~4.80]  -3.44~3.05 =>  -1.17~1.01 mean:1.548  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer7:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer7
+  fc_observations: -14.06 ~ 6.33
+  info: WSA [x:0.09~0.52 w:1.92~10.80]  -14.06~6.33 =>  -1.30~1.12 mean:1.641  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer7:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer7
+  fc_observations: -26.54 ~ 23.29
+  info: WSA [x:0.04~0.85 w:1.18~22.91]  -26.54~23.29 =>  -1.63~1.32 mean:4.207  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer8:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer8
+  fc_observations: -47.77 ~ 40.57
+  info: WSA [x:0.03~0.44 w:2.25~32.00]  -47.77~40.57 =>  -1.49~1.38 mean:2.278  big:[35.488598 34.008038 40.574936 47.771915]
+transformer.layers.self_attention.dense.matmul.layer8:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer8
+  fc_observations: -3.23 ~ 3.53
+  info: WSA [x:0.22~0.79 w:1.27~4.51]  -3.23~3.53 =>  -1.02~1.04 mean:1.708  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer8:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer8
+  fc_observations: -13.94 ~ 7.04
+  info: WSA [x:0.08~0.48 w:2.09~11.93]  -13.94~7.04 =>  -1.17~1.09 mean:1.783  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer8:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer8
+  fc_observations: -30.22 ~ 34.10
+  info: WSA [x:0.04~0.59 w:1.68~27.82]  -30.22~34.10 =>  -1.93~1.33 mean:4.772  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer9:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer9
+  fc_observations: -49.09 ~ 42.00
+  info: WSA [x:0.03~0.38 w:2.61~34.05]  -49.09~42.00 =>  -1.44~1.37 mean:2.521  big:[34.10231  35.25409  41.999035 30.237125 49.08917 ]
+transformer.layers.self_attention.dense.matmul.layer9:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer9
+  fc_observations: -3.20 ~ 3.66
+  info: WSA [x:0.22~0.88 w:1.13~4.55]  -3.20~3.66 =>  -1.04~1.00 mean:1.748  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer9:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer9
+  fc_observations: -13.49 ~ 7.64
+  info: WSA [x:0.09~0.47 w:2.15~11.62]  -13.49~7.64 =>  -1.19~1.23 mean:1.837  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer9:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer9
+  fc_observations: -36.41 ~ 26.41
+  info: WSA [x:0.03~0.65 w:1.55~30.09]  -36.41~26.41 =>  -1.76~1.30 mean:4.974  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer10:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer10
+  fc_observations: -49.22 ~ 46.33
+  info: WSA [x:0.03~0.39 w:2.55~34.36]  -49.22~46.33 =>  -1.43~1.40 mean:2.578  big:[37.46799  31.526453 46.331852 49.21792 ]
+transformer.layers.self_attention.dense.matmul.layer10:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer10
+  fc_observations: -4.07 ~ 3.81
+  info: WSA [x:0.19~0.64 w:1.55~5.39]  -4.07~3.81 =>  -1.14~1.21 mean:2.156  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer10:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer10
+  fc_observations: -13.71 ~ 7.62
+  info: WSA [x:0.09~0.47 w:2.13~11.15]  -13.71~7.62 =>  -1.23~1.10 mean:1.887  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer10:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer10
+  fc_observations: -28.02 ~ 29.63
+  info: WSA [x:0.04~0.57 w:1.74~23.93]  -28.02~29.63 =>  -1.41~1.43 mean:5.270  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer11:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer11
+  fc_observations: -47.67 ~ 44.35
+  info: WSA [x:0.03~0.38 w:2.60~33.99]  -47.67~44.35 =>  -1.40~1.38 mean:2.684  big:[32.388817 32.095566 44.34977  47.668533]
+transformer.layers.self_attention.dense.matmul.layer11:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer11
+  fc_observations: -4.20 ~ 4.08
+  info: WSA [x:0.19~0.79 w:1.27~5.33]  -4.20~4.08 =>  -1.10~1.12 mean:2.019  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer11:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer11
+  fc_observations: -12.69 ~ 8.42
+  info: WSA [x:0.09~0.48 w:2.07~10.97]  -12.69~8.42 =>  -1.16~1.14 mean:1.959  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer11:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer11
+  fc_observations: -36.89 ~ 37.19
+  info: WSA [x:0.03~0.74 w:1.36~29.86]  -36.89~37.19 =>  -1.50~1.43 mean:5.741  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer12:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer12
+  fc_observations: -43.88 ~ 43.40
+  info: WSA [x:0.03~0.38 w:2.61~31.62]  -43.88~43.40 =>  -1.42~1.37 mean:2.575  big:[32.079082 32.49785  43.39912  43.877907]
+transformer.layers.self_attention.dense.matmul.layer12:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer12
+  fc_observations: -4.50 ~ 4.03
+  info: WSA [x:0.17~0.73 w:1.37~5.88]  -4.50~4.03 =>  -1.10~1.06 mean:2.368  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer12:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer12
+  fc_observations: -13.11 ~ 9.40
+  info: WSA [x:0.10~0.45 w:2.23~9.54]  -13.11~9.40 =>  -1.37~1.23 mean:2.007  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer12:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer12
+  fc_observations: -29.16 ~ 33.06
+  info: WSA [x:0.04~0.75 w:1.33~28.04]  -29.16~33.06 =>  -1.42~2.07 mean:6.015  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer13:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer13
+  fc_observations: -48.63 ~ 50.95
+  info: WSA [x:0.03~0.36 w:2.80~35.61]  -48.63~50.95 =>  -1.42~1.43 mean:2.659  big:[35.78553  32.954254 50.94661  48.627037]
+transformer.layers.self_attention.dense.matmul.layer13:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer13
+  fc_observations: -5.14 ~ 4.46
+  info: WSA [x:0.16~0.53 w:1.89~6.39]  -5.14~4.46 =>  -1.15~1.15 mean:2.530  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer13:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer13
+  fc_observations: -11.53 ~ 10.90
+  info: WSA [x:0.10~0.42 w:2.38~10.24]  -11.53~10.90 =>  -1.18~1.22 mean:2.081  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer13:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer13
+  fc_observations: -39.73 ~ 37.57
+  info: WSA [x:0.03~0.42 w:2.35~31.48]  -39.73~37.57 =>  -1.41~1.35 mean:6.774  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer14:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer14
+  fc_observations: -46.94 ~ 50.32
+  info: WSA [x:0.03~0.32 w:3.14~36.01]  -46.94~50.32 =>  -1.46~1.40 mean:2.987  big:[38.008213 31.145079 50.319843 46.94171 ]
+transformer.layers.self_attention.dense.matmul.layer14:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer14
+  fc_observations: -5.68 ~ 5.20
+  info: WSA [x:0.15~0.52 w:1.92~6.49]  -5.68~5.20 =>  -1.15~1.07 mean:3.096  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer14:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer14
+  fc_observations: -11.18 ~ 10.86
+  info: WSA [x:0.10~0.40 w:2.47~9.61]  -11.18~10.86 =>  -1.16~1.13 mean:2.246  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer14:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer14
+  fc_observations: -59.54 ~ 43.30
+  info: WSA [x:0.02~0.38 w:2.61~41.50]  -59.54~43.30 =>  -1.43~1.58 mean:8.012  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer15:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer15
+  fc_observations: -58.14 ~ 61.04
+  info: WSA [x:0.02~0.35 w:2.83~43.77]  -58.14~61.04 =>  -1.50~1.39 mean:2.795  big:[37.91576  36.335323 61.04209  58.139027]
+transformer.layers.self_attention.dense.matmul.layer15:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer15
+  fc_observations: -5.20 ~ 5.28
+  info: WSA [x:0.16~0.70 w:1.43~6.44]  -5.20~5.28 =>  -1.18~1.21 mean:2.733  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer15:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer15
+  fc_observations: -11.29 ~ 14.52
+  info: WSA [x:0.08~0.38 w:2.64~11.97]  -11.29~14.52 =>  -1.28~1.21 mean:2.374  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer15:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer15
+  fc_observations: -54.33 ~ 61.41
+  info: WSA [x:0.02~0.40 w:2.50~44.03]  -54.33~61.41 =>  -1.63~1.72 mean:9.890  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer16:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer16
+  fc_observations: -48.54 ~ 44.54
+  info: WSA [x:0.03~0.30 w:3.33~32.05]  -48.54~44.54 =>  -1.51~1.42 mean:3.245  big:[34.8344   32.990788 44.536945 48.53679 ]
+transformer.layers.self_attention.dense.matmul.layer16:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer16
+  fc_observations: -7.09 ~ 6.54
+  info: WSA [x:0.14~0.61 w:1.64~7.30]  -7.09~6.54 =>  -1.12~1.15 mean:3.004  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer16:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer16
+  fc_observations: -11.35 ~ 11.70
+  info: WSA [x:0.10~0.36 w:2.78~9.97]  -11.35~11.70 =>  -1.30~1.26 mean:2.499  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer16:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer16
+  fc_observations: -56.94 ~ 69.53
+  info: WSA [x:0.02~0.30 w:3.32~48.74]  -56.94~69.53 =>  -1.62~1.49 mean:10.530  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer17:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer17
+  fc_observations: -46.75 ~ 48.22
+  info: WSA [x:0.03~0.31 w:3.24~34.70]  -46.75~48.22 =>  -1.47~1.39 mean:3.388  big:[37.04349  48.221973 46.753304]
+transformer.layers.self_attention.dense.matmul.layer17:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer17
+  fc_observations: -8.87 ~ 9.49
+  info: WSA [x:0.10~0.35 w:2.85~10.07]  -8.87~9.49 =>  -1.25~1.29 mean:4.993  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer17:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer17
+  fc_observations: -10.94 ~ 11.60
+  info: WSA [x:0.10~0.34 w:2.91~9.62]  -10.94~11.60 =>  -1.21~1.22 mean:2.746  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer17:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer17
+  fc_observations: -67.63 ~ 70.93
+  info: WSA [x:0.02~0.31 w:3.23~49.58]  -67.63~70.93 =>  -1.81~1.71 mean:12.630  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer18:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer18
+  fc_observations: -44.35 ~ 35.71
+  info: WSA [x:0.03~0.31 w:3.21~29.68]  -44.35~35.71 =>  -1.49~1.30 mean:3.488  big:[35.71451  44.353573]
+transformer.layers.self_attention.dense.matmul.layer18:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer18
+  fc_observations: -11.98 ~ 8.91
+  info: WSA [x:0.08~0.39 w:2.59~11.93]  -11.98~8.91 =>  -1.19~1.11 mean:4.949  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer18:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer18
+  fc_observations: -10.17 ~ 8.84
+  info: WSA [x:0.11~0.32 w:3.15~9.04]  -10.17~8.84 =>  -1.22~1.18 mean:2.955  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer18:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer18
+  fc_observations: -76.61 ~ 116.53
+  info: WSA [x:0.01~0.29 w:3.46~76.94]  -76.61~116.53 =>  -1.90~1.57 mean:13.469  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer19:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer19
+  fc_observations: -53.06 ~ 50.39
+  info: WSA [x:0.03~0.32 w:3.14~37.30]  -53.06~50.39 =>  -1.51~1.35 mean:3.075  big:[39.712776 38.03081  37.629734 50.39199  53.057022]
+transformer.layers.self_attention.dense.matmul.layer19:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer19
+  fc_observations: -7.63 ~ 7.11
+  info: WSA [x:0.13~0.46 w:2.16~7.59]  -7.63~7.11 =>  -1.11~1.12 mean:3.651  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer19:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer19
+  fc_observations: -9.97 ~ 8.86
+  info: WSA [x:0.12~0.30 w:3.30~8.56]  -9.97~8.86 =>  -1.17~1.15 mean:3.082  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer19:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer19
+  fc_observations: -73.77 ~ 94.43
+  info: WSA [x:0.02~0.25 w:4.06~65.90]  -73.77~94.43 =>  -1.77~1.91 mean:13.003  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer20:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer20
+  fc_observations: -44.71 ~ 41.36
+  info: WSA [x:0.03~0.28 w:3.54~30.66]  -44.71~41.36 =>  -1.46~1.37 mean:3.611  big:[37.581722 41.357468 44.71156 ]
+transformer.layers.self_attention.dense.matmul.layer20:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer20
+  fc_observations: -9.14 ~ 9.72
+  info: WSA [x:0.10~0.39 w:2.55~10.34]  -9.14~9.72 =>  -1.19~1.19 mean:5.087  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer20:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer20
+  fc_observations: -9.56 ~ 8.57
+  info: WSA [x:0.12~0.29 w:3.40~8.39]  -9.56~8.57 =>  -1.25~1.21 mean:3.255  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer20:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer20
+  fc_observations: -110.72 ~ 89.33
+  info: WSA [x:0.01~0.19 w:5.30~71.30]  -110.72~89.33 =>  -1.76~1.97 mean:13.549  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer21:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer21
+  fc_observations: -42.31 ~ 39.18
+  info: WSA [x:0.03~0.29 w:3.42~29.18]  -42.31~39.18 =>  -1.46~1.35 mean:3.782  big:[39.181812 42.305912]
+transformer.layers.self_attention.dense.matmul.layer21:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer21
+  fc_observations: -12.30 ~ 11.98
+  info: WSA [x:0.08~0.37 w:2.73~12.93]  -12.30~11.98 =>  -1.34~1.29 mean:6.917  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer21:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer21
+  fc_observations: -9.56 ~ 7.94
+  info: WSA [x:0.12~0.28 w:3.60~8.63]  -9.56~7.94 =>  -1.16~1.12 mean:3.434  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer21:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer21
+  fc_observations: -101.09 ~ 93.55
+  info: WSA [x:0.01~0.19 w:5.35~67.03]  -101.09~93.55 =>  -1.91~1.66 mean:13.774  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer22:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer22
+  fc_observations: -39.23 ~ 33.95
+  info: WSA [x:0.04~0.29 w:3.44~26.91]  -39.23~33.95 =>  -1.46~1.36 mean:3.780  big:[39.232418]
+transformer.layers.self_attention.dense.matmul.layer22:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer22
+  fc_observations: -13.84 ~ 16.06
+  info: WSA [x:0.06~0.37 w:2.67~15.88]  -13.84~16.06 =>  -1.31~1.38 mean:6.739  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer22:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer22
+  fc_observations: -9.38 ~ 7.46
+  info: WSA [x:0.12~0.32 w:3.17~8.26]  -9.38~7.46 =>  -1.16~1.10 mean:3.619  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer22:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer22
+  fc_observations: -101.48 ~ 150.67
+  info: WSA [x:0.01~0.18 w:5.52~93.09]  -101.48~150.67 =>  -1.61~1.85 mean:14.572  big:[150.66795]
+transformer.layers.self_attention.query_key_value.matmul.layer23:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer23
+  fc_observations: -38.75 ~ 35.96
+  info: WSA [x:0.04~0.28 w:3.52~26.93]  -38.75~35.96 =>  -1.44~1.36 mean:3.900  big:[]
+transformer.layers.self_attention.dense.matmul.layer23:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer23
+  fc_observations: -14.16 ~ 11.27
+  info: WSA [x:0.07~0.29 w:3.45~13.63]  -14.16~11.27 =>  -1.48~1.42 mean:6.681  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer23:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer23
+  fc_observations: -9.98 ~ 8.65
+  info: WSA [x:0.12~0.32 w:3.16~8.27]  -9.98~8.65 =>  -1.28~1.17 mean:3.785  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer23:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer23
+  fc_observations: -138.08 ~ 103.73
+  info: WSA [x:0.01~0.15 w:6.56~84.98]  -138.08~103.73 =>  -2.15~1.98 mean:15.130  big:[]
+transformer.layers.self_attention.query_key_value.matmul.layer24:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer24
+  fc_observations: -35.56 ~ 31.91
+  info: WSA [x:0.04~0.26 w:3.86~27.45]  -35.56~31.91 =>  -1.41~1.38 mean:3.939  big:[]
+transformer.layers.self_attention.dense.matmul.layer24:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer24
+  fc_observations: -12.26 ~ 13.15
+  info: WSA [x:0.08~0.35 w:2.87~12.32]  -12.26~13.15 =>  -1.17~1.25 mean:6.064  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer24:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer24
+  fc_observations: -12.64 ~ 11.64
+  info: WSA [x:0.10~0.25 w:4.02~10.43]  -12.64~11.64 =>  -1.24~1.23 mean:3.958  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer24:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer24
+  fc_observations: -169.99 ~ 132.76
+  info: WSA [x:0.01~0.16 w:6.29~87.47]  -169.99~132.76 =>  -2.04~1.94 mean:16.059  big:[169.98647]
+transformer.layers.self_attention.query_key_value.matmul.layer25:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer25
+  fc_observations: -34.01 ~ 26.04
+  info: WSA [x:0.04~0.27 w:3.66~24.67]  -34.01~26.04 =>  -1.38~1.38 mean:3.989  big:[]
+transformer.layers.self_attention.dense.matmul.layer25:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer25
+  fc_observations: -9.84 ~ 10.51
+  info: WSA [x:0.10~0.29 w:3.50~10.28]  -9.84~10.51 =>  -1.29~1.37 mean:6.100  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer25:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer25
+  fc_observations: -17.85 ~ 15.07
+  info: WSA [x:0.07~0.23 w:4.29~13.88]  -17.85~15.07 =>  -1.30~1.25 mean:4.140  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer25:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer25
+  fc_observations: -159.15 ~ 207.99
+  info: WSA [x:0.01~0.14 w:6.95~106.33]  -159.15~207.99 =>  -2.37~2.07 mean:18.966  big:[207.98724]
+transformer.layers.self_attention.query_key_value.matmul.layer26:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer26
+  fc_observations: -31.27 ~ 25.20
+  info: WSA [x:0.04~0.27 w:3.72~24.63]  -31.27~25.20 =>  -1.35~1.27 mean:4.003  big:[]
+transformer.layers.self_attention.dense.matmul.layer26:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer26
+  fc_observations: -14.56 ~ 15.55
+  info: WSA [x:0.07~0.32 w:3.12~14.74]  -14.56~15.55 =>  -1.40~1.39 mean:6.653  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer26:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer26
+  fc_observations: -22.95 ~ 17.53
+  info: WSA [x:0.06~0.23 w:4.29~16.92]  -22.95~17.53 =>  -1.36~1.34 mean:4.321  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer26:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer26
+  fc_observations: -196.83 ~ 242.08
+  info: WSA [x:0.01~0.27 w:3.75~138.30]  -196.83~242.08 =>  -2.52~2.12 mean:20.886  big:[242.07646]
+transformer.layers.self_attention.query_key_value.matmul.layer27:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.query_key_value.matmul.layer27
+  fc_observations: -25.48 ~ 24.23
+  info: WSA [x:0.05~0.27 w:3.75~20.54]  -25.48~24.23 =>  -1.24~1.29 mean:4.134  big:[]
+transformer.layers.self_attention.dense.matmul.layer27:
+  quantize: SAW
+  fc:
+  - transformer.layers.self_attention.dense.matmul.layer27
+  fc_observations: -31.83 ~ 33.18
+  info: WSA [x:0.04~0.32 w:3.13~23.40]  -31.83~33.18 =>  -1.73~1.64 mean:8.124  big:[]
+transformer.layers.mlp.dense_h_to_4h.matmul.layer27:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_h_to_4h.matmul.layer27
+  fc_observations: -31.51 ~ 36.38
+  info: WSA [x:0.04~0.22 w:4.50~25.22]  -31.51~36.38 =>  -1.56~1.44 mean:4.703  big:[]
+transformer.layers.mlp.dense_4h_to_h.matmul.layer27:
+  quantize: SAW
+  fc:
+  - transformer.layers.mlp.dense_4h_to_h.matmul.layer27
+  fc_observations: -254.56 ~ 223.98
+  info: WSA [x:0.01~0.32 w:3.15~128.64]  -254.56~223.98 =>  -2.94~2.51 mean:25.703  big:[]
+transformer.output_layer.matmul:
+  quantize: SAW
+  fc:
+  - transformer.output_layer.matmul
+  fc_observations: -129.98 ~ 106.53
+  info: WSA [x:0.01~0.18 w:5.71~88.95]  -129.98~106.53 =>  -1.47~1.55 mean:7.221  big:[ 97.29422 106.53062  73.23864 129.97972  72.82148]

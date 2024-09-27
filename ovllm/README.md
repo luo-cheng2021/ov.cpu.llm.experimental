@@ -12,10 +12,12 @@ python -m ovllm.export.llama --quant_type=f16
 # smooth-quantize the model : calibartion
 python -m ovllm.sq_calibration  -m ./gen/llama-2-7b/f16/ Llama2-7b-ovllm.pickle
 python -m ovllm.sq_calibration  -m ./gen/llama-2-13b/f16/ Llama2-13b-ovllm.pickle
+python -m ovllm.sq_calibration  -m ./gen/chatglm3-6b/f16/ chatglm3-6b-ovllm.pickle
 
 # smooth-quantize the model : sq_quant
 python -m ovllm.sq_quant -m=./gen/llama-2-7b/f16/openvino_model.xml  -s Llama2-7b-chat-ovllm.pickle -c=sq_config_llama2_7b.yaml gen/llama-2-7b/SQ/openvino_model.xml 
-python -m ovllm.sq_quant -m=./gen/llama-2-13b/f16/openvino_model.xml  -s Llama2-13b-ovllm.pickle -c=sq_config_llama2_13b.yaml  gen/llama-2-13b/SQ/openvino_model.xml
+python -m ovllm.sq_quant -m=./gen/llama-2-13b/f16/openvino_model.xml -s Llama2-13b-ovllm.pickle -c=sq_config_llama2_13b.yaml  gen/llama-2-13b/SQ/openvino_model.xml
+python -m ovllm.sq_quant -m=./gen/chatglm3-6b/f16/openvino_model.xml -s chatglm3-6b-ovllm.pickle -c=sq_config_chatglm3_6b.yaml  gen/chatglm3-6b/SQ/openvino_model.xml
 
 # Edit sq_config_llama2_7b.yaml and run above command again
 
@@ -43,5 +45,16 @@ python -m ovllm.lm_eval --model ovllm --tasks lambada_openai --model_args path=.
 |lambada_openai|      1|none  |     0|acc       |↑  |0.7615|±  |0.0059|
 |              |       |none  |     0|perplexity|↓  |3.0723|±  |0.0566|
 
+python -m ovllm.lm_eval --model ovllm --tasks lambada_openai --model_args path=./gen/chatglm3-6b/f16,nbatch=1
+|    Tasks     |Version|Filter|n-shot|  Metric  |   |Value |   |Stderr|
+|--------------|------:|------|-----:|----------|---|-----:|---|-----:|
+|lambada_openai|      1|none  |     0|acc       |↑  |0.6113|±  |0.0068|
+|              |       |none  |     0|perplexity|↓  |8.5563|±  |0.4104|
+
+python -m ovllm.lm_eval --model ovllm --tasks lambada_openai --model_args path=./gen/chatglm3-6b/SQ,nbatch=1
+|    Tasks     |Version|Filter|n-shot|  Metric  |   |Value |   |Stderr|
+|--------------|------:|------|-----:|----------|---|-----:|---|-----:|
+|lambada_openai|      1|none  |     0|acc       |↑  |0.6123|±  |0.0068|
+|              |       |none  |     0|perplexity|↓  |8.6018|±  |0.4122|
 
 ```
