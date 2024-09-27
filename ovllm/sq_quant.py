@@ -53,6 +53,9 @@ class LayerConfig:
         self.dict_obj.pop(layername)
 
 def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
+    GREEN = "\033[0;32m"
+    RED = "\033[0;31m"
+    END = "\033[0m"
 
     cfg_rules = config['rules']
     if len(cfg_rules) == 0:
@@ -68,7 +71,7 @@ def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
         cfg_rules['outlier_rel_thr'] = 10
         cfg_rules['outlier_abs_thr'] = 30
         cfg_rules['act_quant_sym'] = False
-        print(f"Using rules: {cfg_rules}")
+    print(f"{GREEN}Using rules: {cfg_rules}{END}")
 
     config['outlier_layers'].clear()
 
@@ -107,11 +110,18 @@ def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
                         cfg['quantize'] = cfg_rules[rules_kw]
 
             if cfg['quantize'] is None:
-                print(f"SKIPPED {cfg_key}")
-                return
+                quant_weight = False
+                quant_activation = False
+                smooth_activation = False
+            else:
+                quant_weight = 'W' in cfg['quantize']
+                quant_activation = 'A' in cfg['quantize']
+                smooth_activation = 'S' in cfg['quantize']
 
-            quant_activation = 'A' in cfg['quantize']
-            smooth_activation = 'S' in cfg['quantize']
+            quant_flag = ""
+            quant_flag += 'W' if quant_weight else '_'
+            quant_flag += 'S' if smooth_activation else '_'
+            quant_flag += 'A' if quant_activation else '_'
 
             if 'fc' not in cfg:
                 cfg['fc'] = []
@@ -143,38 +153,32 @@ def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
 
             cfg['fc_observations'] = f"{X_min.min():.2f} ~ {X_max.max():.2f}"
 
+            # get outliers:
+            X_absmax = X_absmax.clip(min=1e-5)
+            X_maxabs_thr = max(cfg_rules['outlier_rel_thr'] * X_absmax.mean(), cfg_rules['outlier_abs_thr'])
+            X_outliers = X_absmax[X_absmax > X_maxabs_thr].flatten()
+            if X_outliers.size > 0:
+                for fc_node, weight in fc_nodes:
+                    name = fc_node.get_friendly_name()
+                    config['outlier_layers'][name] = f"{quant_flag}  {X_min.min():.2f} ~ {X_max.max():.2f} outliers={X_outliers}"
+
             if len(fc_nodes) == 0:
                 config.pop(cfg_key)
                 return
 
-            # smooth-quant:
-            X_absmax = X_absmax.clip(min=1e-5)
+            if not quant_weight:
+                print(f"{RED}SKIPPED {[fc_node.get_friendly_name() for fc_node, _ in fc_nodes]} {END}")
+                return
 
             # s : each IC channel of weight matrix * s
             # use big alpha, for bigger outlier |X|, so x_scale can scale it down further
 
             per_channel_alpha = (X_absmax * 0 + cfg_rules['alpha'])
-            #per_channel_alpha[X_absmax > 10] = 0.7
-            #per_channel_alpha[X_absmax > 100] = 0.8
-
             px = pow(X_absmax, per_channel_alpha)
             pw = pow(W_absmax, 1 - per_channel_alpha)
             # pw = px
             smoothquant_w_scales = (px / pw).clip(min=1e-5)
             smoothquant_x_scales = 1/smoothquant_w_scales
-
-            '''
-            # clear outlier channel from quantization branch
-            outlier_idx = (X_absmax > outlier_thr)
-            outlier_cnt = outlier_idx.sum()
-            if quant_activation and outlier_cnt > 0 :
-                smoothquant_x_scales[outlier_idx] = 0
-                smoothquant_w_scales[outlier_idx] = 0
-                outlier_gather = opset.gather(pvm[act], outlier_idx.nonzero()[0], np.array([-1], dtype=np.int32))
-                outlier_result = opset.matmul(outlier_gather, op.Constant(weight[:, outlier_idx]), transpose_a, transpose_b, name = root.get_friendly_name()+"_outlier") 
-            else:
-                outlier_result = None
-            '''
 
             # [OC, IC] * [IC]
             if smooth_activation:
@@ -218,16 +222,10 @@ def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
                 x_min_per_tensor = X_min.min()
                 x_max_per_tensor = X_max.max()
 
-            X_maxabs_thr = max(cfg_rules['outlier_rel_thr'] * X_absmax.mean(), cfg_rules['outlier_abs_thr'])
-            quant_flag = f"Q{'A' if quant_activation else '_'}W"
-            X_outliers = X_absmax[X_absmax > X_maxabs_thr].flatten()
+
             info = f"{quant_flag} [x:{smoothquant_x_scales.min():.2f}~{smoothquant_x_scales.max():.2f} w:{smoothquant_w_scales.min():.2f}~{smoothquant_w_scales.max():.2f}]  {X_min.min():.2f}~{X_max.max():.2f} =>  {x_min_per_tensor:.2f}~{x_max_per_tensor:.2f} mean:{X_absmax.mean():.3f}  big:{X_outliers}"
             print(info)
             cfg['info'] = info
-            if X_outliers.size > 0:
-                for fc_node, weight in fc_nodes:
-                    name = fc_node.get_friendly_name()
-                    config['outlier_layers'][name] = info
 
             for fc_node, weight in fc_nodes:
                 # quantize weight to INT8 on per-OC basis (per-tensor is not enough)
@@ -292,8 +290,10 @@ if __name__ == "__main__":
 
     to_smooth_quant_model(ov_model, fc_observations, config = config)
 
+    print(f"saving updated sq-config to {args.config} ...", end="")
     config.save()
+    print(f"Done")
 
-    print(f"saving to {args.output_xml_path} ...")
+    print(f"saving smooth-quantized IR to {args.output_xml_path} ...", end="")
     save_model(ov_model, args.output_xml_path, True)
-
+    print(f"Done")
