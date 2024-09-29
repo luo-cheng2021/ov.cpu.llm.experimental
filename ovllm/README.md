@@ -50,25 +50,25 @@ numactl -N1 -m1 python -m ovllm -m ./gen/llama-2-7b/f16/ -pl 32x128 -al 8 -r 3 -
 python -m ovllm.lm_eval --model ovllm --tasks lambada_openai --model_args path=./ov.cpu.llm.experimental/gen/llama-2-7b/SQ/,nbatch=1
 |    Tasks     |Version|Filter|n-shot|  Metric  |   |Value |   |Stderr|
 |--------------|------:|------|-----:|----------|---|-----:|---|-----:|
-|lambada_openai|      1|none  |     0|acc       |↑  |0.7359|±  |0.0061|
-|              |       |none  |     0|perplexity|↓  |3.4486|±  |0.0677|
+|lambada_openai|      1|none  |     0|acc       |↑  |0.7336|±  |0.0062|
+|              |       |none  |     0|perplexity|↓  |3.4366|±  |0.0675|
 
 python -m ovllm.lm_eval --model ovllm --tasks lambada_openai --model_args path=./ov.cpu.llm.experimental/gen/llama-2-13b/SQ/,nbatch=1
 |    Tasks     |Version|Filter|n-shot|  Metric  |   |Value |   |Stderr|
 |--------------|------:|------|-----:|----------|---|-----:|---|-----:|
-|lambada_openai|      1|none  |     0|acc       |↑  |0.7615|±  |0.0059|
-|              |       |none  |     0|perplexity|↓  |3.0723|±  |0.0566|
+|lambada_openai|      1|none  |     0|acc       |↑  |0.7638|±  |0.0059|
+|              |       |none  |     0|perplexity|↓  |3.0610|±  |0.0565|
 
 python -m ovllm.lm_eval --model ovllm --tasks lambada_openai --model_args path=./gen/chatglm3-6b/SQ,nbatch=1
 |    Tasks     |Version|Filter|n-shot|  Metric  |   |Value |   |Stderr|
 |--------------|------:|------|-----:|----------|---|-----:|---|-----:|
-|lambada_openai|      1|none  |     0|acc       |↑  |0.6123|±  |0.0068|
-|              |       |none  |     0|perplexity|↓  |8.6018|±  |0.4122|
+|lambada_openai|      1|none  |     0|acc       |↑  |0.6068|±  |0.0068|
+|              |       |none  |     0|perplexity|↓  |9.1129|±  |0.4398|
 
 python -m ovllm.lm_eval --model ovllm --tasks lambada_openai --model_args path=./gen/gpt-j-6b/f16,nbatch=1
 |    Tasks     |Version|Filter|n-shot|  Metric  |   |Value |   |Stderr|
 |--------------|------:|------|-----:|----------|---|-----:|---|-----:|
-|lambada_openai|      1|none  |     0|acc       |↑  |0.6794|±  |0.0065|
-|              |       |none  |     0|perplexity|↓  |4.1123|±  |0.0888|
+|lambada_openai|      1|none  |     0|acc       |↑  |0.6806|±  |0.0065|
+|              |       |none  |     0|perplexity|↓  |4.1319|±  |0.0895|
 
 ```

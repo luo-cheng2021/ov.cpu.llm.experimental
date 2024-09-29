@@ -130,9 +130,9 @@ def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
                 smooth_activation = 'S' in cfg['quantize']
 
             quant_flag = ""
-            quant_flag += 'W' if quant_weight else '_'
             quant_flag += 'S' if smooth_activation else '_'
             quant_flag += 'A' if quant_activation else '_'
+            quant_flag += 'W' if quant_weight else '_'
 
             if 'fc' not in cfg:
                 cfg['fc'] = []
@@ -192,25 +192,26 @@ def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
             smoothquant_x_scales = 1/smoothquant_w_scales
 
             # [OC, IC] * [IC]
+            x_min_per_tensor = X_min.min()
+            x_max_per_tensor = X_max.max()
+            node_act = pvm[act]
+
             if smooth_activation:
                 x_min_per_tensor = (X_min * smoothquant_x_scales).min()
                 x_max_per_tensor = (X_max * smoothquant_x_scales).max()
-                node_act = opset.multiply(pvm[act], op.Constant(smoothquant_x_scales))
-            elif quant_activation:
-                x_min_per_tensor = (X_min * smoothquant_x_scales).min()
-                x_max_per_tensor = (X_max * smoothquant_x_scales).max()
+                node_act = opset.multiply(node_act, op.Constant(smoothquant_x_scales))
+
+            if quant_activation:
                 # symmetrical quantization has lower accuracy than asymmetrical
                 if cfg_rules['act_quant_sym']:
                     absmax = max(abs(x_min_per_tensor), abs(x_max_per_tensor))
                     x_min_per_tensor = -absmax
                     x_max_per_tensor = absmax
 
-                act_smoothed = opset.multiply(pvm[act], op.Constant(smoothquant_x_scales))
-
                 levels = np.int32(256)
                 if per_token_quant:
                     # per-token dynamic, need special impl
-                    absmax_per_token = opset.reduce_max(opset.absolute(act_smoothed), [0, 1], keep_dims = True)
+                    absmax_per_token = opset.reduce_max(opset.absolute(node_act), [0, 1], keep_dims = True)
                     input_low = opset.negative(absmax_per_token)
                     output_low = opset.negative(absmax_per_token)
                     input_high = absmax_per_token
@@ -222,17 +223,12 @@ def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
                     output_low = np.array(x_min_per_tensor, dtype=np.float32)
                     output_high = np.array(x_max_per_tensor, dtype=np.float32)
 
-                node_act = opset.fake_quantize(act_smoothed,
+                node_act = opset.fake_quantize(node_act,
                                             input_low,
                                             input_high,
                                             output_low,
                                             output_high,
                                             levels)
-            else:
-                node_act = pvm[act]
-                x_min_per_tensor = X_min.min()
-                x_max_per_tensor = X_max.max()
-
 
             info = f"{quant_flag} [x:{smoothquant_x_scales.min():.2f}~{smoothquant_x_scales.max():.2f} w:{smoothquant_w_scales.min():.2f}~{smoothquant_w_scales.max():.2f}]  {X_min.min():.2f}~{X_max.max():.2f} =>  {x_min_per_tensor:.2f}~{x_max_per_tensor:.2f} mean:{X_absmax.mean():.3f}  big:{X_outliers}"
             print(info)
@@ -240,7 +236,7 @@ def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
 
             for fc_node, weight in fc_nodes:
                 # quantize weight to INT8 on per-OC basis (per-tensor is not enough)
-                if quant_activation or smooth_activation:
+                if smooth_activation:
                     weight = weight * smoothquant_w_scales
                 w_deq_scales = abs(weight).max(1, keepdims=True) / 127
                 weight_quant = (weight / w_deq_scales).round().astype(np.int8)

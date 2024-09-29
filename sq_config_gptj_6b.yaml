@@ -20,19 +20,19 @@ rules:
   outlier_abs_thr: 30
   act_quant_sym: false
 outlier_layers:
-  transformer.h.mlp.fc_out.matmul.layer2: "WSA  -0.17 ~ 54.47 outliers=[48.552032 35.73648  36.996555 39.67482  35.956352 45.766125 49.733658\n 45.416145 38.28191  45.95278  42.395718 31.672518 43.039783 40.72831\n 44.621162 54.471817 42.300533 38.2303   38.336502 33.267426 34.888023\n 31.709843 44.855022 40.641777 32.946896 36.84603  41.19614  35.199875\n 39.493423 37.275852 32.38233  45.237453 44.346184 38.65203  40.40687\n 41.320446 37.573906 32.76998  43.42035  36.41472  43.26185  39.04051\n 44.143036 46.180233 43.903355 32.295036 44.285847 48.936646 31.380894\n 35.187828 51.636585 39.339687 43.60617  44.75804  41.531345 48.06645\n 36.60525  41.214695 49.71601  44.90197  37.328716 50.23014  42.566353]"
-  transformer.h.mlp.fc_in.matmul.layer3: WSA  -25.22 ~ 32.24 outliers=[32.238728]
-  transformer.h.attn.k_proj.matmul.layer3: WSA  -25.22 ~ 32.24 outliers=[32.238728]
-  transformer.h.attn.v_proj.matmul.layer3: WSA  -25.22 ~ 32.24 outliers=[32.238728]
-  transformer.h.attn.q_proj.matmul.layer3: WSA  -25.22 ~ 32.24 outliers=[32.238728]
-  transformer.h.attn.k_proj.matmul.layer13: WSA  -38.80 ~ 21.35 outliers=[38.795067]
-  transformer.h.attn.q_proj.matmul.layer13: WSA  -38.80 ~ 21.35 outliers=[38.795067]
-  transformer.h.mlp.fc_in.matmul.layer13: WSA  -38.80 ~ 21.35 outliers=[38.795067]
-  transformer.h.attn.v_proj.matmul.layer13: WSA  -38.80 ~ 21.35 outliers=[38.795067]
-  transformer.h.attn.k_proj.matmul.layer15: WSA  -37.37 ~ 18.58 outliers=[37.372986]
-  transformer.h.mlp.fc_in.matmul.layer15: WSA  -37.37 ~ 18.58 outliers=[37.372986]
-  transformer.h.attn.v_proj.matmul.layer15: WSA  -37.37 ~ 18.58 outliers=[37.372986]
-  transformer.h.attn.q_proj.matmul.layer15: WSA  -37.37 ~ 18.58 outliers=[37.372986]
+  transformer.h.mlp.fc_out.matmul.layer2: "___  -0.17 ~ 54.47 outliers=[48.552032 35.73648  36.996555 39.67482  35.956352 45.766125 49.733658\n 45.416145 38.28191  45.95278  42.395718 31.672518 43.039783 40.72831\n 44.621162 54.471817 42.300533 38.2303   38.336502 33.267426 34.888023\n 31.709843 44.855022 40.641777 32.946896 36.84603  41.19614  35.199875\n 39.493423 37.275852 32.38233  45.237453 44.346184 38.65203  40.40687\n 41.320446 37.573906 32.76998  43.42035  36.41472  43.26185  39.04051\n 44.143036 46.180233 43.903355 32.295036 44.285847 48.936646 31.380894\n 35.187828 51.636585 39.339687 43.60617  44.75804  41.531345 48.06645\n 36.60525  41.214695 49.71601  44.90197  37.328716 50.23014  42.566353]"
+  transformer.h.attn.k_proj.matmul.layer3: SAW  -25.22 ~ 32.24 outliers=[32.238728]
+  transformer.h.mlp.fc_in.matmul.layer3: SAW  -25.22 ~ 32.24 outliers=[32.238728]
+  transformer.h.attn.q_proj.matmul.layer3: SAW  -25.22 ~ 32.24 outliers=[32.238728]
+  transformer.h.attn.v_proj.matmul.layer3: SAW  -25.22 ~ 32.24 outliers=[32.238728]
+  transformer.h.attn.k_proj.matmul.layer13: SAW  -38.80 ~ 21.35 outliers=[38.795067]
+  transformer.h.mlp.fc_in.matmul.layer13: SAW  -38.80 ~ 21.35 outliers=[38.795067]
+  transformer.h.attn.v_proj.matmul.layer13: SAW  -38.80 ~ 21.35 outliers=[38.795067]
+  transformer.h.attn.q_proj.matmul.layer13: SAW  -38.80 ~ 21.35 outliers=[38.795067]
+  transformer.h.attn.v_proj.matmul.layer15: SAW  -37.37 ~ 18.58 outliers=[37.372986]
+  transformer.h.attn.k_proj.matmul.layer15: SAW  -37.37 ~ 18.58 outliers=[37.372986]
+  transformer.h.attn.q_proj.matmul.layer15: SAW  -37.37 ~ 18.58 outliers=[37.372986]
+  transformer.h.mlp.fc_in.matmul.layer15: SAW  -37.37 ~ 18.58 outliers=[37.372986]
 transformer.h.attn.q_proj.matmul.layer0:
   quantize: SAW
   fc:
@@ -41,19 +41,19 @@ transformer.h.attn.q_proj.matmul.layer0:
   - transformer.h.mlp.fc_in.matmul.layer0
   - transformer.h.attn.v_proj.matmul.layer0
   fc_observations: -20.19 ~ 16.84
-  info: WSA [x:0.08~0.51 w:1.96~13.10]  -20.19~16.84 =>  -1.54~1.47 mean:1.791  big:[]
+  info: SAW [x:0.08~0.51 w:1.96~13.10]  -20.19~16.84 =>  -1.54~1.47 mean:1.791  big:[]
 transformer.h.attn.out_proj.matmul.layer0:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer0
   fc_observations: -6.02 ~ 4.36
-  info: W_A [x:0.14~0.72 w:1.40~7.26]  -6.02~4.36 =>  -1.01~0.98 mean:1.649  big:[]
+  info: _AW [x:0.14~0.72 w:1.40~7.26]  -6.02~4.36 =>  -6.02~4.36 mean:1.649  big:[]
 transformer.h.mlp.fc_out.matmul.layer0:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer0
   fc_observations: -0.17 ~ 10.44
-  info: WSA [x:0.10~0.82 w:1.22~10.16]  -0.17~10.44 =>  -0.14~1.07 mean:2.493  big:[]
+  info: SAW [x:0.10~0.82 w:1.22~10.16]  -0.17~10.44 =>  -0.14~1.07 mean:2.493  big:[]
 transformer.h.attn.q_proj.matmul.layer1:
   quantize: SAW
   fc:
@@ -62,19 +62,19 @@ transformer.h.attn.q_proj.matmul.layer1:
   - transformer.h.attn.v_proj.matmul.layer1
   - transformer.h.attn.q_proj.matmul.layer1
   fc_observations: -25.61 ~ 22.74
-  info: WSA [x:0.05~0.38 w:2.62~18.38]  -25.61~22.74 =>  -1.76~1.58 mean:2.327  big:[]
+  info: SAW [x:0.05~0.38 w:2.62~18.38]  -25.61~22.74 =>  -1.76~1.58 mean:2.327  big:[]
 transformer.h.attn.out_proj.matmul.layer1:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer1
   fc_observations: -6.11 ~ 9.01
-  info: W_A [x:0.10~0.77 w:1.29~9.91]  -6.11~9.01 =>  -0.93~0.93 mean:1.546  big:[]
+  info: _AW [x:0.10~0.77 w:1.29~9.91]  -6.11~9.01 =>  -6.11~9.01 mean:1.546  big:[]
 transformer.h.mlp.fc_out.matmul.layer1:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer1
   fc_observations: -0.17 ~ 9.02
-  info: WSA [x:0.11~2.95 w:0.34~9.24]  -0.17~9.02 =>  -0.50~1.22 mean:2.888  big:[]
+  info: SAW [x:0.11~2.95 w:0.34~9.24]  -0.17~9.02 =>  -0.50~1.22 mean:2.888  big:[]
 transformer.h.attn.q_proj.matmul.layer2:
   quantize: SAW
   fc:
@@ -83,19 +83,19 @@ transformer.h.attn.q_proj.matmul.layer2:
   - transformer.h.attn.q_proj.matmul.layer2
   - transformer.h.attn.k_proj.matmul.layer2
   fc_observations: -25.13 ~ 23.25
-  info: WSA [x:0.06~0.39 w:2.56~17.07]  -25.13~23.25 =>  -1.63~1.65 mean:2.492  big:[]
+  info: SAW [x:0.06~0.39 w:2.56~17.07]  -25.13~23.25 =>  -1.63~1.65 mean:2.492  big:[]
 transformer.h.attn.out_proj.matmul.layer2:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer2
   fc_observations: -5.19 ~ 5.10
-  info: W_A [x:0.16~0.64 w:1.55~6.09]  -5.19~5.10 =>  -1.00~0.99 mean:1.741  big:[]
+  info: _AW [x:0.16~0.64 w:1.55~6.09]  -5.19~5.10 =>  -5.19~5.10 mean:1.741  big:[]
 transformer.h.mlp.fc_out.matmul.layer2:
-  quantize: SAW
+  quantize: null
   fc:
   - transformer.h.mlp.fc_out.matmul.layer2
   fc_observations: -0.17 ~ 54.47
-  info: "WSA [x:0.04~2.78 w:0.36~23.55]  -0.17~54.47 =>  -0.47~2.31 mean:3.120  big:[48.552032 35.73648  36.996555 39.67482  35.956352 45.766125 49.733658\n 45.416145 38.28191  45.95278  42.395718 31.672518 43.039783 40.72831\n 44.621162 54.471817 42.300533 38.2303   38.336502 33.267426 34.888023\n 31.709843 44.855022 40.641777 32.946896 36.84603  41.19614  35.199875\n 39.493423 37.275852 32.38233  45.237453 44.346184 38.65203  40.40687\n 41.320446 37.573906 32.76998  43.42035  36.41472  43.26185  39.04051\n 44.143036 46.180233 43.903355 32.295036 44.285847 48.936646 31.380894\n 35.187828 51.636585 39.339687 43.60617  44.75804  41.531345 48.06645\n 36.60525  41.214695 49.71601  44.90197  37.328716 50.23014  42.566353]"
+  info: "SAW [x:0.04~2.78 w:0.36~23.55]  -0.17~54.47 =>  -0.47~2.31 mean:3.120  big:[48.552032 35.73648  36.996555 39.67482  35.956352 45.766125 49.733658\n 45.416145 38.28191  45.95278  42.395718 31.672518 43.039783 40.72831\n 44.621162 54.471817 42.300533 38.2303   38.336502 33.267426 34.888023\n 31.709843 44.855022 40.641777 32.946896 36.84603  41.19614  35.199875\n 39.493423 37.275852 32.38233  45.237453 44.346184 38.65203  40.40687\n 41.320446 37.573906 32.76998  43.42035  36.41472  43.26185  39.04051\n 44.143036 46.180233 43.903355 32.295036 44.285847 48.936646 31.380894\n 35.187828 51.636585 39.339687 43.60617  44.75804  41.531345 48.06645\n 36.60525  41.214695 49.71601  44.90197  37.328716 50.23014  42.566353]"
 transformer.h.attn.q_proj.matmul.layer3:
   quantize: SAW
   fc:
@@ -104,19 +104,19 @@ transformer.h.attn.q_proj.matmul.layer3:
   - transformer.h.attn.v_proj.matmul.layer3
   - transformer.h.attn.q_proj.matmul.layer3
   fc_observations: -25.22 ~ 32.24
-  info: WSA [x:0.04~0.32 w:3.09~22.28]  -25.22~32.24 =>  -1.39~1.45 mean:2.998  big:[32.238728]
+  info: SAW [x:0.04~0.32 w:3.09~22.28]  -25.22~32.24 =>  -1.39~1.45 mean:2.998  big:[32.238728]
 transformer.h.attn.out_proj.matmul.layer3:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer3
   fc_observations: -7.18 ~ 8.04
-  info: W_A [x:0.10~0.70 w:1.43~9.67]  -7.18~8.04 =>  -0.95~1.05 mean:1.977  big:[]
+  info: _AW [x:0.10~0.70 w:1.43~9.67]  -7.18~8.04 =>  -7.18~8.04 mean:1.977  big:[]
 transformer.h.mlp.fc_out.matmul.layer3:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer3
   fc_observations: -0.17 ~ 17.13
-  info: WSA [x:0.11~0.51 w:1.95~9.24]  -0.17~17.13 =>  -0.09~1.85 mean:3.057  big:[]
+  info: SAW [x:0.11~0.51 w:1.95~9.24]  -0.17~17.13 =>  -0.09~1.85 mean:3.057  big:[]
 transformer.h.attn.q_proj.matmul.layer4:
   quantize: SAW
   fc:
@@ -125,19 +125,19 @@ transformer.h.attn.q_proj.matmul.layer4:
   - transformer.h.mlp.fc_in.matmul.layer4
   - transformer.h.attn.q_proj.matmul.layer4
   fc_observations: -25.20 ~ 29.06
-  info: WSA [x:0.05~0.28 w:3.59~20.78]  -25.20~29.06 =>  -1.38~1.40 mean:3.300  big:[]
+  info: SAW [x:0.05~0.28 w:3.59~20.78]  -25.20~29.06 =>  -1.38~1.40 mean:3.300  big:[]
 transformer.h.attn.out_proj.matmul.layer4:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer4
   fc_observations: -7.85 ~ 9.04
-  info: W_A [x:0.09~0.65 w:1.55~11.02]  -7.85~9.04 =>  -1.00~1.02 mean:2.308  big:[]
+  info: _AW [x:0.09~0.65 w:1.55~11.02]  -7.85~9.04 =>  -7.85~9.04 mean:2.308  big:[]
 transformer.h.mlp.fc_out.matmul.layer4:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer4
   fc_observations: -0.17 ~ 11.22
-  info: WSA [x:0.08~0.68 w:1.47~12.26]  -0.17~11.22 =>  -0.12~1.30 mean:3.177  big:[]
+  info: SAW [x:0.08~0.68 w:1.47~12.26]  -0.17~11.22 =>  -0.12~1.30 mean:3.177  big:[]
 transformer.h.attn.q_proj.matmul.layer5:
   quantize: SAW
   fc:
@@ -146,19 +146,19 @@ transformer.h.attn.q_proj.matmul.layer5:
   - transformer.h.attn.k_proj.matmul.layer5
   - transformer.h.attn.q_proj.matmul.layer5
   fc_observations: -29.64 ~ 27.26
-  info: WSA [x:0.05~0.28 w:3.54~20.09]  -29.64~27.26 =>  -1.49~1.39 mean:3.217  big:[]
+  info: SAW [x:0.05~0.28 w:3.54~20.09]  -29.64~27.26 =>  -1.49~1.39 mean:3.217  big:[]
 transformer.h.attn.out_proj.matmul.layer5:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer5
   fc_observations: -5.49 ~ 4.95
-  info: W_A [x:0.16~0.49 w:2.06~6.14]  -5.49~4.95 =>  -0.96~0.97 mean:2.448  big:[]
+  info: _AW [x:0.16~0.49 w:2.06~6.14]  -5.49~4.95 =>  -5.49~4.95 mean:2.448  big:[]
 transformer.h.mlp.fc_out.matmul.layer5:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer5
   fc_observations: -0.17 ~ 10.53
-  info: WSA [x:0.10~0.45 w:2.21~9.74]  -0.17~10.53 =>  -0.08~1.39 mean:3.236  big:[]
+  info: SAW [x:0.10~0.45 w:2.21~9.74]  -0.17~10.53 =>  -0.08~1.39 mean:3.236  big:[]
 transformer.h.attn.q_proj.matmul.layer6:
   quantize: SAW
   fc:
@@ -167,19 +167,19 @@ transformer.h.attn.q_proj.matmul.layer6:
   - transformer.h.attn.q_proj.matmul.layer6
   - transformer.h.mlp.fc_in.matmul.layer6
   fc_observations: -28.67 ~ 26.80
-  info: WSA [x:0.05~0.28 w:3.63~19.72]  -28.67~26.80 =>  -1.53~1.38 mean:3.265  big:[]
+  info: SAW [x:0.05~0.28 w:3.63~19.72]  -28.67~26.80 =>  -1.53~1.38 mean:3.265  big:[]
 transformer.h.attn.out_proj.matmul.layer6:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer6
   fc_observations: -9.19 ~ 9.35
-  info: W_A [x:0.10~0.63 w:1.58~10.22]  -9.19~9.35 =>  -1.00~0.98 mean:2.549  big:[]
+  info: _AW [x:0.10~0.63 w:1.58~10.22]  -9.19~9.35 =>  -9.19~9.35 mean:2.549  big:[]
 transformer.h.mlp.fc_out.matmul.layer6:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer6
   fc_observations: -0.17 ~ 13.04
-  info: WSA [x:0.10~0.49 w:2.06~10.08]  -0.17~13.04 =>  -0.08~1.47 mean:3.276  big:[]
+  info: SAW [x:0.10~0.49 w:2.06~10.08]  -0.17~13.04 =>  -0.08~1.47 mean:3.276  big:[]
 transformer.h.attn.q_proj.matmul.layer7:
   quantize: SAW
   fc:
@@ -188,19 +188,19 @@ transformer.h.attn.q_proj.matmul.layer7:
   - transformer.h.attn.v_proj.matmul.layer7
   - transformer.h.attn.k_proj.matmul.layer7
   fc_observations: -28.41 ~ 27.43
-  info: WSA [x:0.05~0.28 w:3.57~19.88]  -28.41~27.43 =>  -1.52~1.39 mean:3.346  big:[]
+  info: SAW [x:0.05~0.28 w:3.57~19.88]  -28.41~27.43 =>  -1.52~1.39 mean:3.346  big:[]
 transformer.h.attn.out_proj.matmul.layer7:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer7
   fc_observations: -10.23 ~ 5.57
-  info: W_A [x:0.09~0.46 w:2.19~11.28]  -10.23~5.57 =>  -0.94~0.87 mean:2.578  big:[]
+  info: _AW [x:0.09~0.46 w:2.19~11.28]  -10.23~5.57 =>  -10.23~5.57 mean:2.578  big:[]
 transformer.h.mlp.fc_out.matmul.layer7:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer7
   fc_observations: -0.17 ~ 19.75
-  info: WSA [x:0.08~0.43 w:2.32~12.97]  -0.17~19.75 =>  -0.07~1.52 mean:3.394  big:[]
+  info: SAW [x:0.08~0.43 w:2.32~12.97]  -0.17~19.75 =>  -0.07~1.52 mean:3.394  big:[]
 transformer.h.attn.q_proj.matmul.layer8:
   quantize: SAW
   fc:
@@ -209,19 +209,19 @@ transformer.h.attn.q_proj.matmul.layer8:
   - transformer.h.attn.v_proj.matmul.layer8
   - transformer.h.attn.k_proj.matmul.layer8
   fc_observations: -26.72 ~ 29.72
-  info: WSA [x:0.05~0.27 w:3.68~21.78]  -26.72~29.72 =>  -1.44~1.36 mean:3.426  big:[]
+  info: SAW [x:0.05~0.27 w:3.68~21.78]  -26.72~29.72 =>  -1.44~1.36 mean:3.426  big:[]
 transformer.h.attn.out_proj.matmul.layer8:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer8
   fc_observations: -5.14 ~ 6.56
-  info: W_A [x:0.15~0.41 w:2.41~6.55]  -5.14~6.56 =>  -1.04~1.00 mean:2.666  big:[]
+  info: _AW [x:0.15~0.41 w:2.41~6.55]  -5.14~6.56 =>  -5.14~6.56 mean:2.666  big:[]
 transformer.h.mlp.fc_out.matmul.layer8:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer8
   fc_observations: -0.17 ~ 9.95
-  info: WSA [x:0.09~0.54 w:1.85~10.72]  -0.17~9.95 =>  -0.09~1.29 mean:3.488  big:[]
+  info: SAW [x:0.09~0.54 w:1.85~10.72]  -0.17~9.95 =>  -0.09~1.29 mean:3.488  big:[]
 transformer.h.attn.q_proj.matmul.layer9:
   quantize: SAW
   fc:
@@ -230,19 +230,19 @@ transformer.h.attn.q_proj.matmul.layer9:
   - transformer.h.attn.v_proj.matmul.layer9
   - transformer.h.mlp.fc_in.matmul.layer9
   fc_observations: -24.19 ~ 27.04
-  info: WSA [x:0.05~0.26 w:3.81~19.04]  -24.19~27.04 =>  -1.48~1.42 mean:3.404  big:[]
+  info: SAW [x:0.05~0.26 w:3.81~19.04]  -24.19~27.04 =>  -1.48~1.42 mean:3.404  big:[]
 transformer.h.attn.out_proj.matmul.layer9:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer9
   fc_observations: -7.17 ~ 6.49
-  info: W_A [x:0.13~0.48 w:2.07~7.94]  -7.17~6.49 =>  -1.03~1.04 mean:2.578  big:[]
+  info: _AW [x:0.13~0.48 w:2.07~7.94]  -7.17~6.49 =>  -7.17~6.49 mean:2.578  big:[]
 transformer.h.mlp.fc_out.matmul.layer9:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer9
   fc_observations: -0.17 ~ 10.02
-  info: WSA [x:0.09~0.42 w:2.36~10.67]  -0.17~10.02 =>  -0.07~1.32 mean:3.435  big:[]
+  info: SAW [x:0.09~0.42 w:2.36~10.67]  -0.17~10.02 =>  -0.07~1.32 mean:3.435  big:[]
 transformer.h.attn.q_proj.matmul.layer10:
   quantize: SAW
   fc:
@@ -251,19 +251,19 @@ transformer.h.attn.q_proj.matmul.layer10:
   - transformer.h.attn.k_proj.matmul.layer10
   - transformer.h.attn.v_proj.matmul.layer10
   fc_observations: -28.12 ~ 24.39
-  info: WSA [x:0.05~0.27 w:3.76~19.25]  -28.12~24.39 =>  -1.46~1.34 mean:3.448  big:[]
+  info: SAW [x:0.05~0.27 w:3.76~19.25]  -28.12~24.39 =>  -1.46~1.34 mean:3.448  big:[]
 transformer.h.attn.out_proj.matmul.layer10:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer10
   fc_observations: -4.72 ~ 8.40
-  info: W_A [x:0.12~0.62 w:1.60~8.69]  -4.72~8.40 =>  -0.92~1.03 mean:2.595  big:[]
+  info: _AW [x:0.12~0.62 w:1.60~8.69]  -4.72~8.40 =>  -4.72~8.40 mean:2.595  big:[]
 transformer.h.mlp.fc_out.matmul.layer10:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer10
   fc_observations: -0.17 ~ 11.18
-  info: WSA [x:0.08~0.44 w:2.28~11.91]  -0.17~11.18 =>  -0.07~1.17 mean:3.382  big:[]
+  info: SAW [x:0.08~0.44 w:2.28~11.91]  -0.17~11.18 =>  -0.07~1.17 mean:3.382  big:[]
 transformer.h.attn.q_proj.matmul.layer11:
   quantize: SAW
   fc:
@@ -272,19 +272,19 @@ transformer.h.attn.q_proj.matmul.layer11:
   - transformer.h.attn.k_proj.matmul.layer11
   - transformer.h.mlp.fc_in.matmul.layer11
   fc_observations: -32.84 ~ 24.53
-  info: WSA [x:0.04~0.27 w:3.66~24.01]  -32.84~24.53 =>  -1.37~1.41 mean:3.393  big:[]
+  info: SAW [x:0.04~0.27 w:3.66~24.01]  -32.84~24.53 =>  -1.37~1.41 mean:3.393  big:[]
 transformer.h.attn.out_proj.matmul.layer11:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer11
   fc_observations: -5.07 ~ 4.91
-  info: W_A [x:0.16~0.39 w:2.57~6.32]  -5.07~4.91 =>  -0.99~0.90 mean:2.691  big:[]
+  info: _AW [x:0.16~0.39 w:2.57~6.32]  -5.07~4.91 =>  -5.07~4.91 mean:2.691  big:[]
 transformer.h.mlp.fc_out.matmul.layer11:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer11
   fc_observations: -0.17 ~ 11.73
-  info: WSA [x:0.08~0.54 w:1.86~12.10]  -0.17~11.73 =>  -0.09~1.28 mean:3.237  big:[]
+  info: SAW [x:0.08~0.54 w:1.86~12.10]  -0.17~11.73 =>  -0.09~1.28 mean:3.237  big:[]
 transformer.h.attn.q_proj.matmul.layer12:
   quantize: SAW
   fc:
@@ -293,19 +293,19 @@ transformer.h.attn.q_proj.matmul.layer12:
   - transformer.h.mlp.fc_in.matmul.layer12
   - transformer.h.attn.k_proj.matmul.layer12
   fc_observations: -33.32 ~ 24.10
-  info: WSA [x:0.04~0.25 w:3.95~24.45]  -33.32~24.10 =>  -1.36~1.35 mean:3.535  big:[]
+  info: SAW [x:0.04~0.25 w:3.95~24.45]  -33.32~24.10 =>  -1.36~1.35 mean:3.535  big:[]
 transformer.h.attn.out_proj.matmul.layer12:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer12
   fc_observations: -6.26 ~ 6.35
-  info: W_A [x:0.13~0.47 w:2.12~7.45]  -6.26~6.35 =>  -0.99~0.96 mean:2.749  big:[]
+  info: _AW [x:0.13~0.47 w:2.12~7.45]  -6.26~6.35 =>  -6.26~6.35 mean:2.749  big:[]
 transformer.h.mlp.fc_out.matmul.layer12:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer12
   fc_observations: -0.17 ~ 12.14
-  info: WSA [x:0.08~0.45 w:2.20~11.95]  -0.17~12.14 =>  -0.08~1.39 mean:3.409  big:[]
+  info: SAW [x:0.08~0.45 w:2.20~11.95]  -0.17~12.14 =>  -0.08~1.39 mean:3.409  big:[]
 transformer.h.attn.q_proj.matmul.layer13:
   quantize: SAW
   fc:
@@ -314,19 +314,19 @@ transformer.h.attn.q_proj.matmul.layer13:
   - transformer.h.mlp.fc_in.matmul.layer13
   - transformer.h.attn.v_proj.matmul.layer13
   fc_observations: -38.80 ~ 21.35
-  info: WSA [x:0.03~0.25 w:4.02~29.03]  -38.80~21.35 =>  -1.34~1.38 mean:3.670  big:[38.795067]
+  info: SAW [x:0.03~0.25 w:4.02~29.03]  -38.80~21.35 =>  -1.34~1.38 mean:3.670  big:[38.795067]
 transformer.h.attn.out_proj.matmul.layer13:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer13
   fc_observations: -7.34 ~ 6.43
-  info: W_A [x:0.11~0.40 w:2.53~8.91]  -7.34~6.43 =>  -0.99~1.02 mean:3.119  big:[]
+  info: _AW [x:0.11~0.40 w:2.53~8.91]  -7.34~6.43 =>  -7.34~6.43 mean:3.119  big:[]
 transformer.h.mlp.fc_out.matmul.layer13:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer13
   fc_observations: -0.17 ~ 16.84
-  info: WSA [x:0.06~0.46 w:2.18~16.33]  -0.17~16.84 =>  -0.08~1.19 mean:3.489  big:[]
+  info: SAW [x:0.06~0.46 w:2.18~16.33]  -0.17~16.84 =>  -0.08~1.19 mean:3.489  big:[]
 transformer.h.attn.q_proj.matmul.layer14:
   quantize: SAW
   fc:
@@ -335,19 +335,19 @@ transformer.h.attn.q_proj.matmul.layer14:
   - transformer.h.attn.k_proj.matmul.layer14
   - transformer.h.attn.v_proj.matmul.layer14
   fc_observations: -34.75 ~ 18.27
-  info: WSA [x:0.04~0.25 w:3.97~26.82]  -34.75~18.27 =>  -1.32~1.27 mean:3.628  big:[]
+  info: SAW [x:0.04~0.25 w:3.97~26.82]  -34.75~18.27 =>  -1.32~1.27 mean:3.628  big:[]
 transformer.h.attn.out_proj.matmul.layer14:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer14
   fc_observations: -6.81 ~ 7.79
-  info: W_A [x:0.12~0.41 w:2.44~8.32]  -6.81~7.79 =>  -0.92~0.97 mean:2.858  big:[]
+  info: _AW [x:0.12~0.41 w:2.44~8.32]  -6.81~7.79 =>  -6.81~7.79 mean:2.858  big:[]
 transformer.h.mlp.fc_out.matmul.layer14:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer14
   fc_observations: -0.17 ~ 12.56
-  info: WSA [x:0.08~0.39 w:2.59~12.46]  -0.17~12.56 =>  -0.07~1.27 mean:3.517  big:[]
+  info: SAW [x:0.08~0.39 w:2.59~12.46]  -0.17~12.56 =>  -0.07~1.27 mean:3.517  big:[]
 transformer.h.attn.q_proj.matmul.layer15:
   quantize: SAW
   fc:
@@ -356,19 +356,19 @@ transformer.h.attn.q_proj.matmul.layer15:
   - transformer.h.attn.v_proj.matmul.layer15
   - transformer.h.attn.q_proj.matmul.layer15
   fc_observations: -37.37 ~ 18.58
-  info: WSA [x:0.04~0.24 w:4.11~26.93]  -37.37~18.58 =>  -1.39~1.33 mean:3.674  big:[37.372986]
+  info: SAW [x:0.04~0.24 w:4.11~26.93]  -37.37~18.58 =>  -1.39~1.33 mean:3.674  big:[37.372986]
 transformer.h.attn.out_proj.matmul.layer15:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer15
   fc_observations: -5.67 ~ 6.07
-  info: W_A [x:0.14~0.51 w:1.95~7.31]  -5.67~6.07 =>  -0.99~0.98 mean:2.927  big:[]
+  info: _AW [x:0.14~0.51 w:1.95~7.31]  -5.67~6.07 =>  -5.67~6.07 mean:2.927  big:[]
 transformer.h.mlp.fc_out.matmul.layer15:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer15
   fc_observations: -0.17 ~ 13.06
-  info: WSA [x:0.07~0.37 w:2.67~13.38]  -0.17~13.06 =>  -0.06~1.20 mean:3.520  big:[]
+  info: SAW [x:0.07~0.37 w:2.67~13.38]  -0.17~13.06 =>  -0.06~1.20 mean:3.520  big:[]
 transformer.h.attn.q_proj.matmul.layer16:
   quantize: SAW
   fc:
@@ -377,19 +377,19 @@ transformer.h.attn.q_proj.matmul.layer16:
   - transformer.h.attn.q_proj.matmul.layer16
   - transformer.h.mlp.fc_in.matmul.layer16
   fc_observations: -38.25 ~ 19.58
-  info: WSA [x:0.04~0.24 w:4.19~28.14]  -38.25~19.58 =>  -1.36~1.33 mean:3.877  big:[]
+  info: SAW [x:0.04~0.24 w:4.19~28.14]  -38.25~19.58 =>  -1.36~1.33 mean:3.877  big:[]
 transformer.h.attn.out_proj.matmul.layer16:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer16
   fc_observations: -7.54 ~ 7.51
-  info: W_A [x:0.12~0.33 w:3.02~8.00]  -7.54~7.51 =>  -1.12~1.15 mean:3.412  big:[]
+  info: _AW [x:0.12~0.33 w:3.02~8.00]  -7.54~7.51 =>  -7.54~7.51 mean:3.412  big:[]
 transformer.h.mlp.fc_out.matmul.layer16:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer16
   fc_observations: -0.17 ~ 14.22
-  info: WSA [x:0.07~0.37 w:2.73~13.99]  -0.17~14.22 =>  -0.06~1.48 mean:3.705  big:[]
+  info: SAW [x:0.07~0.37 w:2.73~13.99]  -0.17~14.22 =>  -0.06~1.48 mean:3.705  big:[]
 transformer.h.attn.q_proj.matmul.layer17:
   quantize: SAW
   fc:
@@ -398,19 +398,19 @@ transformer.h.attn.q_proj.matmul.layer17:
   - transformer.h.attn.q_proj.matmul.layer17
   - transformer.h.mlp.fc_in.matmul.layer17
   fc_observations: -38.71 ~ 17.17
-  info: WSA [x:0.04~0.23 w:4.26~28.57]  -38.71~17.17 =>  -1.35~1.26 mean:3.892  big:[]
+  info: SAW [x:0.04~0.23 w:4.26~28.57]  -38.71~17.17 =>  -1.35~1.26 mean:3.892  big:[]
 transformer.h.attn.out_proj.matmul.layer17:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer17
   fc_observations: -5.64 ~ 6.98
-  info: W_A [x:0.13~0.33 w:3.00~7.66]  -5.64~6.98 =>  -0.95~1.07 mean:3.350  big:[]
+  info: _AW [x:0.13~0.33 w:3.00~7.66]  -5.64~6.98 =>  -5.64~6.98 mean:3.350  big:[]
 transformer.h.mlp.fc_out.matmul.layer17:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer17
   fc_observations: -0.17 ~ 19.08
-  info: WSA [x:0.06~0.35 w:2.88~17.30]  -0.17~19.08 =>  -0.06~1.35 mean:3.818  big:[]
+  info: SAW [x:0.06~0.35 w:2.88~17.30]  -0.17~19.08 =>  -0.06~1.35 mean:3.818  big:[]
 transformer.h.attn.q_proj.matmul.layer18:
   quantize: SAW
   fc:
@@ -419,19 +419,19 @@ transformer.h.attn.q_proj.matmul.layer18:
   - transformer.h.attn.q_proj.matmul.layer18
   - transformer.h.attn.k_proj.matmul.layer18
   fc_observations: -35.64 ~ 17.99
-  info: WSA [x:0.04~0.23 w:4.36~26.30]  -35.64~17.99 =>  -1.36~1.36 mean:3.936  big:[]
+  info: SAW [x:0.04~0.23 w:4.36~26.30]  -35.64~17.99 =>  -1.36~1.36 mean:3.936  big:[]
 transformer.h.attn.out_proj.matmul.layer18:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer18
   fc_observations: -6.38 ~ 6.18
-  info: W_A [x:0.13~0.31 w:3.27~7.74]  -6.38~6.18 =>  -0.97~0.95 mean:3.399  big:[]
+  info: _AW [x:0.13~0.31 w:3.27~7.74]  -6.38~6.18 =>  -6.38~6.18 mean:3.399  big:[]
 transformer.h.mlp.fc_out.matmul.layer18:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer18
   fc_observations: -0.17 ~ 18.05
-  info: WSA [x:0.06~0.33 w:3.00~16.75]  -0.17~18.05 =>  -0.06~1.38 mean:3.740  big:[]
+  info: SAW [x:0.06~0.33 w:3.00~16.75]  -0.17~18.05 =>  -0.06~1.38 mean:3.740  big:[]
 transformer.h.attn.q_proj.matmul.layer19:
   quantize: SAW
   fc:
@@ -440,19 +440,19 @@ transformer.h.attn.q_proj.matmul.layer19:
   - transformer.h.attn.v_proj.matmul.layer19
   - transformer.h.attn.q_proj.matmul.layer19
   fc_observations: -38.15 ~ 18.18
-  info: WSA [x:0.04~0.23 w:4.42~28.16]  -38.15~18.18 =>  -1.35~1.32 mean:4.062  big:[]
+  info: SAW [x:0.04~0.23 w:4.42~28.16]  -38.15~18.18 =>  -1.35~1.32 mean:4.062  big:[]
 transformer.h.attn.out_proj.matmul.layer19:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer19
   fc_observations: -7.76 ~ 6.75
-  info: W_A [x:0.11~0.36 w:2.78~8.79]  -7.76~6.75 =>  -0.93~0.92 mean:3.485  big:[]
+  info: _AW [x:0.11~0.36 w:2.78~8.79]  -7.76~6.75 =>  -7.76~6.75 mean:3.485  big:[]
 transformer.h.mlp.fc_out.matmul.layer19:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer19
   fc_observations: -0.17 ~ 17.32
-  info: WSA [x:0.06~0.33 w:3.07~16.12]  -0.17~17.32 =>  -0.06~1.24 mean:4.012  big:[]
+  info: SAW [x:0.06~0.33 w:3.07~16.12]  -0.17~17.32 =>  -0.06~1.24 mean:4.012  big:[]
 transformer.h.attn.q_proj.matmul.layer20:
   quantize: SAW
   fc:
@@ -461,19 +461,19 @@ transformer.h.attn.q_proj.matmul.layer20:
   - transformer.h.attn.q_proj.matmul.layer20
   - transformer.h.attn.k_proj.matmul.layer20
   fc_observations: -34.55 ~ 20.31
-  info: WSA [x:0.04~0.22 w:4.47~26.65]  -34.55~20.31 =>  -1.30~1.40 mean:4.133  big:[]
+  info: SAW [x:0.04~0.22 w:4.47~26.65]  -34.55~20.31 =>  -1.30~1.40 mean:4.133  big:[]
 transformer.h.attn.out_proj.matmul.layer20:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer20
   fc_observations: -8.47 ~ 8.86
-  info: W_A [x:0.10~0.34 w:2.97~9.66]  -8.47~8.86 =>  -1.03~0.99 mean:3.696  big:[]
+  info: _AW [x:0.10~0.34 w:2.97~9.66]  -8.47~8.86 =>  -8.47~8.86 mean:3.696  big:[]
 transformer.h.mlp.fc_out.matmul.layer20:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer20
   fc_observations: -0.17 ~ 18.38
-  info: WSA [x:0.06~0.40 w:2.49~16.76]  -0.17~18.38 =>  -0.07~1.29 mean:4.095  big:[]
+  info: SAW [x:0.06~0.40 w:2.49~16.76]  -0.17~18.38 =>  -0.07~1.29 mean:4.095  big:[]
 transformer.h.attn.q_proj.matmul.layer21:
   quantize: SAW
   fc:
@@ -482,19 +482,19 @@ transformer.h.attn.q_proj.matmul.layer21:
   - transformer.h.attn.v_proj.matmul.layer21
   - transformer.h.attn.q_proj.matmul.layer21
   fc_observations: -28.56 ~ 19.37
-  info: WSA [x:0.05~0.23 w:4.28~21.86]  -28.56~19.37 =>  -1.31~1.31 mean:4.307  big:[]
+  info: SAW [x:0.05~0.23 w:4.28~21.86]  -28.56~19.37 =>  -1.31~1.31 mean:4.307  big:[]
 transformer.h.attn.out_proj.matmul.layer21:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer21
   fc_observations: -6.96 ~ 10.08
-  info: W_A [x:0.09~0.31 w:3.22~10.95]  -6.96~10.08 =>  -0.90~0.95 mean:3.716  big:[]
+  info: _AW [x:0.09~0.31 w:3.22~10.95]  -6.96~10.08 =>  -6.96~10.08 mean:3.716  big:[]
 transformer.h.mlp.fc_out.matmul.layer21:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer21
   fc_observations: -0.17 ~ 19.64
-  info: WSA [x:0.06~0.32 w:3.09~16.65]  -0.17~19.64 =>  -0.06~1.26 mean:4.213  big:[]
+  info: SAW [x:0.06~0.32 w:3.09~16.65]  -0.17~19.64 =>  -0.06~1.26 mean:4.213  big:[]
 transformer.h.attn.q_proj.matmul.layer22:
   quantize: SAW
   fc:
@@ -503,19 +503,19 @@ transformer.h.attn.q_proj.matmul.layer22:
   - transformer.h.mlp.fc_in.matmul.layer22
   - transformer.h.attn.q_proj.matmul.layer22
   fc_observations: -26.35 ~ 20.86
-  info: WSA [x:0.05~0.22 w:4.46~20.83]  -26.35~20.86 =>  -1.27~1.33 mean:4.416  big:[]
+  info: SAW [x:0.05~0.22 w:4.46~20.83]  -26.35~20.86 =>  -1.27~1.33 mean:4.416  big:[]
 transformer.h.attn.out_proj.matmul.layer22:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer22
   fc_observations: -9.25 ~ 8.02
-  info: W_A [x:0.10~0.33 w:3.03~10.09]  -9.25~8.02 =>  -0.92~1.07 mean:3.665  big:[]
+  info: _AW [x:0.10~0.33 w:3.03~10.09]  -9.25~8.02 =>  -9.25~8.02 mean:3.665  big:[]
 transformer.h.mlp.fc_out.matmul.layer22:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer22
   fc_observations: -0.17 ~ 18.96
-  info: WSA [x:0.06~0.31 w:3.19~17.75]  -0.17~18.96 =>  -0.05~1.28 mean:4.213  big:[]
+  info: SAW [x:0.06~0.31 w:3.19~17.75]  -0.17~18.96 =>  -0.05~1.28 mean:4.213  big:[]
 transformer.h.attn.q_proj.matmul.layer23:
   quantize: SAW
   fc:
@@ -524,19 +524,19 @@ transformer.h.attn.q_proj.matmul.layer23:
   - transformer.h.attn.k_proj.matmul.layer23
   - transformer.h.attn.q_proj.matmul.layer23
   fc_observations: -27.89 ~ 22.68
-  info: WSA [x:0.05~0.23 w:4.44~22.05]  -27.89~22.68 =>  -1.27~1.41 mean:4.376  big:[]
+  info: SAW [x:0.05~0.23 w:4.44~22.05]  -27.89~22.68 =>  -1.27~1.41 mean:4.376  big:[]
 transformer.h.attn.out_proj.matmul.layer23:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer23
   fc_observations: -8.80 ~ 7.28
-  info: W_A [x:0.11~0.32 w:3.11~8.99]  -8.80~7.28 =>  -1.05~0.99 mean:3.636  big:[]
+  info: _AW [x:0.11~0.32 w:3.11~8.99]  -8.80~7.28 =>  -8.80~7.28 mean:3.636  big:[]
 transformer.h.mlp.fc_out.matmul.layer23:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer23
   fc_observations: -0.17 ~ 16.93
-  info: WSA [x:0.06~0.34 w:2.97~15.56]  -0.17~16.93 =>  -0.06~1.40 mean:4.129  big:[]
+  info: SAW [x:0.06~0.34 w:2.97~15.56]  -0.17~16.93 =>  -0.06~1.40 mean:4.129  big:[]
 transformer.h.attn.q_proj.matmul.layer24:
   quantize: SAW
   fc:
@@ -545,19 +545,19 @@ transformer.h.attn.q_proj.matmul.layer24:
   - transformer.h.mlp.fc_in.matmul.layer24
   - transformer.h.attn.k_proj.matmul.layer24
   fc_observations: -28.58 ~ 21.31
-  info: WSA [x:0.04~0.21 w:4.73~23.01]  -28.58~21.31 =>  -1.34~1.39 mean:4.448  big:[]
+  info: SAW [x:0.04~0.21 w:4.73~23.01]  -28.58~21.31 =>  -1.34~1.39 mean:4.448  big:[]
 transformer.h.attn.out_proj.matmul.layer24:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer24
   fc_observations: -8.76 ~ 9.35
-  info: W_A [x:0.10~0.32 w:3.12~10.49]  -8.76~9.35 =>  -0.97~1.02 mean:3.824  big:[]
+  info: _AW [x:0.10~0.32 w:3.12~10.49]  -8.76~9.35 =>  -8.76~9.35 mean:3.824  big:[]
 transformer.h.mlp.fc_out.matmul.layer24:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer24
   fc_observations: -0.17 ~ 19.71
-  info: WSA [x:0.06~0.35 w:2.87~16.63]  -0.17~19.71 =>  -0.06~1.30 mean:4.116  big:[]
+  info: SAW [x:0.06~0.35 w:2.87~16.63]  -0.17~19.71 =>  -0.06~1.30 mean:4.116  big:[]
 transformer.h.attn.q_proj.matmul.layer25:
   quantize: SAW
   fc:
@@ -566,19 +566,19 @@ transformer.h.attn.q_proj.matmul.layer25:
   - transformer.h.attn.q_proj.matmul.layer25
   - transformer.h.mlp.fc_in.matmul.layer25
   fc_observations: -22.71 ~ 21.70
-  info: WSA [x:0.05~0.21 w:4.74~18.65]  -22.71~21.70 =>  -1.29~1.38 mean:4.531  big:[]
+  info: SAW [x:0.05~0.21 w:4.74~18.65]  -22.71~21.70 =>  -1.29~1.38 mean:4.531  big:[]
 transformer.h.attn.out_proj.matmul.layer25:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer25
   fc_observations: -6.45 ~ 6.29
-  info: W_A [x:0.13~0.35 w:2.85~7.45]  -6.45~6.29 =>  -1.01~0.94 mean:3.591  big:[]
+  info: _AW [x:0.13~0.35 w:2.85~7.45]  -6.45~6.29 =>  -6.45~6.29 mean:3.591  big:[]
 transformer.h.mlp.fc_out.matmul.layer25:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer25
   fc_observations: -0.17 ~ 25.11
-  info: WSA [x:0.05~0.41 w:2.44~21.46]  -0.17~25.11 =>  -0.07~1.51 mean:4.118  big:[]
+  info: SAW [x:0.05~0.41 w:2.44~21.46]  -0.17~25.11 =>  -0.07~1.51 mean:4.118  big:[]
 transformer.h.attn.q_proj.matmul.layer26:
   quantize: SAW
   fc:
@@ -587,19 +587,19 @@ transformer.h.attn.q_proj.matmul.layer26:
   - transformer.h.mlp.fc_in.matmul.layer26
   - transformer.h.attn.k_proj.matmul.layer26
   fc_observations: -24.41 ~ 23.57
-  info: WSA [x:0.06~0.21 w:4.68~17.90]  -24.41~23.57 =>  -1.36~1.45 mean:4.411  big:[]
+  info: SAW [x:0.06~0.21 w:4.68~17.90]  -24.41~23.57 =>  -1.36~1.45 mean:4.411  big:[]
 transformer.h.attn.out_proj.matmul.layer26:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer26
   fc_observations: -7.01 ~ 9.01
-  info: W_A [x:0.11~0.46 w:2.16~8.80]  -7.01~9.01 =>  -1.05~1.16 mean:3.368  big:[]
+  info: _AW [x:0.11~0.46 w:2.16~8.80]  -7.01~9.01 =>  -7.01~9.01 mean:3.368  big:[]
 transformer.h.mlp.fc_out.matmul.layer26:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer26
   fc_observations: -0.17 ~ 23.18
-  info: WSA [x:0.05~0.56 w:1.80~19.27]  -0.17~23.18 =>  -0.09~1.56 mean:3.988  big:[]
+  info: SAW [x:0.05~0.56 w:1.80~19.27]  -0.17~23.18 =>  -0.09~1.56 mean:3.988  big:[]
 transformer.h.attn.q_proj.matmul.layer27:
   quantize: SAW
   fc:
@@ -608,22 +608,22 @@ transformer.h.attn.q_proj.matmul.layer27:
   - transformer.h.mlp.fc_in.matmul.layer27
   - transformer.h.attn.k_proj.matmul.layer27
   fc_observations: -36.20 ~ 24.84
-  info: WSA [x:0.04~0.24 w:4.21~27.06]  -36.20~24.84 =>  -1.34~1.45 mean:4.268  big:[]
+  info: SAW [x:0.04~0.24 w:4.21~27.06]  -36.20~24.84 =>  -1.34~1.45 mean:4.268  big:[]
 transformer.h.attn.out_proj.matmul.layer27:
   quantize: AW
   fc:
   - transformer.h.attn.out_proj.matmul.layer27
   fc_observations: -14.25 ~ 13.64
-  info: W_A [x:0.07~0.44 w:2.29~15.04]  -14.25~13.64 =>  -1.07~1.19 mean:3.058  big:[]
+  info: _AW [x:0.07~0.44 w:2.29~15.04]  -14.25~13.64 =>  -14.25~13.64 mean:3.058  big:[]
 transformer.h.mlp.fc_out.matmul.layer27:
   quantize: SAW
   fc:
   - transformer.h.mlp.fc_out.matmul.layer27
   fc_observations: -0.17 ~ 27.51
-  info: WSA [x:0.06~0.58 w:1.72~17.14]  -0.17~27.51 =>  -0.10~1.78 mean:4.027  big:[]
+  info: SAW [x:0.06~0.58 w:1.72~17.14]  -0.17~27.51 =>  -0.10~1.78 mean:4.027  big:[]
 lm_head.matmul:
   quantize: SAW
   fc:
   - lm_head.matmul
   fc_observations: -38.10 ~ 40.63
-  info: WSA [x:0.03~0.26 w:3.81~30.50]  -38.10~40.63 =>  -1.34~1.42 mean:4.499  big:[]
+  info: SAW [x:0.03~0.26 w:3.81~30.50]  -38.10~40.63 =>  -1.34~1.42 mean:4.499  big:[]

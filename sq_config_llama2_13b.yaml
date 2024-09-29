@@ -11,29 +11,29 @@ rules:
   outlier_abs_thr: 30
   act_quant_sym: false
 outlier_layers:
-  model.layers.mlp.down_proj.matmul.layer0: W__  -7.63 ~ 40.75 outliers=[40.753906]
+  model.layers.mlp.down_proj.matmul.layer0: __W  -7.63 ~ 40.75 outliers=[40.753906]
   model.layers.mlp.down_proj.matmul.layer3: ___  -57.11 ~ 673.03 outliers=[673.0301   57.1112   36.10102]
-  model.layers.mlp.down_proj.matmul.layer11: W__  -15.56 ~ 33.74 outliers=[33.739323]
-  model.layers.self_attn.v_proj.matmul.layer12: WS_  -31.75 ~ 25.15 outliers=[31.753662]
-  model.layers.self_attn.q_proj.matmul.layer12: WS_  -31.75 ~ 25.15 outliers=[31.753662]
-  model.layers.self_attn.k_proj.matmul.layer12: WS_  -31.75 ~ 25.15 outliers=[31.753662]
-  model.layers.self_attn.q_proj.matmul.layer14: WS_  -30.86 ~ 26.75 outliers=[30.857288]
-  model.layers.self_attn.k_proj.matmul.layer14: WS_  -30.86 ~ 26.75 outliers=[30.857288]
-  model.layers.self_attn.v_proj.matmul.layer14: WS_  -30.86 ~ 26.75 outliers=[30.857288]
-  model.layers.mlp.down_proj.matmul.layer24: W__  -56.50 ~ 33.77 outliers=[52.2696   56.495613]
-  model.layers.mlp.down_proj.matmul.layer25: W__  -42.69 ~ 60.06 outliers=[60.058014]
-  model.layers.mlp.down_proj.matmul.layer27: W__  -54.53 ~ 54.07 outliers=[54.070503 54.52693  52.77343  52.958694]
-  model.layers.mlp.down_proj.matmul.layer29: W__  -78.12 ~ 64.47 outliers=[64.47351  78.11657  51.100662]
-  model.layers.mlp.down_proj.matmul.layer30: W__  -65.98 ~ 53.54 outliers=[51.21228  52.98021  65.97757  53.536713]
-  model.layers.mlp.down_proj.matmul.layer31: W__  -79.73 ~ 58.41 outliers=[69.82893  58.18408  54.883286 60.340633 58.409622 79.73262  50.371845]
-  model.layers.mlp.down_proj.matmul.layer32: W__  -53.10 ~ 74.95 outliers=[65.31817  51.251266 74.95044  53.100475]
-  model.layers.mlp.down_proj.matmul.layer33: "W__  -79.28 ~ 64.84 outliers=[54.429718 56.80621  52.215477 64.2134   51.90252  56.35531  72.08517\n 58.51712  64.84085  79.27911 ]"
-  model.layers.mlp.down_proj.matmul.layer34: W__  -53.16 ~ 80.31 outliers=[55.206474 53.16184  53.9944   80.31261  70.01063  57.2455  ]
-  model.layers.mlp.down_proj.matmul.layer35: W__  -80.57 ~ 79.94 outliers=[59.555347 79.93878  62.59053  62.17762  60.190384 80.56922 ]
-  model.layers.mlp.down_proj.matmul.layer36: W__  -72.19 ~ 73.46 outliers=[73.45574  62.829483 59.572803 72.18768  71.63397 ]
-  model.layers.mlp.down_proj.matmul.layer37: W__  -97.33 ~ 72.29 outliers=[63.463932 61.835445 97.33043  65.993034 72.2863   69.34545  65.98454 ]
-  model.layers.mlp.down_proj.matmul.layer38: W__  -310.29 ~ 78.66 outliers=[ 78.65685 310.28873  70.02532  87.03613  70.77014]
-  model.layers.mlp.down_proj.matmul.layer39: "W__  -130.12 ~ 192.34 outliers=[ 85.98069  112.0888    73.38303   75.744675  76.26588   81.90229\n 130.11974  126.852325  86.61448   99.49557   77.77854   78.03041\n 109.285706 192.34358 ]"
+  model.layers.mlp.down_proj.matmul.layer11: __W  -15.56 ~ 33.74 outliers=[33.739323]
+  model.layers.self_attn.q_proj.matmul.layer12: S_W  -31.75 ~ 25.15 outliers=[31.753662]
+  model.layers.self_attn.k_proj.matmul.layer12: S_W  -31.75 ~ 25.15 outliers=[31.753662]
+  model.layers.self_attn.v_proj.matmul.layer12: S_W  -31.75 ~ 25.15 outliers=[31.753662]
+  model.layers.self_attn.k_proj.matmul.layer14: S_W  -30.86 ~ 26.75 outliers=[30.857288]
+  model.layers.self_attn.v_proj.matmul.layer14: S_W  -30.86 ~ 26.75 outliers=[30.857288]
+  model.layers.self_attn.q_proj.matmul.layer14: S_W  -30.86 ~ 26.75 outliers=[30.857288]
+  model.layers.mlp.down_proj.matmul.layer24: __W  -56.50 ~ 33.77 outliers=[52.2696   56.495613]
+  model.layers.mlp.down_proj.matmul.layer25: __W  -42.69 ~ 60.06 outliers=[60.058014]
+  model.layers.mlp.down_proj.matmul.layer27: __W  -54.53 ~ 54.07 outliers=[54.070503 54.52693  52.77343  52.958694]
+  model.layers.mlp.down_proj.matmul.layer29: __W  -78.12 ~ 64.47 outliers=[64.47351  78.11657  51.100662]
+  model.layers.mlp.down_proj.matmul.layer30: __W  -65.98 ~ 53.54 outliers=[51.21228  52.98021  65.97757  53.536713]
+  model.layers.mlp.down_proj.matmul.layer31: __W  -79.73 ~ 58.41 outliers=[69.82893  58.18408  54.883286 60.340633 58.409622 79.73262  50.371845]
+  model.layers.mlp.down_proj.matmul.layer32: __W  -53.10 ~ 74.95 outliers=[65.31817  51.251266 74.95044  53.100475]
+  model.layers.mlp.down_proj.matmul.layer33: "__W  -79.28 ~ 64.84 outliers=[54.429718 56.80621  52.215477 64.2134   51.90252  56.35531  72.08517\n 58.51712  64.84085  79.27911 ]"
+  model.layers.mlp.down_proj.matmul.layer34: __W  -53.16 ~ 80.31 outliers=[55.206474 53.16184  53.9944   80.31261  70.01063  57.2455  ]
+  model.layers.mlp.down_proj.matmul.layer35: __W  -80.57 ~ 79.94 outliers=[59.555347 79.93878  62.59053  62.17762  60.190384 80.56922 ]
+  model.layers.mlp.down_proj.matmul.layer36: __W  -72.19 ~ 73.46 outliers=[73.45574  62.829483 59.572803 72.18768  71.63397 ]
+  model.layers.mlp.down_proj.matmul.layer37: __W  -97.33 ~ 72.29 outliers=[63.463932 61.835445 97.33043  65.993034 72.2863   69.34545  65.98454 ]
+  model.layers.mlp.down_proj.matmul.layer38: __W  -310.29 ~ 78.66 outliers=[ 78.65685 310.28873  70.02532  87.03613  70.77014]
+  model.layers.mlp.down_proj.matmul.layer39: "__W  -130.12 ~ 192.34 outliers=[ 85.98069  112.0888    73.38303   75.744675  76.26588   81.90229\n 130.11974  126.852325  86.61448   99.49557   77.77854   78.03041\n 109.285706 192.34358 ]"
   lm_head.matmul: ___  -38.87 ~ 43.17 outliers=[43.168755 34.53377  38.874462 33.58173 ]
 model.layers.self_attn.q_proj.matmul.layer0:
   quantize: SW
@@ -42,26 +42,26 @@ model.layers.self_attn.q_proj.matmul.layer0:
   - model.layers.self_attn.v_proj.matmul.layer0
   - model.layers.self_attn.k_proj.matmul.layer0
   fc_observations: -7.26 ~ 3.84
-  info: WS_ [x:0.19~5053.53 w:0.00~5.19]  -7.26~3.84 =>  -1.40~1.12 mean:0.055  big:[]
+  info: S_W [x:0.19~5053.53 w:0.00~5.19]  -7.26~3.84 =>  -1.40~1.12 mean:0.055  big:[]
 model.layers.self_attn.o_proj.matmul.layer0:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer0
   fc_observations: -1.05 ~ 1.36
-  info: W_A [x:0.56~35.70 w:0.03~1.77]  -1.05~1.36 =>  -0.79~0.81 mean:0.041  big:[]
+  info: _AW [x:0.56~35.70 w:0.03~1.77]  -1.05~1.36 =>  -1.05~1.36 mean:0.041  big:[]
 model.layers.mlp.gate_proj.matmul.layer0:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer0
   - model.layers.mlp.gate_proj.matmul.layer0
   fc_observations: -2.92 ~ 4.04
-  info: WS_ [x:0.27~152.14 w:0.01~3.73]  -2.92~4.04 =>  -1.14~1.13 mean:0.155  big:[]
+  info: S_W [x:0.27~152.14 w:0.01~3.73]  -2.92~4.04 =>  -1.14~1.13 mean:0.155  big:[]
 model.layers.mlp.down_proj.matmul.layer0:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer0
   fc_observations: -7.63 ~ 40.75
-  info: W__ [x:0.06~17.31 w:0.06~17.81]  -7.63~40.75 =>  -7.63~40.75 mean:0.335  big:[40.753906]
+  info: __W [x:0.06~17.31 w:0.06~17.81]  -7.63~40.75 =>  -7.63~40.75 mean:0.335  big:[40.753906]
 model.layers.self_attn.q_proj.matmul.layer1:
   quantize: SW
   fc:
@@ -69,26 +69,26 @@ model.layers.self_attn.q_proj.matmul.layer1:
   - model.layers.self_attn.q_proj.matmul.layer1
   - model.layers.self_attn.v_proj.matmul.layer1
   fc_observations: -8.24 ~ 6.76
-  info: WS_ [x:0.14~1109.36 w:0.00~6.98]  -8.24~6.76 =>  -1.19~1.22 mean:0.291  big:[]
+  info: S_W [x:0.14~1109.36 w:0.00~6.98]  -8.24~6.76 =>  -1.19~1.22 mean:0.291  big:[]
 model.layers.self_attn.o_proj.matmul.layer1:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer1
   fc_observations: -1.62 ~ 1.20
-  info: W_A [x:0.39~33.42 w:0.03~2.55]  -1.62~1.20 =>  -0.78~0.73 mean:0.130  big:[]
+  info: _AW [x:0.39~33.42 w:0.03~2.55]  -1.62~1.20 =>  -1.62~1.20 mean:0.130  big:[]
 model.layers.mlp.gate_proj.matmul.layer1:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer1
   - model.layers.mlp.gate_proj.matmul.layer1
   fc_observations: -5.77 ~ 3.11
-  info: WS_ [x:0.20~279.75 w:0.00~4.99]  -5.77~3.11 =>  -1.16~1.02 mean:0.291  big:[]
+  info: S_W [x:0.20~279.75 w:0.00~4.99]  -5.77~3.11 =>  -1.16~1.02 mean:0.291  big:[]
 model.layers.mlp.down_proj.matmul.layer1:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer1
   fc_observations: -2.74 ~ 13.53
-  info: W__ [x:0.13~8.84 w:0.11~7.81]  -2.74~13.53 =>  -2.74~13.53 mean:0.616  big:[]
+  info: __W [x:0.13~8.84 w:0.11~7.81]  -2.74~13.53 =>  -2.74~13.53 mean:0.616  big:[]
 model.layers.self_attn.q_proj.matmul.layer2:
   quantize: SW
   fc:
@@ -96,26 +96,26 @@ model.layers.self_attn.q_proj.matmul.layer2:
   - model.layers.self_attn.k_proj.matmul.layer2
   - model.layers.self_attn.q_proj.matmul.layer2
   fc_observations: -10.20 ~ 9.33
-  info: WS_ [x:0.12~289.57 w:0.00~8.17]  -10.20~9.33 =>  -1.25~1.23 mean:0.582  big:[]
+  info: S_W [x:0.12~289.57 w:0.00~8.17]  -10.20~9.33 =>  -1.25~1.23 mean:0.582  big:[]
 model.layers.self_attn.o_proj.matmul.layer2:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer2
   fc_observations: -1.49 ~ 2.70
-  info: W_A [x:0.32~10.19 w:0.10~3.08]  -1.49~2.70 =>  -0.78~0.91 mean:0.340  big:[]
+  info: _AW [x:0.32~10.19 w:0.10~3.08]  -1.49~2.70 =>  -1.49~2.70 mean:0.340  big:[]
 model.layers.mlp.gate_proj.matmul.layer2:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer2
   - model.layers.mlp.up_proj.matmul.layer2
   fc_observations: -2.03 ~ 1.67
-  info: WS_ [x:0.40~57.15 w:0.02~2.48]  -2.03~1.67 =>  -0.83~0.89 mean:0.453  big:[]
+  info: S_W [x:0.40~57.15 w:0.02~2.48]  -2.03~1.67 =>  -0.83~0.89 mean:0.453  big:[]
 model.layers.mlp.down_proj.matmul.layer2:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer2
   fc_observations: -3.37 ~ 3.44
-  info: W__ [x:0.22~4.31 w:0.23~4.57]  -3.37~3.44 =>  -3.37~3.44 mean:0.723  big:[]
+  info: __W [x:0.22~4.31 w:0.23~4.57]  -3.37~3.44 =>  -3.37~3.44 mean:0.723  big:[]
 model.layers.self_attn.q_proj.matmul.layer3:
   quantize: SW
   fc:
@@ -123,20 +123,20 @@ model.layers.self_attn.q_proj.matmul.layer3:
   - model.layers.self_attn.v_proj.matmul.layer3
   - model.layers.self_attn.k_proj.matmul.layer3
   fc_observations: -9.02 ~ 9.36
-  info: WS_ [x:0.13~275.75 w:0.00~7.55]  -9.02~9.36 =>  -1.23~1.24 mean:0.680  big:[]
+  info: S_W [x:0.13~275.75 w:0.00~7.55]  -9.02~9.36 =>  -1.23~1.24 mean:0.680  big:[]
 model.layers.self_attn.o_proj.matmul.layer3:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer3
   fc_observations: -1.68 ~ 1.55
-  info: W_A [x:0.43~5.80 w:0.17~2.31]  -1.68~1.55 =>  -1.14~1.07 mean:0.442  big:[]
+  info: _AW [x:0.43~5.80 w:0.17~2.31]  -1.68~1.55 =>  -1.68~1.55 mean:0.442  big:[]
 model.layers.mlp.gate_proj.matmul.layer3:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer3
   - model.layers.mlp.gate_proj.matmul.layer3
   fc_observations: -11.42 ~ 5.90
-  info: WS_ [x:0.13~18.41 w:0.05~7.54]  -11.42~5.90 =>  -1.52~1.26 mean:0.575  big:[]
+  info: S_W [x:0.13~18.41 w:0.05~7.54]  -11.42~5.90 =>  -1.52~1.26 mean:0.575  big:[]
 model.layers.mlp.down_proj.matmul.layer3:
   quantize: null
   fc:
@@ -150,26 +150,26 @@ model.layers.self_attn.q_proj.matmul.layer4:
   - model.layers.self_attn.k_proj.matmul.layer4
   - model.layers.self_attn.q_proj.matmul.layer4
   fc_observations: -10.61 ~ 12.60
-  info: WS_ [x:0.10~59.82 w:0.02~10.49]  -10.61~12.60 =>  -1.23~1.26 mean:1.004  big:[]
+  info: S_W [x:0.10~59.82 w:0.02~10.49]  -10.61~12.60 =>  -1.23~1.26 mean:1.004  big:[]
 model.layers.self_attn.o_proj.matmul.layer4:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer4
   fc_observations: -3.49 ~ 2.63
-  info: W_A [x:0.19~3.42 w:0.29~5.15]  -3.49~2.63 =>  -0.88~0.92 mean:0.658  big:[]
+  info: _AW [x:0.19~3.42 w:0.29~5.15]  -3.49~2.63 =>  -3.49~2.63 mean:0.658  big:[]
 model.layers.mlp.gate_proj.matmul.layer4:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer4
   - model.layers.mlp.up_proj.matmul.layer4
   fc_observations: -2.98 ~ 3.11
-  info: WS_ [x:0.29~9.84 w:0.10~3.47]  -2.98~3.11 =>  -0.91~0.92 mean:0.635  big:[]
+  info: S_W [x:0.29~9.84 w:0.10~3.47]  -2.98~3.11 =>  -0.91~0.92 mean:0.635  big:[]
 model.layers.mlp.down_proj.matmul.layer4:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer4
   fc_observations: -5.08 ~ 5.48
-  info: W__ [x:0.15~2.62 w:0.38~6.51]  -5.08~5.48 =>  -5.08~5.48 mean:1.053  big:[]
+  info: __W [x:0.15~2.62 w:0.38~6.51]  -5.08~5.48 =>  -5.08~5.48 mean:1.053  big:[]
 model.layers.self_attn.q_proj.matmul.layer5:
   quantize: SW
   fc:
@@ -177,26 +177,26 @@ model.layers.self_attn.q_proj.matmul.layer5:
   - model.layers.self_attn.q_proj.matmul.layer5
   - model.layers.self_attn.v_proj.matmul.layer5
   fc_observations: -10.78 ~ 12.89
-  info: WS_ [x:0.10~2998.69 w:0.00~10.37]  -10.78~12.89 =>  -1.28~1.26 mean:1.059  big:[]
+  info: S_W [x:0.10~2998.69 w:0.00~10.37]  -10.78~12.89 =>  -1.28~1.26 mean:1.059  big:[]
 model.layers.self_attn.o_proj.matmul.layer5:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer5
   fc_observations: -1.78 ~ 2.17
-  info: W_A [x:0.35~4.73 w:0.21~2.82]  -1.78~2.17 =>  -0.98~0.94 mean:0.662  big:[]
+  info: _AW [x:0.35~4.73 w:0.21~2.82]  -1.78~2.17 =>  -1.78~2.17 mean:0.662  big:[]
 model.layers.mlp.gate_proj.matmul.layer5:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer5
   - model.layers.mlp.up_proj.matmul.layer5
   fc_observations: -5.09 ~ 3.70
-  info: WS_ [x:0.18~3.64 w:0.27~5.45]  -5.09~3.70 =>  -0.99~1.01 mean:0.709  big:[]
+  info: S_W [x:0.18~3.64 w:0.27~5.45]  -5.09~3.70 =>  -0.99~1.01 mean:0.709  big:[]
 model.layers.mlp.down_proj.matmul.layer5:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer5
   fc_observations: -6.25 ~ 7.29
-  info: W__ [x:0.12~2.10 w:0.48~8.24]  -6.25~7.29 =>  -6.25~7.29 mean:1.363  big:[]
+  info: __W [x:0.12~2.10 w:0.48~8.24]  -6.25~7.29 =>  -6.25~7.29 mean:1.363  big:[]
 model.layers.self_attn.q_proj.matmul.layer6:
   quantize: SW
   fc:
@@ -204,26 +204,26 @@ model.layers.self_attn.q_proj.matmul.layer6:
   - model.layers.self_attn.v_proj.matmul.layer6
   - model.layers.self_attn.q_proj.matmul.layer6
   fc_observations: -11.65 ~ 13.33
-  info: WS_ [x:0.09~66.23 w:0.02~10.64]  -11.65~13.33 =>  -1.31~1.28 mean:1.163  big:[]
+  info: S_W [x:0.09~66.23 w:0.02~10.64]  -11.65~13.33 =>  -1.31~1.28 mean:1.163  big:[]
 model.layers.self_attn.o_proj.matmul.layer6:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer6
   fc_observations: -2.47 ~ 2.41
-  info: W_A [x:0.30~2.17 w:0.46~3.38]  -2.47~2.41 =>  -0.94~0.93 mean:0.828  big:[]
+  info: _AW [x:0.30~2.17 w:0.46~3.38]  -2.47~2.41 =>  -2.47~2.41 mean:0.828  big:[]
 model.layers.mlp.gate_proj.matmul.layer6:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer6
   - model.layers.mlp.up_proj.matmul.layer6
   fc_observations: -6.35 ~ 3.53
-  info: WS_ [x:0.15~1.02 w:0.98~6.61]  -6.35~3.53 =>  -0.96~1.04 mean:0.781  big:[]
+  info: S_W [x:0.15~1.02 w:0.98~6.61]  -6.35~3.53 =>  -0.96~1.04 mean:0.781  big:[]
 model.layers.mlp.down_proj.matmul.layer6:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer6
   fc_observations: -8.54 ~ 8.77
-  info: W__ [x:0.10~2.58 w:0.39~9.74]  -8.54~8.77 =>  -8.54~8.77 mean:1.603  big:[]
+  info: __W [x:0.10~2.58 w:0.39~9.74]  -8.54~8.77 =>  -8.54~8.77 mean:1.603  big:[]
 model.layers.self_attn.q_proj.matmul.layer7:
   quantize: SW
   fc:
@@ -231,26 +231,26 @@ model.layers.self_attn.q_proj.matmul.layer7:
   - model.layers.self_attn.v_proj.matmul.layer7
   - model.layers.self_attn.q_proj.matmul.layer7
   fc_observations: -13.35 ~ 15.13
-  info: WS_ [x:0.09~81.48 w:0.01~11.74]  -13.35~15.13 =>  -1.27~1.29 mean:1.141  big:[]
+  info: S_W [x:0.09~81.48 w:0.01~11.74]  -13.35~15.13 =>  -1.27~1.29 mean:1.141  big:[]
 model.layers.self_attn.o_proj.matmul.layer7:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer7
   fc_observations: -3.41 ~ 5.05
-  info: W_A [x:0.20~2.25 w:0.44~5.01]  -3.41~5.05 =>  -0.94~1.01 mean:0.843  big:[]
+  info: _AW [x:0.20~2.25 w:0.44~5.01]  -3.41~5.05 =>  -3.41~5.05 mean:0.843  big:[]
 model.layers.mlp.gate_proj.matmul.layer7:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer7
   - model.layers.mlp.up_proj.matmul.layer7
   fc_observations: -10.79 ~ 6.14
-  info: WS_ [x:0.12~1.04 w:0.96~8.46]  -10.79~6.14 =>  -1.28~1.04 mean:0.835  big:[]
+  info: S_W [x:0.12~1.04 w:0.96~8.46]  -10.79~6.14 =>  -1.28~1.04 mean:0.835  big:[]
 model.layers.mlp.down_proj.matmul.layer7:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer7
   fc_observations: -13.28 ~ 16.95
-  info: W__ [x:0.09~2.26 w:0.44~10.88]  -13.28~16.95 =>  -13.28~16.95 mean:1.769  big:[]
+  info: __W [x:0.09~2.26 w:0.44~10.88]  -13.28~16.95 =>  -13.28~16.95 mean:1.769  big:[]
 model.layers.self_attn.q_proj.matmul.layer8:
   quantize: SW
   fc:
@@ -258,26 +258,26 @@ model.layers.self_attn.q_proj.matmul.layer8:
   - model.layers.self_attn.v_proj.matmul.layer8
   - model.layers.self_attn.q_proj.matmul.layer8
   fc_observations: -14.41 ~ 16.14
-  info: WS_ [x:0.08~0.86 w:1.17~11.94]  -14.41~16.14 =>  -1.27~1.35 mean:1.273  big:[]
+  info: S_W [x:0.08~0.86 w:1.17~11.94]  -14.41~16.14 =>  -1.27~1.35 mean:1.273  big:[]
 model.layers.self_attn.o_proj.matmul.layer8:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer8
   fc_observations: -4.51 ~ 4.17
-  info: W_A [x:0.21~1.40 w:0.72~4.75]  -4.51~4.17 =>  -1.01~0.96 mean:0.937  big:[]
+  info: _AW [x:0.21~1.40 w:0.72~4.75]  -4.51~4.17 =>  -4.51~4.17 mean:0.937  big:[]
 model.layers.mlp.gate_proj.matmul.layer8:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer8
   - model.layers.mlp.up_proj.matmul.layer8
   fc_observations: -8.41 ~ 4.43
-  info: WS_ [x:0.12~1.17 w:0.85~8.08]  -8.41~4.43 =>  -1.08~1.06 mean:0.883  big:[]
+  info: S_W [x:0.12~1.17 w:0.85~8.08]  -8.41~4.43 =>  -1.08~1.06 mean:0.883  big:[]
 model.layers.mlp.down_proj.matmul.layer8:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer8
   fc_observations: -20.38 ~ 15.40
-  info: W__ [x:0.08~2.03 w:0.49~12.99]  -20.38~15.40 =>  -20.38~15.40 mean:1.884  big:[]
+  info: __W [x:0.08~2.03 w:0.49~12.99]  -20.38~15.40 =>  -20.38~15.40 mean:1.884  big:[]
 model.layers.self_attn.q_proj.matmul.layer9:
   quantize: SW
   fc:
@@ -285,26 +285,26 @@ model.layers.self_attn.q_proj.matmul.layer9:
   - model.layers.self_attn.k_proj.matmul.layer9
   - model.layers.self_attn.q_proj.matmul.layer9
   fc_observations: -16.48 ~ 18.28
-  info: WS_ [x:0.07~0.75 w:1.34~13.71]  -16.48~18.28 =>  -1.38~1.37 mean:1.404  big:[]
+  info: S_W [x:0.07~0.75 w:1.34~13.71]  -16.48~18.28 =>  -1.38~1.37 mean:1.404  big:[]
 model.layers.self_attn.o_proj.matmul.layer9:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer9
   fc_observations: -2.86 ~ 4.51
-  info: W_A [x:0.22~1.27 w:0.79~4.63]  -2.86~4.51 =>  -1.03~1.12 mean:1.076  big:[]
+  info: _AW [x:0.22~1.27 w:0.79~4.63]  -2.86~4.51 =>  -2.86~4.51 mean:1.076  big:[]
 model.layers.mlp.gate_proj.matmul.layer9:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer9
   - model.layers.mlp.up_proj.matmul.layer9
   fc_observations: -10.62 ~ 4.59
-  info: WS_ [x:0.12~1.28 w:0.78~8.45]  -10.62~4.59 =>  -1.49~1.03 mean:0.927  big:[]
+  info: S_W [x:0.12~1.28 w:0.78~8.45]  -10.62~4.59 =>  -1.49~1.03 mean:0.927  big:[]
 model.layers.mlp.down_proj.matmul.layer9:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer9
   fc_observations: -19.14 ~ 24.66
-  info: W__ [x:0.07~1.46 w:0.69~13.77]  -19.14~24.66 =>  -19.14~24.66 mean:1.901  big:[]
+  info: __W [x:0.07~1.46 w:0.69~13.77]  -19.14~24.66 =>  -19.14~24.66 mean:1.901  big:[]
 model.layers.self_attn.q_proj.matmul.layer10:
   quantize: SW
   fc:
@@ -312,26 +312,26 @@ model.layers.self_attn.q_proj.matmul.layer10:
   - model.layers.self_attn.v_proj.matmul.layer10
   - model.layers.self_attn.k_proj.matmul.layer10
   fc_observations: -23.55 ~ 20.51
-  info: WS_ [x:0.06~0.71 w:1.41~17.09]  -23.55~20.51 =>  -1.38~1.39 mean:1.406  big:[]
+  info: S_W [x:0.06~0.71 w:1.41~17.09]  -23.55~20.51 =>  -1.38~1.39 mean:1.406  big:[]
 model.layers.self_attn.o_proj.matmul.layer10:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer10
   fc_observations: -2.92 ~ 4.34
-  info: W_A [x:0.17~1.03 w:0.97~5.91]  -2.92~4.34 =>  -0.95~1.12 mean:1.141  big:[]
+  info: _AW [x:0.17~1.03 w:0.97~5.91]  -2.92~4.34 =>  -2.92~4.34 mean:1.141  big:[]
 model.layers.mlp.gate_proj.matmul.layer10:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer10
   - model.layers.mlp.gate_proj.matmul.layer10
   fc_observations: -9.00 ~ 5.24
-  info: WS_ [x:0.12~1.38 w:0.73~8.62]  -9.00~5.24 =>  -1.13~1.08 mean:0.948  big:[]
+  info: S_W [x:0.12~1.38 w:0.73~8.62]  -9.00~5.24 =>  -1.13~1.08 mean:0.948  big:[]
 model.layers.mlp.down_proj.matmul.layer10:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer10
   fc_observations: -11.55 ~ 16.48
-  info: W__ [x:0.08~1.17 w:0.86~11.90]  -11.55~16.48 =>  -11.55~16.48 mean:1.997  big:[]
+  info: __W [x:0.08~1.17 w:0.86~11.90]  -11.55~16.48 =>  -11.55~16.48 mean:1.997  big:[]
 model.layers.self_attn.q_proj.matmul.layer11:
   quantize: SW
   fc:
@@ -339,26 +339,26 @@ model.layers.self_attn.q_proj.matmul.layer11:
   - model.layers.self_attn.v_proj.matmul.layer11
   - model.layers.self_attn.k_proj.matmul.layer11
   fc_observations: -28.12 ~ 22.06
-  info: WS_ [x:0.05~0.70 w:1.43~19.48]  -28.12~22.06 =>  -1.44~1.42 mean:1.363  big:[]
+  info: S_W [x:0.05~0.70 w:1.43~19.48]  -28.12~22.06 =>  -1.44~1.42 mean:1.363  big:[]
 model.layers.self_attn.o_proj.matmul.layer11:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer11
   fc_observations: -3.73 ~ 3.25
-  info: W_A [x:0.22~0.95 w:1.05~4.57]  -3.73~3.25 =>  -0.98~0.95 mean:1.128  big:[]
+  info: _AW [x:0.22~0.95 w:1.05~4.57]  -3.73~3.25 =>  -3.73~3.25 mean:1.128  big:[]
 model.layers.mlp.gate_proj.matmul.layer11:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer11
   - model.layers.mlp.gate_proj.matmul.layer11
   fc_observations: -11.22 ~ 5.83
-  info: WS_ [x:0.11~1.01 w:0.99~9.11]  -11.22~5.83 =>  -1.54~1.07 mean:0.962  big:[]
+  info: S_W [x:0.11~1.01 w:0.99~9.11]  -11.22~5.83 =>  -1.54~1.07 mean:0.962  big:[]
 model.layers.mlp.down_proj.matmul.layer11:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer11
   fc_observations: -15.56 ~ 33.74
-  info: W__ [x:0.06~1.18 w:0.85~17.55]  -15.56~33.74 =>  -15.56~33.74 mean:2.016  big:[33.739323]
+  info: __W [x:0.06~1.18 w:0.85~17.55]  -15.56~33.74 =>  -15.56~33.74 mean:2.016  big:[33.739323]
 model.layers.self_attn.q_proj.matmul.layer12:
   quantize: SW
   fc:
@@ -366,26 +366,26 @@ model.layers.self_attn.q_proj.matmul.layer12:
   - model.layers.self_attn.k_proj.matmul.layer12
   - model.layers.self_attn.v_proj.matmul.layer12
   fc_observations: -31.75 ~ 25.15
-  info: WS_ [x:0.05~0.68 w:1.48~21.98]  -31.75~25.15 =>  -1.44~1.44 mean:1.468  big:[31.753662]
+  info: S_W [x:0.05~0.68 w:1.48~21.98]  -31.75~25.15 =>  -1.44~1.44 mean:1.468  big:[31.753662]
 model.layers.self_attn.o_proj.matmul.layer12:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer12
   fc_observations: -2.88 ~ 3.04
-  info: W_A [x:0.24~1.22 w:0.82~4.19]  -2.88~3.04 =>  -0.93~1.02 mean:1.169  big:[]
+  info: _AW [x:0.24~1.22 w:0.82~4.19]  -2.88~3.04 =>  -2.88~3.04 mean:1.169  big:[]
 model.layers.mlp.gate_proj.matmul.layer12:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer12
   - model.layers.mlp.gate_proj.matmul.layer12
   fc_observations: -9.00 ~ 6.02
-  info: WS_ [x:0.12~1.07 w:0.94~8.41]  -9.00~6.02 =>  -1.17~1.08 mean:0.985  big:[]
+  info: S_W [x:0.12~1.07 w:0.94~8.41]  -9.00~6.02 =>  -1.17~1.08 mean:0.985  big:[]
 model.layers.mlp.down_proj.matmul.layer12:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer12
   fc_observations: -10.15 ~ 15.82
-  info: W__ [x:0.07~1.70 w:0.59~14.91]  -10.15~15.82 =>  -10.15~15.82 mean:2.158  big:[]
+  info: __W [x:0.07~1.70 w:0.59~14.91]  -10.15~15.82 =>  -10.15~15.82 mean:2.158  big:[]
 model.layers.self_attn.q_proj.matmul.layer13:
   quantize: SW
   fc:
@@ -393,26 +393,26 @@ model.layers.self_attn.q_proj.matmul.layer13:
   - model.layers.self_attn.q_proj.matmul.layer13
   - model.layers.self_attn.k_proj.matmul.layer13
   fc_observations: -27.13 ~ 24.16
-  info: WS_ [x:0.05~0.63 w:1.58~18.73]  -27.13~24.16 =>  -1.45~1.49 mean:1.596  big:[]
+  info: S_W [x:0.05~0.63 w:1.58~18.73]  -27.13~24.16 =>  -1.45~1.49 mean:1.596  big:[]
 model.layers.self_attn.o_proj.matmul.layer13:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer13
   fc_observations: -3.60 ~ 3.12
-  info: W_A [x:0.20~1.60 w:0.63~5.04]  -3.60~3.12 =>  -0.98~0.94 mean:1.320  big:[]
+  info: _AW [x:0.20~1.60 w:0.63~5.04]  -3.60~3.12 =>  -3.60~3.12 mean:1.320  big:[]
 model.layers.mlp.gate_proj.matmul.layer13:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer13
   - model.layers.mlp.up_proj.matmul.layer13
   fc_observations: -9.06 ~ 6.22
-  info: WS_ [x:0.11~1.23 w:0.82~8.76]  -9.06~6.22 =>  -1.09~1.08 mean:1.019  big:[]
+  info: S_W [x:0.11~1.23 w:0.82~8.76]  -9.06~6.22 =>  -1.09~1.08 mean:1.019  big:[]
 model.layers.mlp.down_proj.matmul.layer13:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer13
   fc_observations: -13.81 ~ 11.56
-  info: W__ [x:0.07~0.91 w:1.09~13.80]  -13.81~11.56 =>  -13.81~11.56 mean:2.478  big:[]
+  info: __W [x:0.07~0.91 w:1.09~13.80]  -13.81~11.56 =>  -13.81~11.56 mean:2.478  big:[]
 model.layers.self_attn.q_proj.matmul.layer14:
   quantize: SW
   fc:
@@ -420,26 +420,26 @@ model.layers.self_attn.q_proj.matmul.layer14:
   - model.layers.self_attn.q_proj.matmul.layer14
   - model.layers.self_attn.v_proj.matmul.layer14
   fc_observations: -30.86 ~ 26.75
-  info: WS_ [x:0.05~0.58 w:1.71~21.52]  -30.86~26.75 =>  -1.43~1.48 mean:1.591  big:[30.857288]
+  info: S_W [x:0.05~0.58 w:1.71~21.52]  -30.86~26.75 =>  -1.43~1.48 mean:1.591  big:[30.857288]
 model.layers.self_attn.o_proj.matmul.layer14:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer14
   fc_observations: -3.63 ~ 3.99
-  info: W_A [x:0.19~0.96 w:1.05~5.33]  -3.63~3.99 =>  -1.02~0.98 mean:1.434  big:[]
+  info: _AW [x:0.19~0.96 w:1.05~5.33]  -3.63~3.99 =>  -3.63~3.99 mean:1.434  big:[]
 model.layers.mlp.gate_proj.matmul.layer14:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer14
   - model.layers.mlp.up_proj.matmul.layer14
   fc_observations: -10.01 ~ 5.66
-  info: WS_ [x:0.13~1.26 w:0.79~7.65]  -10.01~5.66 =>  -1.31~1.06 mean:1.058  big:[]
+  info: S_W [x:0.13~1.26 w:0.79~7.65]  -10.01~5.66 =>  -1.31~1.06 mean:1.058  big:[]
 model.layers.mlp.down_proj.matmul.layer14:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer14
   fc_observations: -12.63 ~ 14.60
-  info: W__ [x:0.07~0.95 w:1.05~14.63]  -12.63~14.60 =>  -12.63~14.60 mean:2.748  big:[]
+  info: __W [x:0.07~0.95 w:1.05~14.63]  -12.63~14.60 =>  -12.63~14.60 mean:2.748  big:[]
 model.layers.self_attn.q_proj.matmul.layer15:
   quantize: SW
   fc:
@@ -447,26 +447,26 @@ model.layers.self_attn.q_proj.matmul.layer15:
   - model.layers.self_attn.v_proj.matmul.layer15
   - model.layers.self_attn.q_proj.matmul.layer15
   fc_observations: -28.15 ~ 24.17
-  info: WS_ [x:0.05~0.56 w:1.77~19.33]  -28.15~24.17 =>  -1.46~1.47 mean:1.567  big:[]
+  info: S_W [x:0.05~0.56 w:1.77~19.33]  -28.15~24.17 =>  -1.46~1.47 mean:1.567  big:[]
 model.layers.self_attn.o_proj.matmul.layer15:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer15
   fc_observations: -3.02 ~ 3.16
-  info: W_A [x:0.25~0.94 w:1.07~4.05]  -3.02~3.16 =>  -0.94~0.93 mean:1.343  big:[]
+  info: _AW [x:0.25~0.94 w:1.07~4.05]  -3.02~3.16 =>  -3.02~3.16 mean:1.343  big:[]
 model.layers.mlp.gate_proj.matmul.layer15:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer15
   - model.layers.mlp.up_proj.matmul.layer15
   fc_observations: -8.83 ~ 5.24
-  info: WS_ [x:0.12~1.46 w:0.69~8.12]  -8.83~5.24 =>  -1.10~1.05 mean:1.097  big:[]
+  info: S_W [x:0.12~1.46 w:0.69~8.12]  -8.83~5.24 =>  -1.10~1.05 mean:1.097  big:[]
 model.layers.mlp.down_proj.matmul.layer15:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer15
   fc_observations: -18.01 ~ 18.11
-  info: W__ [x:0.06~0.95 w:1.05~17.45]  -18.01~18.11 =>  -18.01~18.11 mean:2.988  big:[]
+  info: __W [x:0.06~0.95 w:1.05~17.45]  -18.01~18.11 =>  -18.01~18.11 mean:2.988  big:[]
 model.layers.self_attn.q_proj.matmul.layer16:
   quantize: SW
   fc:
@@ -474,26 +474,26 @@ model.layers.self_attn.q_proj.matmul.layer16:
   - model.layers.self_attn.q_proj.matmul.layer16
   - model.layers.self_attn.v_proj.matmul.layer16
   fc_observations: -23.95 ~ 23.43
-  info: WS_ [x:0.06~0.56 w:1.79~16.52]  -23.95~23.43 =>  -1.45~1.42 mean:1.654  big:[]
+  info: S_W [x:0.06~0.56 w:1.79~16.52]  -23.95~23.43 =>  -1.45~1.42 mean:1.654  big:[]
 model.layers.self_attn.o_proj.matmul.layer16:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer16
   fc_observations: -4.88 ~ 5.32
-  info: W_A [x:0.15~1.00 w:1.00~6.75]  -4.88~5.32 =>  -1.08~1.12 mean:1.502  big:[]
+  info: _AW [x:0.15~1.00 w:1.00~6.75]  -4.88~5.32 =>  -4.88~5.32 mean:1.502  big:[]
 model.layers.mlp.gate_proj.matmul.layer16:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer16
   - model.layers.mlp.up_proj.matmul.layer16
   fc_observations: -9.25 ~ 5.11
-  info: WS_ [x:0.12~1.27 w:0.78~8.33]  -9.25~5.11 =>  -1.11~1.11 mean:1.145  big:[]
+  info: S_W [x:0.12~1.27 w:0.78~8.33]  -9.25~5.11 =>  -1.11~1.11 mean:1.145  big:[]
 model.layers.mlp.down_proj.matmul.layer16:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer16
   fc_observations: -18.27 ~ 19.75
-  info: W__ [x:0.06~0.75 w:1.34~16.62]  -18.27~19.75 =>  -18.27~19.75 mean:3.558  big:[]
+  info: __W [x:0.06~0.75 w:1.34~16.62]  -18.27~19.75 =>  -18.27~19.75 mean:3.558  big:[]
 model.layers.self_attn.q_proj.matmul.layer17:
   quantize: SW
   fc:
@@ -501,26 +501,26 @@ model.layers.self_attn.q_proj.matmul.layer17:
   - model.layers.self_attn.q_proj.matmul.layer17
   - model.layers.self_attn.k_proj.matmul.layer17
   fc_observations: -21.99 ~ 20.59
-  info: WS_ [x:0.07~0.53 w:1.90~14.77]  -21.99~20.59 =>  -1.51~1.39 mean:1.662  big:[]
+  info: S_W [x:0.07~0.53 w:1.90~14.77]  -21.99~20.59 =>  -1.51~1.39 mean:1.662  big:[]
 model.layers.self_attn.o_proj.matmul.layer17:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer17
   fc_observations: -4.13 ~ 5.89
-  info: W_A [x:0.14~0.85 w:1.18~7.18]  -4.13~5.89 =>  -1.05~1.02 mean:1.608  big:[]
+  info: _AW [x:0.14~0.85 w:1.18~7.18]  -4.13~5.89 =>  -4.13~5.89 mean:1.608  big:[]
 model.layers.mlp.gate_proj.matmul.layer17:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer17
   - model.layers.mlp.up_proj.matmul.layer17
   fc_observations: -8.53 ~ 4.87
-  info: WS_ [x:0.13~1.27 w:0.79~7.43]  -8.53~4.87 =>  -1.16~1.16 mean:1.199  big:[]
+  info: S_W [x:0.13~1.27 w:0.79~7.43]  -8.53~4.87 =>  -1.16~1.16 mean:1.199  big:[]
 model.layers.mlp.down_proj.matmul.layer17:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer17
   fc_observations: -21.20 ~ 18.88
-  info: W__ [x:0.05~0.96 w:1.04~18.34]  -21.20~18.88 =>  -21.20~18.88 mean:3.913  big:[]
+  info: __W [x:0.05~0.96 w:1.04~18.34]  -21.20~18.88 =>  -21.20~18.88 mean:3.913  big:[]
 model.layers.self_attn.q_proj.matmul.layer18:
   quantize: SW
   fc:
@@ -528,26 +528,26 @@ model.layers.self_attn.q_proj.matmul.layer18:
   - model.layers.self_attn.v_proj.matmul.layer18
   - model.layers.self_attn.q_proj.matmul.layer18
   fc_observations: -20.91 ~ 19.42
-  info: WS_ [x:0.07~0.59 w:1.71~15.15]  -20.91~19.42 =>  -1.38~1.40 mean:1.701  big:[]
+  info: S_W [x:0.07~0.59 w:1.71~15.15]  -20.91~19.42 =>  -1.38~1.40 mean:1.701  big:[]
 model.layers.self_attn.o_proj.matmul.layer18:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer18
   fc_observations: -4.46 ~ 3.83
-  info: W_A [x:0.18~0.82 w:1.22~5.46]  -4.46~3.83 =>  -1.08~1.14 mean:1.673  big:[]
+  info: _AW [x:0.18~0.82 w:1.22~5.46]  -4.46~3.83 =>  -4.46~3.83 mean:1.673  big:[]
 model.layers.mlp.gate_proj.matmul.layer18:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer18
   - model.layers.mlp.gate_proj.matmul.layer18
   fc_observations: -8.88 ~ 4.56
-  info: WS_ [x:0.13~1.35 w:0.74~7.81]  -8.88~4.56 =>  -1.15~1.06 mean:1.248  big:[]
+  info: S_W [x:0.13~1.35 w:0.74~7.81]  -8.88~4.56 =>  -1.15~1.06 mean:1.248  big:[]
 model.layers.mlp.down_proj.matmul.layer18:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer18
   fc_observations: -24.61 ~ 21.28
-  info: W__ [x:0.05~0.69 w:1.44~21.96]  -24.61~21.28 =>  -24.61~21.28 mean:4.161  big:[]
+  info: __W [x:0.05~0.69 w:1.44~21.96]  -24.61~21.28 =>  -24.61~21.28 mean:4.161  big:[]
 model.layers.self_attn.q_proj.matmul.layer19:
   quantize: SW
   fc:
@@ -555,26 +555,26 @@ model.layers.self_attn.q_proj.matmul.layer19:
   - model.layers.self_attn.v_proj.matmul.layer19
   - model.layers.self_attn.q_proj.matmul.layer19
   fc_observations: -24.33 ~ 19.54
-  info: WS_ [x:0.06~0.55 w:1.81~17.85]  -24.33~19.54 =>  -1.36~1.43 mean:1.734  big:[]
+  info: S_W [x:0.06~0.55 w:1.81~17.85]  -24.33~19.54 =>  -1.36~1.43 mean:1.734  big:[]
 model.layers.self_attn.o_proj.matmul.layer19:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer19
   fc_observations: -4.47 ~ 4.04
-  info: W_A [x:0.18~0.76 w:1.32~5.61]  -4.47~4.04 =>  -1.00~1.17 mean:1.699  big:[]
+  info: _AW [x:0.18~0.76 w:1.32~5.61]  -4.47~4.04 =>  -4.47~4.04 mean:1.699  big:[]
 model.layers.mlp.gate_proj.matmul.layer19:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer19
   - model.layers.mlp.gate_proj.matmul.layer19
   fc_observations: -8.11 ~ 4.52
-  info: WS_ [x:0.12~1.59 w:0.63~8.11]  -8.11~4.52 =>  -1.17~1.10 mean:1.289  big:[]
+  info: S_W [x:0.12~1.59 w:0.63~8.11]  -8.11~4.52 =>  -1.17~1.10 mean:1.289  big:[]
 model.layers.mlp.down_proj.matmul.layer19:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer19
   fc_observations: -24.31 ~ 22.73
-  info: W__ [x:0.05~0.81 w:1.24~21.49]  -24.31~22.73 =>  -24.31~22.73 mean:4.436  big:[]
+  info: __W [x:0.05~0.81 w:1.24~21.49]  -24.31~22.73 =>  -24.31~22.73 mean:4.436  big:[]
 model.layers.self_attn.q_proj.matmul.layer20:
   quantize: SW
   fc:
@@ -582,26 +582,26 @@ model.layers.self_attn.q_proj.matmul.layer20:
   - model.layers.self_attn.v_proj.matmul.layer20
   - model.layers.self_attn.q_proj.matmul.layer20
   fc_observations: -21.03 ~ 17.94
-  info: WS_ [x:0.07~0.60 w:1.67~15.19]  -21.03~17.94 =>  -1.38~1.40 mean:1.664  big:[]
+  info: S_W [x:0.07~0.60 w:1.67~15.19]  -21.03~17.94 =>  -1.38~1.40 mean:1.664  big:[]
 model.layers.self_attn.o_proj.matmul.layer20:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer20
   fc_observations: -3.94 ~ 4.60
-  info: W_A [x:0.17~1.19 w:0.84~5.79]  -3.94~4.60 =>  -1.08~1.05 mean:1.798  big:[]
+  info: _AW [x:0.17~1.19 w:0.84~5.79]  -3.94~4.60 =>  -3.94~4.60 mean:1.798  big:[]
 model.layers.mlp.gate_proj.matmul.layer20:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer20
   - model.layers.mlp.gate_proj.matmul.layer20
   fc_observations: -9.30 ~ 4.60
-  info: WS_ [x:0.11~1.06 w:0.94~9.03]  -9.30~4.60 =>  -1.09~1.07 mean:1.323  big:[]
+  info: S_W [x:0.11~1.06 w:0.94~9.03]  -9.30~4.60 =>  -1.09~1.07 mean:1.323  big:[]
 model.layers.mlp.down_proj.matmul.layer20:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer20
   fc_observations: -29.36 ~ 24.17
-  info: W__ [x:0.04~0.70 w:1.42~22.97]  -29.36~24.17 =>  -29.36~24.17 mean:4.539  big:[]
+  info: __W [x:0.04~0.70 w:1.42~22.97]  -29.36~24.17 =>  -29.36~24.17 mean:4.539  big:[]
 model.layers.self_attn.q_proj.matmul.layer21:
   quantize: SW
   fc:
@@ -609,26 +609,26 @@ model.layers.self_attn.q_proj.matmul.layer21:
   - model.layers.self_attn.q_proj.matmul.layer21
   - model.layers.self_attn.v_proj.matmul.layer21
   fc_observations: -22.24 ~ 18.41
-  info: WS_ [x:0.06~0.60 w:1.67~16.12]  -22.24~18.41 =>  -1.38~1.43 mean:1.749  big:[]
+  info: S_W [x:0.06~0.60 w:1.67~16.12]  -22.24~18.41 =>  -1.38~1.43 mean:1.749  big:[]
 model.layers.self_attn.o_proj.matmul.layer21:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer21
   fc_observations: -5.59 ~ 3.91
-  info: W_A [x:0.16~0.83 w:1.20~6.42]  -5.59~3.91 =>  -1.00~1.03 mean:1.981  big:[]
+  info: _AW [x:0.16~0.83 w:1.20~6.42]  -5.59~3.91 =>  -5.59~3.91 mean:1.981  big:[]
 model.layers.mlp.gate_proj.matmul.layer21:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer21
   - model.layers.mlp.gate_proj.matmul.layer21
   fc_observations: -9.01 ~ 4.30
-  info: WS_ [x:0.12~1.97 w:0.51~8.26]  -9.01~4.30 =>  -1.15~1.01 mean:1.374  big:[]
+  info: S_W [x:0.12~1.97 w:0.51~8.26]  -9.01~4.30 =>  -1.15~1.01 mean:1.374  big:[]
 model.layers.mlp.down_proj.matmul.layer21:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer21
   fc_observations: -31.30 ~ 33.51
-  info: W__ [x:0.04~0.54 w:1.86~28.18]  -31.30~33.51 =>  -31.30~33.51 mean:5.054  big:[]
+  info: __W [x:0.04~0.54 w:1.86~28.18]  -31.30~33.51 =>  -31.30~33.51 mean:5.054  big:[]
 model.layers.self_attn.q_proj.matmul.layer22:
   quantize: SW
   fc:
@@ -636,26 +636,26 @@ model.layers.self_attn.q_proj.matmul.layer22:
   - model.layers.self_attn.q_proj.matmul.layer22
   - model.layers.self_attn.v_proj.matmul.layer22
   fc_observations: -18.16 ~ 15.26
-  info: WS_ [x:0.07~66.98 w:0.01~13.54]  -18.16~15.26 =>  -1.35~1.37 mean:1.867  big:[]
+  info: S_W [x:0.07~66.98 w:0.01~13.54]  -18.16~15.26 =>  -1.35~1.37 mean:1.867  big:[]
 model.layers.self_attn.o_proj.matmul.layer22:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer22
   fc_observations: -4.57 ~ 6.16
-  info: W_A [x:0.13~0.84 w:1.20~7.56]  -4.57~6.16 =>  -1.07~1.09 mean:2.095  big:[]
+  info: _AW [x:0.13~0.84 w:1.20~7.56]  -4.57~6.16 =>  -4.57~6.16 mean:2.095  big:[]
 model.layers.mlp.gate_proj.matmul.layer22:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer22
   - model.layers.mlp.gate_proj.matmul.layer22
   fc_observations: -9.61 ~ 4.15
-  info: WS_ [x:0.12~1.98 w:0.51~8.45]  -9.61~4.15 =>  -1.21~1.03 mean:1.421  big:[]
+  info: S_W [x:0.12~1.98 w:0.51~8.45]  -9.61~4.15 =>  -1.21~1.03 mean:1.421  big:[]
 model.layers.mlp.down_proj.matmul.layer22:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer22
   fc_observations: -36.08 ~ 33.09
-  info: W__ [x:0.03~0.49 w:2.04~29.59]  -36.08~33.09 =>  -36.08~33.09 mean:5.241  big:[]
+  info: __W [x:0.03~0.49 w:2.04~29.59]  -36.08~33.09 =>  -36.08~33.09 mean:5.241  big:[]
 model.layers.self_attn.q_proj.matmul.layer23:
   quantize: SW
   fc:
@@ -663,26 +663,26 @@ model.layers.self_attn.q_proj.matmul.layer23:
   - model.layers.self_attn.v_proj.matmul.layer23
   - model.layers.self_attn.k_proj.matmul.layer23
   fc_observations: -20.35 ~ 16.87
-  info: WS_ [x:0.07~36.59 w:0.03~14.94]  -20.35~16.87 =>  -1.36~1.42 mean:1.870  big:[]
+  info: S_W [x:0.07~36.59 w:0.03~14.94]  -20.35~16.87 =>  -1.36~1.42 mean:1.870  big:[]
 model.layers.self_attn.o_proj.matmul.layer23:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer23
   fc_observations: -5.18 ~ 4.78
-  info: W_A [x:0.16~0.77 w:1.30~6.18]  -5.18~4.78 =>  -1.12~1.04 mean:2.064  big:[]
+  info: _AW [x:0.16~0.77 w:1.30~6.18]  -5.18~4.78 =>  -5.18~4.78 mean:2.064  big:[]
 model.layers.mlp.gate_proj.matmul.layer23:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer23
   - model.layers.mlp.gate_proj.matmul.layer23
   fc_observations: -7.06 ~ 4.07
-  info: WS_ [x:0.14~1.95 w:0.51~6.97]  -7.06~4.07 =>  -1.16~0.98 mean:1.459  big:[]
+  info: S_W [x:0.14~1.95 w:0.51~6.97]  -7.06~4.07 =>  -1.16~0.98 mean:1.459  big:[]
 model.layers.mlp.down_proj.matmul.layer23:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer23
   fc_observations: -50.81 ~ 35.70
-  info: W__ [x:0.03~0.59 w:1.69~38.52]  -50.81~35.70 =>  -50.81~35.70 mean:5.340  big:[]
+  info: __W [x:0.03~0.59 w:1.69~38.52]  -50.81~35.70 =>  -50.81~35.70 mean:5.340  big:[]
 model.layers.self_attn.q_proj.matmul.layer24:
   quantize: SW
   fc:
@@ -690,26 +690,26 @@ model.layers.self_attn.q_proj.matmul.layer24:
   - model.layers.self_attn.q_proj.matmul.layer24
   - model.layers.self_attn.k_proj.matmul.layer24
   fc_observations: -19.16 ~ 15.65
-  info: WS_ [x:0.07~50.66 w:0.02~13.72]  -19.16~15.65 =>  -1.40~1.37 mean:1.891  big:[]
+  info: S_W [x:0.07~50.66 w:0.02~13.72]  -19.16~15.65 =>  -1.40~1.37 mean:1.891  big:[]
 model.layers.self_attn.o_proj.matmul.layer24:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer24
   fc_observations: -4.96 ~ 6.70
-  info: W_A [x:0.15~0.69 w:1.46~6.74]  -4.96~6.70 =>  -1.23~1.26 mean:2.037  big:[]
+  info: _AW [x:0.15~0.69 w:1.46~6.74]  -4.96~6.70 =>  -4.96~6.70 mean:2.037  big:[]
 model.layers.mlp.gate_proj.matmul.layer24:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer24
   - model.layers.mlp.up_proj.matmul.layer24
   fc_observations: -6.66 ~ 3.99
-  info: WS_ [x:0.15~2.15 w:0.47~6.61]  -6.66~3.99 =>  -1.06~1.01 mean:1.488  big:[]
+  info: S_W [x:0.15~2.15 w:0.47~6.61]  -6.66~3.99 =>  -1.06~1.01 mean:1.488  big:[]
 model.layers.mlp.down_proj.matmul.layer24:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer24
   fc_observations: -56.50 ~ 33.77
-  info: W__ [x:0.02~0.53 w:1.89~43.56]  -56.50~33.77 =>  -56.50~33.77 mean:5.171  big:[52.2696   56.495613]
+  info: __W [x:0.02~0.53 w:1.89~43.56]  -56.50~33.77 =>  -56.50~33.77 mean:5.171  big:[52.2696   56.495613]
 model.layers.self_attn.q_proj.matmul.layer25:
   quantize: SW
   fc:
@@ -717,26 +717,26 @@ model.layers.self_attn.q_proj.matmul.layer25:
   - model.layers.self_attn.q_proj.matmul.layer25
   - model.layers.self_attn.v_proj.matmul.layer25
   fc_observations: -22.50 ~ 17.03
-  info: WS_ [x:0.06~136.37 w:0.01~16.63]  -22.50~17.03 =>  -1.35~1.40 mean:1.974  big:[]
+  info: S_W [x:0.06~136.37 w:0.01~16.63]  -22.50~17.03 =>  -1.35~1.40 mean:1.974  big:[]
 model.layers.self_attn.o_proj.matmul.layer25:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer25
   fc_observations: -10.43 ~ 6.03
-  info: W_A [x:0.10~1.18 w:0.84~9.57]  -10.43~6.03 =>  -1.09~1.09 mean:2.162  big:[]
+  info: _AW [x:0.10~1.18 w:0.84~9.57]  -10.43~6.03 =>  -10.43~6.03 mean:2.162  big:[]
 model.layers.mlp.gate_proj.matmul.layer25:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer25
   - model.layers.mlp.gate_proj.matmul.layer25
   fc_observations: -7.77 ~ 3.91
-  info: WS_ [x:0.14~2.22 w:0.45~7.14]  -7.77~3.91 =>  -1.09~0.93 mean:1.529  big:[]
+  info: S_W [x:0.14~2.22 w:0.45~7.14]  -7.77~3.91 =>  -1.09~0.93 mean:1.529  big:[]
 model.layers.mlp.down_proj.matmul.layer25:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer25
   fc_observations: -42.69 ~ 60.06
-  info: W__ [x:0.02~0.64 w:1.56~44.14]  -42.69~60.06 =>  -42.69~60.06 mean:5.276  big:[60.058014]
+  info: __W [x:0.02~0.64 w:1.56~44.14]  -42.69~60.06 =>  -42.69~60.06 mean:5.276  big:[60.058014]
 model.layers.self_attn.q_proj.matmul.layer26:
   quantize: SW
   fc:
@@ -744,26 +744,26 @@ model.layers.self_attn.q_proj.matmul.layer26:
   - model.layers.self_attn.q_proj.matmul.layer26
   - model.layers.self_attn.v_proj.matmul.layer26
   fc_observations: -18.44 ~ 18.18
-  info: WS_ [x:0.07~0.91 w:1.10~13.88]  -18.44~18.18 =>  -1.35~1.42 mean:1.966  big:[]
+  info: S_W [x:0.07~0.91 w:1.10~13.88]  -18.44~18.18 =>  -1.35~1.42 mean:1.966  big:[]
 model.layers.self_attn.o_proj.matmul.layer26:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer26
   fc_observations: -6.11 ~ 6.07
-  info: W_A [x:0.14~0.76 w:1.32~7.39]  -6.11~6.07 =>  -1.18~1.03 mean:2.174  big:[]
+  info: _AW [x:0.14~0.76 w:1.32~7.39]  -6.11~6.07 =>  -6.11~6.07 mean:2.174  big:[]
 model.layers.mlp.gate_proj.matmul.layer26:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer26
   - model.layers.mlp.up_proj.matmul.layer26
   fc_observations: -6.65 ~ 3.85
-  info: WS_ [x:0.16~2.49 w:0.40~6.40]  -6.65~3.85 =>  -1.05~0.92 mean:1.560  big:[]
+  info: S_W [x:0.16~2.49 w:0.40~6.40]  -6.65~3.85 =>  -1.05~0.92 mean:1.560  big:[]
 model.layers.mlp.down_proj.matmul.layer26:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer26
   fc_observations: -41.46 ~ 41.50
-  info: W__ [x:0.03~0.44 w:2.30~33.50]  -41.46~41.50 =>  -41.46~41.50 mean:5.252  big:[]
+  info: __W [x:0.03~0.44 w:2.30~33.50]  -41.46~41.50 =>  -41.46~41.50 mean:5.252  big:[]
 model.layers.self_attn.q_proj.matmul.layer27:
   quantize: SW
   fc:
@@ -771,26 +771,26 @@ model.layers.self_attn.q_proj.matmul.layer27:
   - model.layers.self_attn.k_proj.matmul.layer27
   - model.layers.self_attn.q_proj.matmul.layer27
   fc_observations: -17.11 ~ 16.62
-  info: WS_ [x:0.08~65.32 w:0.02~12.77]  -17.11~16.62 =>  -1.34~1.40 mean:2.109  big:[]
+  info: S_W [x:0.08~65.32 w:0.02~12.77]  -17.11~16.62 =>  -1.34~1.40 mean:2.109  big:[]
 model.layers.self_attn.o_proj.matmul.layer27:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer27
   fc_observations: -8.16 ~ 5.32
-  info: W_A [x:0.13~0.53 w:1.89~7.65]  -8.16~5.32 =>  -1.07~1.05 mean:2.140  big:[]
+  info: _AW [x:0.13~0.53 w:1.89~7.65]  -8.16~5.32 =>  -8.16~5.32 mean:2.140  big:[]
 model.layers.mlp.gate_proj.matmul.layer27:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer27
   - model.layers.mlp.gate_proj.matmul.layer27
   fc_observations: -7.06 ~ 3.88
-  info: WS_ [x:0.16~2.30 w:0.43~6.35]  -7.06~3.88 =>  -1.11~0.97 mean:1.598  big:[]
+  info: S_W [x:0.16~2.30 w:0.43~6.35]  -7.06~3.88 =>  -1.11~0.97 mean:1.598  big:[]
 model.layers.mlp.down_proj.matmul.layer27:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer27
   fc_observations: -54.53 ~ 54.07
-  info: W__ [x:0.02~0.43 w:2.32~41.18]  -54.53~54.07 =>  -54.53~54.07 mean:5.196  big:[54.070503 54.52693  52.77343  52.958694]
+  info: __W [x:0.02~0.43 w:2.32~41.18]  -54.53~54.07 =>  -54.53~54.07 mean:5.196  big:[54.070503 54.52693  52.77343  52.958694]
 model.layers.self_attn.q_proj.matmul.layer28:
   quantize: SW
   fc:
@@ -798,26 +798,26 @@ model.layers.self_attn.q_proj.matmul.layer28:
   - model.layers.self_attn.v_proj.matmul.layer28
   - model.layers.self_attn.q_proj.matmul.layer28
   fc_observations: -16.43 ~ 16.74
-  info: WS_ [x:0.08~17.27 w:0.06~12.33]  -16.43~16.74 =>  -1.33~1.41 mean:2.108  big:[]
+  info: S_W [x:0.08~17.27 w:0.06~12.33]  -16.43~16.74 =>  -1.33~1.41 mean:2.108  big:[]
 model.layers.self_attn.o_proj.matmul.layer28:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer28
   fc_observations: -5.15 ~ 5.66
-  info: W_A [x:0.15~0.87 w:1.15~6.47]  -5.15~5.66 =>  -1.12~1.07 mean:2.166  big:[]
+  info: _AW [x:0.15~0.87 w:1.15~6.47]  -5.15~5.66 =>  -5.15~5.66 mean:2.166  big:[]
 model.layers.mlp.gate_proj.matmul.layer28:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer28
   - model.layers.mlp.gate_proj.matmul.layer28
   fc_observations: -6.80 ~ 4.02
-  info: WS_ [x:0.15~2.04 w:0.49~6.48]  -6.80~4.02 =>  -1.05~1.06 mean:1.628  big:[]
+  info: S_W [x:0.15~2.04 w:0.49~6.48]  -6.80~4.02 =>  -1.05~1.06 mean:1.628  big:[]
 model.layers.mlp.down_proj.matmul.layer28:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer28
   fc_observations: -49.67 ~ 49.13
-  info: W__ [x:0.03~0.48 w:2.10~37.83]  -49.67~49.13 =>  -49.67~49.13 mean:5.057  big:[]
+  info: __W [x:0.03~0.48 w:2.10~37.83]  -49.67~49.13 =>  -49.67~49.13 mean:5.057  big:[]
 model.layers.self_attn.q_proj.matmul.layer29:
   quantize: SW
   fc:
@@ -825,26 +825,26 @@ model.layers.self_attn.q_proj.matmul.layer29:
   - model.layers.self_attn.q_proj.matmul.layer29
   - model.layers.self_attn.k_proj.matmul.layer29
   fc_observations: -18.08 ~ 15.48
-  info: WS_ [x:0.08~103.05 w:0.01~13.31]  -18.08~15.48 =>  -1.36~1.38 mean:2.167  big:[]
+  info: S_W [x:0.08~103.05 w:0.01~13.31]  -18.08~15.48 =>  -1.36~1.38 mean:2.167  big:[]
 model.layers.self_attn.o_proj.matmul.layer29:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer29
   fc_observations: -4.82 ~ 5.84
-  info: W_A [x:0.15~0.62 w:1.61~6.54]  -4.82~5.84 =>  -1.01~1.09 mean:2.205  big:[]
+  info: _AW [x:0.15~0.62 w:1.61~6.54]  -4.82~5.84 =>  -4.82~5.84 mean:2.205  big:[]
 model.layers.mlp.gate_proj.matmul.layer29:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer29
   - model.layers.mlp.gate_proj.matmul.layer29
   fc_observations: -7.30 ~ 4.09
-  info: WS_ [x:0.15~2.47 w:0.40~6.89]  -7.30~4.09 =>  -1.08~1.00 mean:1.663  big:[]
+  info: S_W [x:0.15~2.47 w:0.40~6.89]  -7.30~4.09 =>  -1.08~1.00 mean:1.663  big:[]
 model.layers.mlp.down_proj.matmul.layer29:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer29
   fc_observations: -78.12 ~ 64.47
-  info: W__ [x:0.02~0.44 w:2.29~51.88]  -78.12~64.47 =>  -78.12~64.47 mean:5.018  big:[64.47351  78.11657  51.100662]
+  info: __W [x:0.02~0.44 w:2.29~51.88]  -78.12~64.47 =>  -78.12~64.47 mean:5.018  big:[64.47351  78.11657  51.100662]
 model.layers.self_attn.q_proj.matmul.layer30:
   quantize: SW
   fc:
@@ -852,26 +852,26 @@ model.layers.self_attn.q_proj.matmul.layer30:
   - model.layers.self_attn.k_proj.matmul.layer30
   - model.layers.self_attn.v_proj.matmul.layer30
   fc_observations: -16.29 ~ 16.36
-  info: WS_ [x:0.08~35.33 w:0.03~12.50]  -16.29~16.36 =>  -1.33~1.44 mean:2.284  big:[]
+  info: S_W [x:0.08~35.33 w:0.03~12.50]  -16.29~16.36 =>  -1.33~1.44 mean:2.284  big:[]
 model.layers.self_attn.o_proj.matmul.layer30:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer30
   fc_observations: -7.58 ~ 7.26
-  info: W_A [x:0.12~0.54 w:1.86~8.14]  -7.58~7.26 =>  -1.08~1.07 mean:2.406  big:[]
+  info: _AW [x:0.12~0.54 w:1.86~8.14]  -7.58~7.26 =>  -7.58~7.26 mean:2.406  big:[]
 model.layers.mlp.gate_proj.matmul.layer30:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer30
   - model.layers.mlp.up_proj.matmul.layer30
   fc_observations: -7.89 ~ 4.57
-  info: WS_ [x:0.14~2.30 w:0.44~7.02]  -7.89~4.57 =>  -1.24~1.02 mean:1.702  big:[]
+  info: S_W [x:0.14~2.30 w:0.44~7.02]  -7.89~4.57 =>  -1.24~1.02 mean:1.702  big:[]
 model.layers.mlp.down_proj.matmul.layer30:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer30
   fc_observations: -65.98 ~ 53.54
-  info: W__ [x:0.02~0.55 w:1.83~48.47]  -65.98~53.54 =>  -65.98~53.54 mean:5.064  big:[51.21228  52.98021  65.97757  53.536713]
+  info: __W [x:0.02~0.55 w:1.83~48.47]  -65.98~53.54 =>  -65.98~53.54 mean:5.064  big:[51.21228  52.98021  65.97757  53.536713]
 model.layers.self_attn.q_proj.matmul.layer31:
   quantize: SW
   fc:
@@ -879,26 +879,26 @@ model.layers.self_attn.q_proj.matmul.layer31:
   - model.layers.self_attn.q_proj.matmul.layer31
   - model.layers.self_attn.k_proj.matmul.layer31
   fc_observations: -15.42 ~ 15.77
-  info: WS_ [x:0.09~668.76 w:0.00~11.75]  -15.42~15.77 =>  -1.34~1.36 mean:2.162  big:[]
+  info: S_W [x:0.09~668.76 w:0.00~11.75]  -15.42~15.77 =>  -1.34~1.36 mean:2.162  big:[]
 model.layers.self_attn.o_proj.matmul.layer31:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer31
   fc_observations: -5.14 ~ 5.30
-  info: W_A [x:0.16~0.61 w:1.64~6.42]  -5.14~5.30 =>  -1.06~1.04 mean:2.154  big:[]
+  info: _AW [x:0.16~0.61 w:1.64~6.42]  -5.14~5.30 =>  -5.14~5.30 mean:2.154  big:[]
 model.layers.mlp.gate_proj.matmul.layer31:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer31
   - model.layers.mlp.up_proj.matmul.layer31
   fc_observations: -8.19 ~ 4.72
-  info: WS_ [x:0.15~2.22 w:0.45~6.73]  -8.19~4.72 =>  -1.24~1.02 mean:1.741  big:[]
+  info: S_W [x:0.15~2.22 w:0.45~6.73]  -8.19~4.72 =>  -1.24~1.02 mean:1.741  big:[]
 model.layers.mlp.down_proj.matmul.layer31:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer31
   fc_observations: -79.73 ~ 58.41
-  info: W__ [x:0.02~0.41 w:2.45~56.96]  -79.73~58.41 =>  -79.73~58.41 mean:5.014  big:[69.82893  58.18408  54.883286 60.340633 58.409622 79.73262  50.371845]
+  info: __W [x:0.02~0.41 w:2.45~56.96]  -79.73~58.41 =>  -79.73~58.41 mean:5.014  big:[69.82893  58.18408  54.883286 60.340633 58.409622 79.73262  50.371845]
 model.layers.self_attn.q_proj.matmul.layer32:
   quantize: SW
   fc:
@@ -906,26 +906,26 @@ model.layers.self_attn.q_proj.matmul.layer32:
   - model.layers.self_attn.v_proj.matmul.layer32
   - model.layers.self_attn.q_proj.matmul.layer32
   fc_observations: -17.71 ~ 17.41
-  info: WS_ [x:0.08~53.89 w:0.02~12.61]  -17.71~17.41 =>  -1.40~1.38 mean:2.265  big:[]
+  info: S_W [x:0.08~53.89 w:0.02~12.61]  -17.71~17.41 =>  -1.40~1.38 mean:2.265  big:[]
 model.layers.self_attn.o_proj.matmul.layer32:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer32
   fc_observations: -5.84 ~ 10.84
-  info: W_A [x:0.10~1.05 w:0.95~10.04]  -5.84~10.84 =>  -0.95~1.08 mean:2.332  big:[]
+  info: _AW [x:0.10~1.05 w:0.95~10.04]  -5.84~10.84 =>  -5.84~10.84 mean:2.332  big:[]
 model.layers.mlp.gate_proj.matmul.layer32:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer32
   - model.layers.mlp.gate_proj.matmul.layer32
   fc_observations: -9.20 ~ 4.91
-  info: WS_ [x:0.14~2.01 w:0.50~7.32]  -9.20~4.91 =>  -1.26~1.09 mean:1.777  big:[]
+  info: S_W [x:0.14~2.01 w:0.50~7.32]  -9.20~4.91 =>  -1.26~1.09 mean:1.777  big:[]
 model.layers.mlp.down_proj.matmul.layer32:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer32
   fc_observations: -53.10 ~ 74.95
-  info: W__ [x:0.02~0.41 w:2.45~54.21]  -53.10~74.95 =>  -53.10~74.95 mean:5.099  big:[65.31817  51.251266 74.95044  53.100475]
+  info: __W [x:0.02~0.41 w:2.45~54.21]  -53.10~74.95 =>  -53.10~74.95 mean:5.099  big:[65.31817  51.251266 74.95044  53.100475]
 model.layers.self_attn.q_proj.matmul.layer33:
   quantize: SW
   fc:
@@ -933,26 +933,26 @@ model.layers.self_attn.q_proj.matmul.layer33:
   - model.layers.self_attn.q_proj.matmul.layer33
   - model.layers.self_attn.v_proj.matmul.layer33
   fc_observations: -18.02 ~ 14.62
-  info: WS_ [x:0.07~125.78 w:0.01~13.61]  -18.02~14.62 =>  -1.32~1.34 mean:2.180  big:[]
+  info: S_W [x:0.07~125.78 w:0.01~13.61]  -18.02~14.62 =>  -1.32~1.34 mean:2.180  big:[]
 model.layers.self_attn.o_proj.matmul.layer33:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer33
   fc_observations: -8.82 ~ 6.49
-  info: W_A [x:0.10~0.64 w:1.57~9.61]  -8.82~6.49 =>  -1.27~1.06 mean:2.209  big:[]
+  info: _AW [x:0.10~0.64 w:1.57~9.61]  -8.82~6.49 =>  -8.82~6.49 mean:2.209  big:[]
 model.layers.mlp.gate_proj.matmul.layer33:
   quantize: SW
   fc:
   - model.layers.mlp.gate_proj.matmul.layer33
   - model.layers.mlp.up_proj.matmul.layer33
   fc_observations: -10.50 ~ 5.11
-  info: WS_ [x:0.12~2.16 w:0.46~8.35]  -10.50~5.11 =>  -1.26~1.08 mean:1.814  big:[]
+  info: S_W [x:0.12~2.16 w:0.46~8.35]  -10.50~5.11 =>  -1.26~1.08 mean:1.814  big:[]
 model.layers.mlp.down_proj.matmul.layer33:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer33
   fc_observations: -79.28 ~ 64.84
-  info: "W__ [x:0.02~0.44 w:2.28~58.22]  -79.28~64.84 =>  -79.28~64.84 mean:5.178  big:[54.429718 56.80621  52.215477 64.2134   51.90252  56.35531  72.08517\n 58.51712  64.84085  79.27911 ]"
+  info: "__W [x:0.02~0.44 w:2.28~58.22]  -79.28~64.84 =>  -79.28~64.84 mean:5.178  big:[54.429718 56.80621  52.215477 64.2134   51.90252  56.35531  72.08517\n 58.51712  64.84085  79.27911 ]"
 model.layers.self_attn.q_proj.matmul.layer34:
   quantize: SW
   fc:
@@ -960,26 +960,26 @@ model.layers.self_attn.q_proj.matmul.layer34:
   - model.layers.self_attn.q_proj.matmul.layer34
   - model.layers.self_attn.v_proj.matmul.layer34
   fc_observations: -18.37 ~ 16.58
-  info: WS_ [x:0.07~35.28 w:0.03~14.42]  -18.37~16.58 =>  -1.41~1.35 mean:2.245  big:[]
+  info: S_W [x:0.07~35.28 w:0.03~14.42]  -18.37~16.58 =>  -1.41~1.35 mean:2.245  big:[]
 model.layers.self_attn.o_proj.matmul.layer34:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer34
   fc_observations: -7.37 ~ 7.91
-  info: W_A [x:0.12~0.53 w:1.89~8.26]  -7.37~7.91 =>  -1.02~0.96 mean:2.315  big:[]
+  info: _AW [x:0.12~0.53 w:1.89~8.26]  -7.37~7.91 =>  -7.37~7.91 mean:2.315  big:[]
 model.layers.mlp.gate_proj.matmul.layer34:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer34
   - model.layers.mlp.gate_proj.matmul.layer34
   fc_observations: -10.98 ~ 5.47
-  info: WS_ [x:0.13~1.84 w:0.54~7.88]  -10.98~5.47 =>  -1.41~1.05 mean:1.853  big:[]
+  info: S_W [x:0.13~1.84 w:0.54~7.88]  -10.98~5.47 =>  -1.41~1.05 mean:1.853  big:[]
 model.layers.mlp.down_proj.matmul.layer34:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer34
   fc_observations: -53.16 ~ 80.31
-  info: W__ [x:0.02~0.40 w:2.49~53.75]  -53.16~80.31 =>  -53.16~80.31 mean:5.253  big:[55.206474 53.16184  53.9944   80.31261  70.01063  57.2455  ]
+  info: __W [x:0.02~0.40 w:2.49~53.75]  -53.16~80.31 =>  -53.16~80.31 mean:5.253  big:[55.206474 53.16184  53.9944   80.31261  70.01063  57.2455  ]
 model.layers.self_attn.q_proj.matmul.layer35:
   quantize: SW
   fc:
@@ -987,26 +987,26 @@ model.layers.self_attn.q_proj.matmul.layer35:
   - model.layers.self_attn.v_proj.matmul.layer35
   - model.layers.self_attn.q_proj.matmul.layer35
   fc_observations: -17.33 ~ 14.78
-  info: WS_ [x:0.08~31.17 w:0.03~13.11]  -17.33~14.78 =>  -1.34~1.35 mean:2.183  big:[]
+  info: S_W [x:0.08~31.17 w:0.03~13.11]  -17.33~14.78 =>  -1.34~1.35 mean:2.183  big:[]
 model.layers.self_attn.o_proj.matmul.layer35:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer35
   fc_observations: -5.96 ~ 6.34
-  info: W_A [x:0.13~0.66 w:1.51~7.44]  -5.96~6.34 =>  -1.14~1.07 mean:2.304  big:[]
+  info: _AW [x:0.13~0.66 w:1.51~7.44]  -5.96~6.34 =>  -5.96~6.34 mean:2.304  big:[]
 model.layers.mlp.gate_proj.matmul.layer35:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer35
   - model.layers.mlp.gate_proj.matmul.layer35
   fc_observations: -12.04 ~ 6.08
-  info: WS_ [x:0.11~1.63 w:0.61~8.70]  -12.04~6.08 =>  -1.42~1.01 mean:1.897  big:[]
+  info: S_W [x:0.11~1.63 w:0.61~8.70]  -12.04~6.08 =>  -1.42~1.01 mean:1.897  big:[]
 model.layers.mlp.down_proj.matmul.layer35:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer35
   fc_observations: -80.57 ~ 79.94
-  info: W__ [x:0.02~0.39 w:2.60~57.95]  -80.57~79.94 =>  -80.57~79.94 mean:5.493  big:[59.555347 79.93878  62.59053  62.17762  60.190384 80.56922 ]
+  info: __W [x:0.02~0.39 w:2.60~57.95]  -80.57~79.94 =>  -80.57~79.94 mean:5.493  big:[59.555347 79.93878  62.59053  62.17762  60.190384 80.56922 ]
 model.layers.self_attn.q_proj.matmul.layer36:
   quantize: SW
   fc:
@@ -1014,26 +1014,26 @@ model.layers.self_attn.q_proj.matmul.layer36:
   - model.layers.self_attn.v_proj.matmul.layer36
   - model.layers.self_attn.q_proj.matmul.layer36
   fc_observations: -17.25 ~ 15.08
-  info: WS_ [x:0.08~35.84 w:0.03~12.95]  -17.25~15.08 =>  -1.33~1.33 mean:2.124  big:[]
+  info: S_W [x:0.08~35.84 w:0.03~12.95]  -17.25~15.08 =>  -1.33~1.33 mean:2.124  big:[]
 model.layers.self_attn.o_proj.matmul.layer36:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer36
   fc_observations: -9.45 ~ 7.52
-  info: W_A [x:0.10~0.51 w:1.97~10.01]  -9.45~7.52 =>  -1.08~1.17 mean:2.454  big:[]
+  info: _AW [x:0.10~0.51 w:1.97~10.01]  -9.45~7.52 =>  -9.45~7.52 mean:2.454  big:[]
 model.layers.mlp.gate_proj.matmul.layer36:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer36
   - model.layers.mlp.gate_proj.matmul.layer36
   fc_observations: -12.75 ~ 6.57
-  info: WS_ [x:0.11~1.51 w:0.66~9.51]  -12.75~6.57 =>  -1.48~1.02 mean:1.934  big:[]
+  info: S_W [x:0.11~1.51 w:0.66~9.51]  -12.75~6.57 =>  -1.48~1.02 mean:1.934  big:[]
 model.layers.mlp.down_proj.matmul.layer36:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer36
   fc_observations: -72.19 ~ 73.46
-  info: W__ [x:0.02~0.39 w:2.56~53.77]  -72.19~73.46 =>  -72.19~73.46 mean:5.817  big:[73.45574  62.829483 59.572803 72.18768  71.63397 ]
+  info: __W [x:0.02~0.39 w:2.56~53.77]  -72.19~73.46 =>  -72.19~73.46 mean:5.817  big:[73.45574  62.829483 59.572803 72.18768  71.63397 ]
 model.layers.self_attn.q_proj.matmul.layer37:
   quantize: SW
   fc:
@@ -1041,26 +1041,26 @@ model.layers.self_attn.q_proj.matmul.layer37:
   - model.layers.self_attn.v_proj.matmul.layer37
   - model.layers.self_attn.q_proj.matmul.layer37
   fc_observations: -16.80 ~ 11.86
-  info: WS_ [x:0.08~0.50 w:1.98~12.68]  -16.80~11.86 =>  -1.36~1.37 mean:2.088  big:[]
+  info: S_W [x:0.08~0.50 w:1.98~12.68]  -16.80~11.86 =>  -1.36~1.37 mean:2.088  big:[]
 model.layers.self_attn.o_proj.matmul.layer37:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer37
   fc_observations: -8.84 ~ 8.14
-  info: W_A [x:0.14~0.87 w:1.14~7.33]  -8.84~8.14 =>  -1.22~1.13 mean:2.432  big:[]
+  info: _AW [x:0.14~0.87 w:1.14~7.33]  -8.84~8.14 =>  -8.84~8.14 mean:2.432  big:[]
 model.layers.mlp.gate_proj.matmul.layer37:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer37
   - model.layers.mlp.gate_proj.matmul.layer37
   fc_observations: -14.94 ~ 7.02
-  info: WS_ [x:0.09~1.39 w:0.72~10.64]  -14.94~7.02 =>  -1.59~1.06 mean:1.948  big:[]
+  info: S_W [x:0.09~1.39 w:0.72~10.64]  -14.94~7.02 =>  -1.59~1.06 mean:1.948  big:[]
 model.layers.mlp.down_proj.matmul.layer37:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer37
   fc_observations: -97.33 ~ 72.29
-  info: W__ [x:0.02~0.45 w:2.22~62.10]  -97.33~72.29 =>  -97.33~72.29 mean:6.062  big:[63.463932 61.835445 97.33043  65.993034 72.2863   69.34545  65.98454 ]
+  info: __W [x:0.02~0.45 w:2.22~62.10]  -97.33~72.29 =>  -97.33~72.29 mean:6.062  big:[63.463932 61.835445 97.33043  65.993034 72.2863   69.34545  65.98454 ]
 model.layers.self_attn.q_proj.matmul.layer38:
   quantize: SW
   fc:
@@ -1068,26 +1068,26 @@ model.layers.self_attn.q_proj.matmul.layer38:
   - model.layers.self_attn.v_proj.matmul.layer38
   - model.layers.self_attn.q_proj.matmul.layer38
   fc_observations: -17.44 ~ 12.52
-  info: WS_ [x:0.08~0.49 w:2.03~13.15]  -17.44~12.52 =>  -1.33~1.35 mean:2.107  big:[]
+  info: S_W [x:0.08~0.49 w:2.03~13.15]  -17.44~12.52 =>  -1.33~1.35 mean:2.107  big:[]
 model.layers.self_attn.o_proj.matmul.layer38:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer38
   fc_observations: -11.65 ~ 7.83
-  info: W_A [x:0.09~0.66 w:1.52~10.81]  -11.65~7.83 =>  -1.18~1.17 mean:2.503  big:[]
+  info: _AW [x:0.09~0.66 w:1.52~10.81]  -11.65~7.83 =>  -11.65~7.83 mean:2.503  big:[]
 model.layers.mlp.gate_proj.matmul.layer38:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer38
   - model.layers.mlp.gate_proj.matmul.layer38
   fc_observations: -14.47 ~ 7.65
-  info: WS_ [x:0.10~1.63 w:0.61~10.28]  -14.47~7.65 =>  -1.53~1.31 mean:1.910  big:[]
+  info: S_W [x:0.10~1.63 w:0.61~10.28]  -14.47~7.65 =>  -1.53~1.31 mean:1.910  big:[]
 model.layers.mlp.down_proj.matmul.layer38:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer38
   fc_observations: -310.29 ~ 78.66
-  info: W__ [x:0.01~0.46 w:2.19~97.89]  -310.29~78.66 =>  -310.29~78.66 mean:6.589  big:[ 78.65685 310.28873  70.02532  87.03613  70.77014]
+  info: __W [x:0.01~0.46 w:2.19~97.89]  -310.29~78.66 =>  -310.29~78.66 mean:6.589  big:[ 78.65685 310.28873  70.02532  87.03613  70.77014]
 model.layers.self_attn.q_proj.matmul.layer39:
   quantize: SW
   fc:
@@ -1095,26 +1095,26 @@ model.layers.self_attn.q_proj.matmul.layer39:
   - model.layers.self_attn.v_proj.matmul.layer39
   - model.layers.self_attn.q_proj.matmul.layer39
   fc_observations: -15.75 ~ 10.13
-  info: WS_ [x:0.08~0.81 w:1.23~12.40]  -15.75~10.13 =>  -1.37~1.29 mean:1.955  big:[]
+  info: S_W [x:0.08~0.81 w:1.23~12.40]  -15.75~10.13 =>  -1.37~1.29 mean:1.955  big:[]
 model.layers.self_attn.o_proj.matmul.layer39:
   quantize: AW
   fc:
   - model.layers.self_attn.o_proj.matmul.layer39
   fc_observations: -13.19 ~ 12.09
-  info: W_A [x:0.09~1.17 w:0.86~11.21]  -13.19~12.09 =>  -1.56~1.56 mean:2.468  big:[]
+  info: _AW [x:0.09~1.17 w:0.86~11.21]  -13.19~12.09 =>  -13.19~12.09 mean:2.468  big:[]
 model.layers.mlp.gate_proj.matmul.layer39:
   quantize: SW
   fc:
   - model.layers.mlp.up_proj.matmul.layer39
   - model.layers.mlp.gate_proj.matmul.layer39
   fc_observations: -12.71 ~ 7.51
-  info: WS_ [x:0.11~1.67 w:0.60~9.10]  -12.71~7.51 =>  -1.40~1.30 mean:1.674  big:[]
+  info: S_W [x:0.11~1.67 w:0.60~9.10]  -12.71~7.51 =>  -1.40~1.30 mean:1.674  big:[]
 model.layers.mlp.down_proj.matmul.layer39:
   quantize: W
   fc:
   - model.layers.mlp.down_proj.matmul.layer39
   fc_observations: -130.12 ~ 192.34
-  info: "W__ [x:0.01~0.96 w:1.04~93.42]  -130.12~192.34 =>  -130.12~192.34 mean:7.327  big:[ 85.98069  112.0888    73.38303   75.744675  76.26588   81.90229\n 130.11974  126.852325  86.61448   99.49557   77.77854   78.03041\n 109.285706 192.34358 ]"
+  info: "__W [x:0.01~0.96 w:1.04~93.42]  -130.12~192.34 =>  -130.12~192.34 mean:7.327  big:[ 85.98069  112.0888    73.38303   75.744675  76.26588   81.90229\n 130.11974  126.852325  86.61448   99.49557   77.77854   78.03041\n 109.285706 192.34358 ]"
 lm_head.matmul:
   quantize: null
   fc:
