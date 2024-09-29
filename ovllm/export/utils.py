@@ -156,6 +156,9 @@ def make_fc(key, input, consts, name_suffix=''):
     # weight const f32 NxK
     weight = consts[f'{key}.weight']
 
+    # ngraph requires c_contiguous numpy array as shared-mem constant
+    if not weight.data.c_contiguous:
+        weight = np.ascontiguousarray(weight)
     # fallbacks
     if True:
         if configs['quant_type'] == 'nncf_w8':

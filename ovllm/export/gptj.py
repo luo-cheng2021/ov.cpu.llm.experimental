@@ -125,8 +125,8 @@ def get_params_from_model(path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser('')
-    parser.add_argument('--org_model_path', type=str, nargs='?', default='/home/llm_irs/pytorch_frontend_models/gpt-j-6b/pytorch_original/')
-    parser.add_argument('--ov_model_path', type=str, nargs='?', default='./gen/gptj_6b/')
+    parser.add_argument('-m', '--org_model_path', type=str, nargs='?', default='/home/llm_irs/pytorch_frontend_models/gpt-j-6b/pytorch_original/')
+    parser.add_argument('-o', '--ov_model_path', type=str, nargs='?', default='./gen/gptj_6b/')
     parser.add_argument('--quant_type', type=str, nargs='?', default='', choices=['','f16','nncf_w8', 'INT8_ASYM', 'INT8_SYM'])
     args = parser.parse_args()
     quant_f16 = False

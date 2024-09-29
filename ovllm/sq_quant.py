@@ -73,6 +73,10 @@ def to_smooth_quant_model(model, fc_observations, config: LayerConfig):
         cfg_rules['mlp.dense_h_to_4h'] = 'SAW'
         cfg_rules['mlp.dense_4h_to_h'] = 'SAW'
         cfg_rules['transformer.output_layer.matmul'] = 'SAW'
+        # from gpt-j-6b
+        cfg_rules['out_proj'] = 'AW'
+        cfg_rules['mlp.fc_in'] = 'SAW'
+        cfg_rules['mlp.fc_out'] = 'SAW'
 
         cfg_rules['alpha'] = 0.8
         cfg_rules['outlier_rel_thr'] = 10
