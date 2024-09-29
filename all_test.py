@@ -1,4 +1,6 @@
+import argparse
 import subprocess
+import sys
 import time
 import os
 
@@ -103,7 +105,7 @@ def test_perf():
 
     pretty(results)
 
-def test_accuracy():
+def test_accuary():
     results = {}
     all_beg = time.time()
     for model in models.keys():
@@ -115,7 +117,7 @@ def test_accuracy():
         results[model] = {}
         for prec in precs:
             info = get_test_info(prec)
-            cmd = f'python -m ovllm.lm_eval --model ovllm --tasks lambada_openai --model_args path={model}{info[0]},nbatch=1,prec={info[1]}' # -L 100'
+            cmd = f'numactl -C0-31 python -m ovllm.lm_eval --model ovllm --tasks lambada_openai --model_args path={model}{info[0]},nbatch=1,prec={info[1]}' # -L 100'
             print(f'test {prec:<4} "{cmd}"...', end='', flush=True)
             beg = time.time()
             result = subprocess.run(cmd.split(), capture_output=True)
@@ -145,7 +147,49 @@ def test_accuracy():
 
     pretty(results)
 
-#test_perf()
-test_accuracy()
+def convert():
+    cmds = [
+        'python -m ovllm.export.llama --org_model_path meta-llama/Llama-2-13b-hf --ov_model_path ./gen1/llama-2-13b/',
+        'python -m ovllm.export.llama --org_model_path meta-llama/Llama-2-7b-hf --ov_model_path ./gen1/llama-2-7b/',
+        'python -m ovllm.export.chatglm3 --org_model_path THUDM/chatglm3-6b --ov_model_path ./gen1/chat/',
+        'python -m ovllm.export.gptj --org_model_path EleutherAI/gpt-j-6b --ov_model_path ./gen1/gptj/'
+    ]
+    all_beg = time.time()
+    for cmd in cmds:
+        full_cmd = f'{cmd} --quant f16'
+        print(f'convert "{full_cmd}"... ', end='', flush=True)
+        beg = time.time()
+        result = subprocess.run(full_cmd.split(), capture_output=True)
+        end = time.time()
+        out = result.stdout.decode("utf-8")
+        if result.returncode:
+            print('failed:\n', out)
+            raise Exception(f'convert {full_cmd} failed')
+        else:
+            print(f'cost {end - beg:.2f} seconds')
 
-#pprint.pprint(results)
+        f.write(out)
+
+    all_end = time.time()
+    print(f'all cost {all_end - all_beg:.1f} seconds')
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    # Add an argument
+    parser.add_argument("-c", "--convert", action="store_true")
+    parser.add_argument("-p", "--test-performance", action="store_true")
+    parser.add_argument("-a", "--test-accuary", action="store_true")
+    # Parse the argument
+    args = parser.parse_args()
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+
+    if args.convert:
+        convert()
+
+    if args.test_accuary:
+        test_accuary()
+    
+    if args.test_performance:
+        test_perf()
