@@ -149,10 +149,10 @@ def test_accuary():
 
 def convert():
     cmds = [
-        'python -m ovllm.export.llama --org_model_path meta-llama/Llama-2-13b-hf --ov_model_path ./gen1/llama-2-13b/',
-        'python -m ovllm.export.llama --org_model_path meta-llama/Llama-2-7b-hf --ov_model_path ./gen1/llama-2-7b/',
-        'python -m ovllm.export.chatglm3 --org_model_path THUDM/chatglm3-6b --ov_model_path ./gen1/chat/',
-        'python -m ovllm.export.gptj --org_model_path EleutherAI/gpt-j-6b --ov_model_path ./gen1/gptj/'
+        'python -m ovllm.export.llama --org_model_path meta-llama/Llama-2-13b-hf --ov_model_path ./gen/llama-2-13b/',
+        'python -m ovllm.export.llama --org_model_path meta-llama/Llama-2-7b-hf',
+        'python -m ovllm.export.chatglm3 --org_model_path THUDM/chatglm3-6b',
+        'python -m ovllm.export.gptj --org_model_path EleutherAI/gpt-j-6b'
     ]
     all_beg = time.time()
     for cmd in cmds:
