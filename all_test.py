@@ -82,6 +82,9 @@ def test_perf():
                 beg = time.time()
                 result = subprocess.run(cmd.split(), capture_output=True)
                 end = time.time()
+                if result.returncode:
+                    print(f'return code: {result.returncode} failed: {result.stderr.decode("utf-8")}')
+                    raise Exception(f'test {cmd} failed')
                 out = result.stdout.decode("utf-8")
                 cur_result = []
                 for line in out.split('\n'):
@@ -125,6 +128,9 @@ def test_accuary():
             beg = time.time()
             result = subprocess.run(cmd.split(), capture_output=True)
             end = time.time()
+            if result.returncode:
+                print(f'return code: {result.returncode} failed: {result.stderr.decode("utf-8")}')
+                raise Exception(f'test {cmd} failed')
             out = result.stdout.decode("utf-8")
             cur_result = []
             for line in out.split('\n'):
@@ -217,8 +223,8 @@ if __name__ == "__main__":
     if args.convert:
         convert()
 
-    if args.test_accuary:
-        test_accuary()
-    
     if args.test_performance:
         test_perf()
+
+    if args.test_accuary:
+        test_accuary()
