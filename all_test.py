@@ -1,4 +1,6 @@
 import argparse
+import glob
+import shutil
 import subprocess
 import sys
 import time
@@ -38,7 +40,7 @@ models = {
 precs = [
     'bf16',
     'f16',
-    #'int8',
+    'int8',
     'f32'
 ]
 
@@ -47,7 +49,7 @@ def get_test_info(prec):
         # prec: (dir, infer_prec_hint)
         'bf16': ('f16', 'bf16'),
         'f16' : ('f16', 'f16'),
-        'int8': ('INT8_SYM', 'bf16'),
+        'int8': ('SQ', 'bf16'),
         'f32' : ('f16', 'f32') 
     }
     return infos[prec]
@@ -55,6 +57,7 @@ def get_test_info(prec):
 f = open('all_test.log', 'w')
 
 def test_perf():
+    os.environ['LLM_DQ'] = '3'
     results = {}
     all_beg = time.time()
     for (model, token_infos) in models.items():
@@ -150,25 +153,51 @@ def test_accuary():
 def convert():
     cmds = [
         'python -m ovllm.export.llama --org_model_path meta-llama/Llama-2-13b-hf --ov_model_path ./gen/llama-2-13b/',
-        'python -m ovllm.export.llama --org_model_path meta-llama/Llama-2-7b-hf',
-        'python -m ovllm.export.chatglm3 --org_model_path THUDM/chatglm3-6b',
-        'python -m ovllm.export.gptj --org_model_path EleutherAI/gpt-j-6b'
+        'python -m ovllm.export.llama --org_model_path meta-llama/Llama-2-7b-hf --ov_model_path ./gen/llama-2-7b/',
+        'python -m ovllm.export.chatglm3 --org_model_path THUDM/chatglm3-6b --ov_model_path ./gen/chatglm3-6b/',
+        'python -m ovllm.export.gptj --org_model_path EleutherAI/gpt-j-6b --ov_model_path ./gen/gptj_6b/'
+    ]
+    # order should be same with above
+    quant_configs = [
+        'sq_config_llama2_13b.yaml',
+        'sq_config_llama2_7b.yaml',
+        'sq_config_chatglm3_6b.yaml',
+        'sq_config_gptj_6b.yaml'
     ]
     all_beg = time.time()
-    for cmd in cmds:
-        full_cmd = f'{cmd} --quant f16'
-        print(f'convert "{full_cmd}"... ', end='', flush=True)
+    def run_cmd(cmd):
         beg = time.time()
-        result = subprocess.run(full_cmd.split(), capture_output=True)
+        result = subprocess.run(cmd.split(), capture_output=True)
         end = time.time()
         out = result.stdout.decode("utf-8")
         if result.returncode:
-            print('failed:\n', out)
-            raise Exception(f'convert {full_cmd} failed')
+            print(f'return code: {result.returncode} failed: {result.stderr.decode("utf-8")}')
+            raise Exception(f'convert {cmd} failed')
         else:
             print(f'cost {end - beg:.2f} seconds')
 
         f.write(out)
+
+    for idx, cmd in enumerate(cmds):
+        # f16 model
+        full_cmd = f'{cmd} --quant f16'
+        print(f'convert f16: "{full_cmd}"... ', end='', flush=True)
+        run_cmd(full_cmd)
+
+        # int8 model
+        model_dir = cmd.split('--ov_model_path')[1].strip()
+        f16_dir = f"{model_dir}f16/"
+        print(f'convert int8 model... ')
+        cmd_calib = f'python -m ovllm.sq_calibration  -m {f16_dir} model.pickle'
+        print(f'calibration: "{cmd_calib}"... ', end='', flush=True)
+        run_cmd(cmd_calib)
+        cmd_quant = f'python -m ovllm.sq_quant -m={f16_dir}openvino_model.xml -s model.pickle -c={quant_configs[idx]} {model_dir}SQ/openvino_model.xml'
+        print(f'quant: "{cmd_quant}"... ', end='', flush=True)
+        run_cmd(cmd_quant)
+        cmd_cp = f'cp {f16_dir}*.json {f16_dir}*.model {model_dir}SQ/'
+        print(f'cp: "{cmd_cp}"... ', flush=True)
+        [shutil.copy(src, f'{model_dir}SQ/') for src in glob.glob(f'{f16_dir}*.json')]
+        [shutil.copy(src, f'{model_dir}SQ/') for src in glob.glob(f'{f16_dir}*.model')]
 
     all_end = time.time()
     print(f'all cost {all_end - all_beg:.1f} seconds')
